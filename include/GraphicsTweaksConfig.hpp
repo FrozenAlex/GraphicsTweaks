@@ -2,7 +2,7 @@
 
 #include "config-utils/shared/config-utils.hpp"
 
-DECLARE_CONFIG(AnyTweaksConfig,
+DECLARE_CONFIG(GraphicsTweaksConfig,
     CONFIG_VALUE(Resolution, float, "Resolution", 1);
     CONFIG_VALUE(AntiAliasing, int, "AntiAliasing", 2);
     CONFIG_VALUE(RefreshRate, float, "RefreshRate", -1); // We don't know the Refresh Rate, at this time.

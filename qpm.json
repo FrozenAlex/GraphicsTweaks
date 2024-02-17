@@ -80,7 +80,21 @@
 		{
 			"id": "bsml",
 			"versionRange": "^0.4.9",
+			"additionalData": {
+				"includeQmod": false
+			}
+		},
+		{
+			"id": "custom-types",
+			"versionRange": "^0.16.18",
 			"additionalData": {}
+		},
+		{
+			"id": "kaleb",
+			"versionRange": "^0.1.6",
+			"additionalData": {
+				"private": true
+			}
 		}
 	],
 	"additionalData": {}

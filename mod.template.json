@@ -10,6 +10,7 @@
   "description": "Mod to unlock pc graphics settings on quest beat saber",
   "dependencies": [],
   "modFiles": ["${binary}"],
+  "lateModFiles": [],
   "libraryFiles": [],
   "fileCopies": []
 }

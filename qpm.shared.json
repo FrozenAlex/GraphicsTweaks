@@ -7,7 +7,7 @@
       "name": "GraphicsTweaks",
       "id": "graphicstweaks",
       "version": "0.1.0",
-      "url": null,
+      "url": "https://github.com/FrozenAlex/GraphicsTweaks",
       "additionalData": {
         "overrideSoName": "libgraphicstweaks.so",
         "cmake": true
@@ -81,7 +81,21 @@
       {
         "id": "bsml",
         "versionRange": "^0.4.9",
+        "additionalData": {
+          "includeQmod": false
+        }
+      },
+      {
+        "id": "custom-types",
+        "versionRange": "^0.16.18",
         "additionalData": {}
+      },
+      {
+        "id": "kaleb",
+        "versionRange": "^0.1.6",
+        "additionalData": {
+          "private": true
+        }
       }
     ]
   },
@@ -172,6 +186,23 @@
     },
     {
       "dependency": {
+        "id": "kaleb",
+        "versionRange": "=0.1.9",
+        "additionalData": {
+          "headersOnly": true,
+          "branchName": "version/v0_1_9",
+          "compileOptions": {
+            "cppFlags": [
+              "-DKALEB_VERSION=\"0.1.9\""
+            ]
+          },
+          "cmake": false
+        }
+      },
+      "version": "0.1.9"
+    },
+    {
+      "dependency": {
         "id": "bs-cordl",
         "versionRange": "=3402.1.2",
         "additionalData": {
@@ -208,6 +239,25 @@
     },
     {
       "dependency": {
+        "id": "fmt",
+        "versionRange": "=10.0.0",
+        "additionalData": {
+          "headersOnly": true,
+          "branchName": "version/v10_0_0",
+          "compileOptions": {
+            "systemIncludes": [
+              "fmt/include/"
+            ],
+            "cppFlags": [
+              "-DFMT_HEADER_ONLY"
+            ]
+          }
+        }
+      },
+      "version": "10.0.0"
+    },
+    {
+      "dependency": {
         "id": "scotland2",
         "versionRange": "=0.1.4",
         "additionalData": {
@@ -233,25 +283,6 @@
         }
       },
       "version": "9.0.7"
-    },
-    {
-      "dependency": {
-        "id": "fmt",
-        "versionRange": "=10.0.0",
-        "additionalData": {
-          "headersOnly": true,
-          "branchName": "version/v10_0_0",
-          "compileOptions": {
-            "systemIncludes": [
-              "fmt/include/"
-            ],
-            "cppFlags": [
-              "-DFMT_HEADER_ONLY"
-            ]
-          }
-        }
-      },
-      "version": "10.0.0"
     }
   ]
 }
