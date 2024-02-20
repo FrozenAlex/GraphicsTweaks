@@ -1,5 +1,5 @@
 #include "main.hpp"
-#include "_config.cpp"
+#include "_config.hpp"
 #include "Unity/XR/Oculus/OculusLoader.hpp"
 #include "GlobalNamespace/MainSystemInit.hpp"
 #include "GlobalNamespace/ConditionalActivation.hpp"
@@ -83,10 +83,7 @@ MAKE_HOOK_MATCH(MainSystemInit_Init, &GlobalNamespace::MainSystemInit::Init, voi
 // Set the ConditionalActivation to always be active and set the eyeTextureResolutionScale to 1.0 and antiAliasing to 0
 MAKE_HOOK_MATCH(ConditionalActivation_Awake, &GlobalNamespace::ConditionalActivation::Awake, void, GlobalNamespace::ConditionalActivation* self) {
     self->get_gameObject()->SetActive(true);
-
     UnityEngine::XR::XRSettings::set_eyeTextureResolutionScale(1.0f);
-    UnityEngine::QualitySettings::set_antiAliasing(0);
-
     // ConditionalActivation_Awake(self);
 }
 
@@ -103,18 +100,23 @@ MAKE_HOOK_MATCH(MainSettingsModelSO_Load, &GlobalNamespace::MainSettingsModelSO:
     auto antiAliasingLevel = self->___antiAliasingLevel;
     auto enableFPSCounter = self->___enableFPSCounter;
     auto maxShockwaveParticles = self->___maxShockwaveParticles;
-
+    auto targetFramerate = self->___targetFramerate;
+    auto obstaclesQuality = self->___obstaclesQuality;
+    
     bool value = depthTextureEnabled->get_value();
 
     DEBUG("Depth Texture Enabled before: {}", value);
 
+    obstaclesQuality->set_value(GlobalNamespace::ObstaclesQuality::TexturedObstacle);
     vrResolutionScale->set_value(1.0f);
-    depthTextureEnabled->set_value(true);
-    enableFPSCounter->set_value(false);
+    targetFramerate->set_value(120);
+    depthTextureEnabled->set_value(false);
+    enableFPSCounter->set_value(true);
     smokeGraphicsSettings->set_value(true);
-    antiAliasingLevel->set_value(0);
-    screenDisplacementEffectsEnabled->set_value(true);
-    maxShockwaveParticles->set_value(1);
+    antiAliasingLevel->set_value(1);
+    screenDisplacementEffectsEnabled->set_value(false);
+    maxShockwaveParticles->set_value(0);
+    mirrorGraphicsSettings->set_value(0);
 
     DEBUG("Depth Texture Enabled after: {}", depthTextureEnabled->get_value());
 
@@ -180,13 +182,17 @@ GT_EXPORT_FUNC void load() {
     
 
     INFO("Installing hooks...");
+    // Phase Sync (latency reduction)
     INSTALL_HOOK(getLoggerOld(), OculusLoader_Initialize);
+    // Bloom (expensive, not sure if it's worth it?)
     INSTALL_HOOK(getLoggerOld(), MainSystemInit_Init);
     INSTALL_HOOK(getLoggerOld(), MainSettingsModelSO_Load);
     INSTALL_HOOK(getLoggerOld(), ConditionalActivation_Awake);
     INSTALL_HOOK(getLoggerOld(), ConditionalMaterialSwitcher_Awake);
-    INSTALL_HOOK(getLoggerOld(), AlwaysVisibleQuad_OnEnable);
-    INSTALL_HOOK(getLoggerOld(), MainCamera_Awake);
+    
+    // Passthrough
+    // INSTALL_HOOK(getLoggerOld(), MainCamera_Awake);
+    // INSTALL_HOOK(getLoggerOld(), AlwaysVisibleQuad_OnEnable);
 
     INFO("Installed all hooks!");
     
