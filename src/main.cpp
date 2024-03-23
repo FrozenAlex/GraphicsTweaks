@@ -4,6 +4,7 @@
 #include "GlobalNamespace/MainSystemInit.hpp"
 #include "GlobalNamespace/ConditionalActivation.hpp"
 #include "UnityEngine/Resources.hpp"
+#include "UnityEngine/Renderer.hpp"
 #include "UnityEngine/Object.hpp"
 #include "UnityEngine/Camera.hpp"
 #include "UnityEngine/ScriptableObject.hpp"
@@ -11,29 +12,22 @@
 #include "UnityEngine/QualitySettings.hpp"
 #include "UnityEngine/CameraClearFlags.hpp"
 #include "GlobalNamespace/MainSettingsModelSO.hpp"
-#include "GlobalNamespace/ISaveData.hpp"
 #include "GlobalNamespace/ObservableVariableSO_1.hpp"
 #include "GlobalNamespace/MainCamera.hpp"
+#include "GlobalNamespace/IFileStorage.hpp"
 #include "GlobalNamespace/ConditionalMaterialSwitcher.hpp"
 #include "GlobalNamespace/AlwaysVisibleQuad.hpp"
 #include "GlobalNamespace/OVRManager.hpp"
 #include "GlobalNamespace/OVRPassthroughLayer.hpp"
 #include "GlobalNamespace/OVROverlay.hpp"
 #include "GlobalNamespace/BloomPrePass.hpp"
+#include "GlobalNamespace/OVRPlugin.hpp"
+#include "bsml/shared/BSML/MainThreadScheduler.hpp"
+#include "bsml/shared/BSML.hpp"
+#include "UI/GraphicsTweaksFlowCoordinator.hpp"
+#include "logging.hpp"
 
 inline modloader::ModInfo modInfo = {MOD_ID, VERSION, GIT_COMMIT}; // Stores the ID and version of our mod, and is sent to the modloader upon startup
-
-// Returns a logger, useful for printing debug messages
-Paper::ConstLoggerContext<15UL> getLogger() {
-    static auto fastContext = Paper::Logger::WithContext<MOD_ID>();
-    return fastContext;
-}
-
-// Returns a logger, useful for printing debug messages (only used for hooks)
-Logger& getLoggerOld() {
-    static auto* logger = new Logger(modInfo, LoggerOptions(false, true));
-    return *logger;
-}
 
 
 // Called at the early stages of game loading
@@ -57,7 +51,7 @@ MAKE_HOOK_MATCH(OculusLoader_Initialize, &Unity::XR::Oculus::OculusLoader::Initi
 }
 
 
-// Set the main effect to the PyramidBloomMainEffectSO (bloom effect on sabers?)
+// Sabers burn marks
 MAKE_HOOK_MATCH(MainSystemInit_Init, &GlobalNamespace::MainSystemInit::Init, void, GlobalNamespace::MainSystemInit* self) {
     INFO("MainSystemInit_Init hook called!");
    
@@ -67,8 +61,8 @@ MAKE_HOOK_MATCH(MainSystemInit_Init, &GlobalNamespace::MainSystemInit::Init, voi
 
         auto scriptableObject = scriptableObjects[i];
         auto csName = scriptableObject->get_name();
-        auto name = to_utf8(csstrtostr(csName));
-        DEBUG("Scriptable Object Name: {}", name.c_str());
+        auto name = csName;
+        DEBUG("Scriptable Object Name: {}", name);
         if (name == "PyramidBloomMainEffect") {
             INFO("Found PyramidBloomMainEffect!");
             auto mainEffectGraphicsSettingsPresets = self->____mainEffectGraphicsSettingsPresets;
@@ -88,8 +82,8 @@ MAKE_HOOK_MATCH(ConditionalActivation_Awake, &GlobalNamespace::ConditionalActiva
 }
 
 // Graphics Tweaks
-MAKE_HOOK_MATCH(MainSettingsModelSO_Load, &GlobalNamespace::MainSettingsModelSO::Load, void, GlobalNamespace::MainSettingsModelSO* self, ::GlobalNamespace::ISaveData* saveData, bool forced) {
-    MainSettingsModelSO_Load(self, saveData, forced);
+MAKE_HOOK_MATCH(MainSettingsModelSO_Load, &GlobalNamespace::MainSettingsModelSO::Load, void, GlobalNamespace::MainSettingsModelSO* self, GlobalNamespace::IFileStorage* fileStorage, bool forced) {
+    MainSettingsModelSO_Load(self, fileStorage, forced);
 
     auto vrResolutionScale = self->___vrResolutionScale;
     auto smokeGraphicsSettings = self->___smokeGraphicsSettings;
@@ -107,16 +101,22 @@ MAKE_HOOK_MATCH(MainSettingsModelSO_Load, &GlobalNamespace::MainSettingsModelSO:
 
     DEBUG("Depth Texture Enabled before: {}", value);
 
-    obstaclesQuality->set_value(GlobalNamespace::ObstaclesQuality::TexturedObstacle);
-    vrResolutionScale->set_value(1.0f);
+    obstaclesQuality->set_value(::BeatSaber::PerformancePresets::ObstaclesQuality::ObstacleHW);
+    vrResolutionScale->set_value(1.5f);
     targetFramerate->set_value(120);
-    depthTextureEnabled->set_value(false);
+    // Improves smoke quality
+    depthTextureEnabled->set_value(true);
     enableFPSCounter->set_value(true);
     smokeGraphicsSettings->set_value(true);
-    antiAliasingLevel->set_value(1);
-    screenDisplacementEffectsEnabled->set_value(false);
-    maxShockwaveParticles->set_value(0);
-    mirrorGraphicsSettings->set_value(0);
+    antiAliasingLevel->set_value(2);
+    screenDisplacementEffectsEnabled->set_value(true);
+    maxShockwaveParticles->set_value(1);
+    mirrorGraphicsSettings->set_value(2);
+    
+    GlobalNamespace::OVRPlugin::set_cpuLevel(4);
+    GlobalNamespace::OVRPlugin::set_gpuLevel(4);
+    // OVRPlugin::set_gpuLevel(getAnyTweaksConfig().GpuLevel.GetValue());
+
 
     DEBUG("Depth Texture Enabled after: {}", depthTextureEnabled->get_value());
 
@@ -148,53 +148,62 @@ MAKE_HOOK_MATCH(MainCamera_Awake, &GlobalNamespace::MainCamera::Awake, void, Glo
         ovrManagerGO->SetActive(false);
         auto ovrManager = ovrManagerGO->AddComponent<GlobalNamespace::OVRManager*>();
         ovrManager->___useRecommendedMSAALevel = false;
-        ovrManager->___isInsightPassthroughEnabled = true;
-        ovrManager->set_trackingOriginType(GlobalNamespace::__OVRManager__TrackingOrigin::FloorLevel);
+        // ovrManager->___isInsightPassthroughEnabled = true;
+        // ovrManager->set_trackingOriginType(GlobalNamespace::__OVRManager__TrackingOrigin::FloorLevel);
+        // ovrManager->SetSpaceWarp(true);
+        ovrManager->set_cpuLevel(1);
+        ovrManager->set_gpuLevel(1);
         ovrManagerGO->SetActive(true);
+
         firstTimeInit = true;
         DEBUG("Initialized OVRManager!");
     }
 
-    auto mainCamera = self->get_camera();
-    auto mainCameraGO = mainCamera->get_gameObject();
+    // auto mainCamera = self->get_camera();
+    // auto mainCameraGO = mainCamera->get_gameObject();
 
-    // Bloom prepass, not sure if this is needed (it looks kinda bad with it on?)
-    // mainCameraGO->GetComponent<GlobalNamespace::BloomPrePass*>()->set_enabled(false);
+    // // Bloom prepass, not sure if this is needed (it looks kinda bad with it on?)
+    // // mainCameraGO->GetComponent<GlobalNamespace::BloomPrePass*>()->set_enabled(false);
 
-    auto backgroundColor = UnityEngine::Color(
-        0.0f,
-        0.0f,
-        0.0f,
-        0.0f
-    );
+    // auto backgroundColor = UnityEngine::Color(
+    //     0.0f,
+    //     0.0f,
+    //     0.0f,
+    //     0.0f
+    // );
 
-    mainCamera->set_clearFlags(UnityEngine::CameraClearFlags::SolidColor);
-    mainCamera->set_backgroundColor(backgroundColor);
+    // mainCamera->set_clearFlags(UnityEngine::CameraClearFlags::SolidColor);
+    // mainCamera->set_backgroundColor(backgroundColor);
 
-    auto ovrPassthroughLayer = mainCameraGO->AddComponent<GlobalNamespace::OVRPassthroughLayer*>();
-    ovrPassthroughLayer->___overlayType = GlobalNamespace::OVROverlay::OverlayType::Underlay;
-    ovrPassthroughLayer->___textureOpacity_ = 0.1f;
+    // auto ovrPassthroughLayer = mainCameraGO->AddComponent<GlobalNamespace::OVRPassthroughLayer*>();
+    // ovrPassthroughLayer->___overlayType = GlobalNamespace::OVROverlay::OverlayType::Underlay;
+    // ovrPassthroughLayer->___textureOpacity_ = 0.1f;
 }
 
 // Called later on in the game loading - a good time to install function hooks
 GT_EXPORT_FUNC void load() {
     il2cpp_functions::Init();
-    
+    BSML::Init();
+    custom_types::Register::AutoRegister();
+
+    auto logger = Paper::ConstLoggerContext("GraphicsTweaks");
 
     INFO("Installing hooks...");
     // Phase Sync (latency reduction)
-    INSTALL_HOOK(getLoggerOld(), OculusLoader_Initialize);
+    INSTALL_HOOK(logger, OculusLoader_Initialize);
     // Bloom (expensive, not sure if it's worth it?)
-    INSTALL_HOOK(getLoggerOld(), MainSystemInit_Init);
-    INSTALL_HOOK(getLoggerOld(), MainSettingsModelSO_Load);
-    INSTALL_HOOK(getLoggerOld(), ConditionalActivation_Awake);
-    INSTALL_HOOK(getLoggerOld(), ConditionalMaterialSwitcher_Awake);
+    INSTALL_HOOK(logger, MainSystemInit_Init);
+    INSTALL_HOOK(logger, MainSettingsModelSO_Load);
+    INSTALL_HOOK(logger, ConditionalActivation_Awake);
+    INSTALL_HOOK(logger, ConditionalMaterialSwitcher_Awake);
     
     // Passthrough
-    // INSTALL_HOOK(getLoggerOld(), MainCamera_Awake);
-    // INSTALL_HOOK(getLoggerOld(), AlwaysVisibleQuad_OnEnable);
+    INSTALL_HOOK(logger, MainCamera_Awake);
+    // INSTALL_HOOK(logger, AlwaysVisibleQuad_OnEnable);
 
     INFO("Installed all hooks!");
-    
-    custom_types::Register::AutoRegister();
+
+
+    // BSML::Register::RegisterMenuButton<
+    BSML::Register::RegisterSettingsMenu<GraphicsTweaks::UI::GraphicsTweaksFlowCoordinator*>("GraphicsTweaks");
 }
