@@ -71,7 +71,7 @@
 		},
 		{
 			"id": "bsml",
-			"versionRange": "^0.4.9",
+			"versionRange": "^0.4.16",
 			"additionalData": {
 				"includeQmod": false
 			}
@@ -87,6 +87,11 @@
 			"additionalData": {
 				"private": true
 			}
+		},
+		{
+			"id": "sombrero",
+			"versionRange": "^0.1.37",
+			"additionalData": {}
 		}
 	],
 	"additionalData": {}

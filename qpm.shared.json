@@ -72,7 +72,7 @@
       },
       {
         "id": "bsml",
-        "versionRange": "^0.4.9",
+        "versionRange": "^0.4.16",
         "additionalData": {
           "includeQmod": false
         }
@@ -88,6 +88,11 @@
         "additionalData": {
           "private": true
         }
+      },
+      {
+        "id": "sombrero",
+        "versionRange": "^0.1.37",
+        "additionalData": {}
       }
     ]
   },
@@ -95,17 +100,17 @@
     {
       "dependency": {
         "id": "bsml",
-        "versionRange": "=0.4.15",
+        "versionRange": "=0.4.16",
         "additionalData": {
-          "soLink": "https://github.com/RedBrumbler/Quest-BSML/releases/download/v0.4.15/libbsml.so",
-          "debugSoLink": "https://github.com/RedBrumbler/Quest-BSML/releases/download/v0.4.15/debug_libbsml.so",
+          "soLink": "https://github.com/RedBrumbler/Quest-BSML/releases/download/v0.4.16/libbsml.so",
+          "debugSoLink": "https://github.com/RedBrumbler/Quest-BSML/releases/download/v0.4.16/debug_libbsml.so",
           "overrideSoName": "libbsml.so",
-          "modLink": "https://github.com/RedBrumbler/Quest-BSML/releases/download/v0.4.15/BSML.qmod",
-          "branchName": "version/v0_4_15",
+          "modLink": "https://github.com/RedBrumbler/Quest-BSML/releases/download/v0.4.16/BSML.qmod",
+          "branchName": "version/v0_4_16",
           "cmake": true
         }
       },
-      "version": "0.4.15"
+      "version": "0.4.16"
     },
     {
       "dependency": {
@@ -163,6 +168,17 @@
     },
     {
       "dependency": {
+        "id": "sombrero",
+        "versionRange": "=0.1.40",
+        "additionalData": {
+          "headersOnly": true,
+          "branchName": "version/v0_1_40"
+        }
+      },
+      "version": "0.1.40"
+    },
+    {
+      "dependency": {
         "id": "libil2cpp",
         "versionRange": "=0.3.1",
         "additionalData": {
@@ -182,23 +198,6 @@
         }
       },
       "version": "1.2.1"
-    },
-    {
-      "dependency": {
-        "id": "kaleb",
-        "versionRange": "=0.1.9",
-        "additionalData": {
-          "headersOnly": true,
-          "branchName": "version/v0_1_9",
-          "compileOptions": {
-            "cppFlags": [
-              "-DKALEB_VERSION=\"0.1.9\""
-            ]
-          },
-          "cmake": false
-        }
-      },
-      "version": "0.1.9"
     },
     {
       "dependency": {
@@ -225,6 +224,23 @@
     },
     {
       "dependency": {
+        "id": "kaleb",
+        "versionRange": "=0.1.9",
+        "additionalData": {
+          "headersOnly": true,
+          "branchName": "version/v0_1_9",
+          "compileOptions": {
+            "cppFlags": [
+              "-DKALEB_VERSION=\"0.1.9\""
+            ]
+          },
+          "cmake": false
+        }
+      },
+      "version": "0.1.9"
+    },
+    {
+      "dependency": {
         "id": "beatsaber-hook",
         "versionRange": "=5.1.2",
         "additionalData": {
@@ -235,6 +251,25 @@
         }
       },
       "version": "5.1.2"
+    },
+    {
+      "dependency": {
+        "id": "fmt",
+        "versionRange": "=10.0.0",
+        "additionalData": {
+          "headersOnly": true,
+          "branchName": "version/v10_0_0",
+          "compileOptions": {
+            "systemIncludes": [
+              "fmt/include/"
+            ],
+            "cppFlags": [
+              "-DFMT_HEADER_ONLY"
+            ]
+          }
+        }
+      },
+      "version": "10.0.0"
     },
     {
       "dependency": {
@@ -260,25 +295,6 @@
           "modLink": "https://github.com/MillzyDev/NDK-tinyxml2/releases/download/v10.0.0/tinyxml2.qmod",
           "branchName": "version/v10_0_0",
           "cmake": true
-        }
-      },
-      "version": "10.0.0"
-    },
-    {
-      "dependency": {
-        "id": "fmt",
-        "versionRange": "=10.0.0",
-        "additionalData": {
-          "headersOnly": true,
-          "branchName": "version/v10_0_0",
-          "compileOptions": {
-            "systemIncludes": [
-              "fmt/include/"
-            ],
-            "cppFlags": [
-              "-DFMT_HEADER_ONLY"
-            ]
-          }
         }
       },
       "version": "10.0.0"

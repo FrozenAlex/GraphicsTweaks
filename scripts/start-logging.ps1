@@ -9,7 +9,7 @@ Param(
     [String] $custom="",
 
     [Parameter(Mandatory=$false)]
-    [String] $file="",
+    [Switch] $file="",
 
     [Parameter(Mandatory=$false)]
     [Switch] $help,
@@ -36,7 +36,7 @@ if ($help -eq $true) {
 $bspid = adb shell pidof com.beatgames.beatsaber
 $command = "adb logcat "
 
-if ($all -eq $false) {
+# if ($all -eq $false) {
     $loops = 0
     while ([string]::IsNullOrEmpty($bspid) -and $loops -lt 3) {
         Start-Sleep -Milliseconds 100
@@ -50,7 +50,7 @@ if ($all -eq $false) {
     }
 
     $command += "--pid $bspid"
-}
+# }
 
 if ($all -eq $false) {
     $pattern = "("
@@ -68,8 +68,8 @@ if ($all -eq $false) {
     $command += " | Select-String -pattern `"$pattern`""
 }
 
-if (![string]::IsNullOrEmpty($file)) {
-    $command += " | Out-File -FilePath $PSScriptRoot\$file"
+if ($file -eq $true) {
+    $command += " | Out-File -FilePath $PSScriptRoot\..\log.log"
 }
 
 Write-Output "Logging using Command `"$command`""

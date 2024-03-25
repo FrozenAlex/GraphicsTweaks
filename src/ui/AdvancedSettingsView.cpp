@@ -12,5 +12,7 @@ void GraphicsTweaks::UI::AdvancedSettingsView::DidActivate(bool firstActivation,
     INFO("AdvancedSettingsView activated");
 
     BSML::parse_and_construct(Assets::AdvancedSettingsView_bsml, this->get_transform(), this);
-
+    // #ifdef HotReload
+    //     fileWatcher->filePath = "/sdcard/bsml/GraphicsTweaks/AdvancedSettingsView.bsml";
+    // #endif
 };

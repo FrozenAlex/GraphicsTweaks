@@ -10,6 +10,8 @@ set(MOD_ID "graphicstweaks")
 # As always, test thoroughly
 # - Fern
 # set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+# Hot reload (DO NOT USE IN PRODUCTION)
+# add_compile_options(-DHotReload)
 
 cmake_minimum_required(VERSION 3.21)
 project(${COMPILE_ID})
@@ -29,7 +31,7 @@ set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 # compile options used
 add_link_options(-Wl,--exclude-libs,ALL)
 add_compile_options(-frtti -fexceptions -fvisibility=hidden)
-add_compile_options(-O3)
+# add_compile_options(-O0)
 
 # get git info
 execute_process(COMMAND git config user.name OUTPUT_VARIABLE GIT_USER)

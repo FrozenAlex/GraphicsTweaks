@@ -37,7 +37,9 @@ GT_EXPORT_FUNC void setup(CModInfo& info) {
     info.version_long = GIT_COMMIT;
     modInfo.assign(info);
 	
+    INFO("Setting up GraphicsTweaks  config...");
     getGraphicsTweaksConfig().Init(modInfo);
+
     INFO("Completed setup!");
 }
 
@@ -76,15 +78,16 @@ MAKE_HOOK_MATCH(MainSystemInit_Init, &GlobalNamespace::MainSystemInit::Init, voi
 
 // Set the ConditionalActivation to always be active and set the eyeTextureResolutionScale to 1.0 and antiAliasing to 0
 MAKE_HOOK_MATCH(ConditionalActivation_Awake, &GlobalNamespace::ConditionalActivation::Awake, void, GlobalNamespace::ConditionalActivation* self) {
+    DEBUG("ConditionalActivation_Awake hook called!");
     self->get_gameObject()->SetActive(true);
     UnityEngine::XR::XRSettings::set_eyeTextureResolutionScale(1.0f);
     // ConditionalActivation_Awake(self);
 }
 
 // Graphics Tweaks
-MAKE_HOOK_MATCH(MainSettingsModelSO_Load, &GlobalNamespace::MainSettingsModelSO::Load, void, GlobalNamespace::MainSettingsModelSO* self, GlobalNamespace::IFileStorage* fileStorage, bool forced) {
-    MainSettingsModelSO_Load(self, fileStorage, forced);
-
+MAKE_HOOK_MATCH(MainSettingsModelSO_SetSaveConfig, &GlobalNamespace::MainSettingsModelSO::SetSaveConfig, void, GlobalNamespace::MainSettingsModelSO* self, GlobalNamespace::MainSettingsModelSO::Config* config) {
+    DEBUG("MainSettingsModelSO_SetSaveConfig hook called!");
+    MainSettingsModelSO_SetSaveConfig(self, config);
     auto vrResolutionScale = self->___vrResolutionScale;
     auto smokeGraphicsSettings = self->___smokeGraphicsSettings;
     auto depthTextureEnabled = self->___depthTextureEnabled;
@@ -102,16 +105,16 @@ MAKE_HOOK_MATCH(MainSettingsModelSO_Load, &GlobalNamespace::MainSettingsModelSO:
     DEBUG("Depth Texture Enabled before: {}", value);
 
     obstaclesQuality->set_value(::BeatSaber::PerformancePresets::ObstaclesQuality::ObstacleHW);
-    vrResolutionScale->set_value(1.5f);
+    vrResolutionScale->set_value(1.0f);
     targetFramerate->set_value(120);
     // Improves smoke quality
     depthTextureEnabled->set_value(true);
-    enableFPSCounter->set_value(true);
+    enableFPSCounter->set_value(false);
     smokeGraphicsSettings->set_value(true);
-    antiAliasingLevel->set_value(2);
+    antiAliasingLevel->set_value(0);
     screenDisplacementEffectsEnabled->set_value(true);
-    maxShockwaveParticles->set_value(1);
-    mirrorGraphicsSettings->set_value(2);
+    maxShockwaveParticles->set_value(0);
+    mirrorGraphicsSettings->set_value(3);
     
     GlobalNamespace::OVRPlugin::set_cpuLevel(4);
     GlobalNamespace::OVRPlugin::set_gpuLevel(4);
@@ -124,6 +127,7 @@ MAKE_HOOK_MATCH(MainSettingsModelSO_Load, &GlobalNamespace::MainSettingsModelSO:
 
 // Not sure what this does, but it's a hook
 MAKE_HOOK_MATCH(ConditionalMaterialSwitcher_Awake, &GlobalNamespace::ConditionalMaterialSwitcher::Awake, void, GlobalNamespace::ConditionalMaterialSwitcher* self) {
+    DEBUG("ConditionalMaterialSwitcher_Awake hook called!");
     auto renderer = self->____renderer;
     auto material1 = self->____material1;
     renderer->set_sharedMaterial(material1);
@@ -134,6 +138,7 @@ MAKE_HOOK_MATCH(ConditionalMaterialSwitcher_Awake, &GlobalNamespace::Conditional
 bool firstTimeInit = false;
 
 MAKE_HOOK_MATCH(AlwaysVisibleQuad_OnEnable, &GlobalNamespace::AlwaysVisibleQuad::OnEnable, void, GlobalNamespace::AlwaysVisibleQuad* self) {
+    DEBUG("AlwaysVisibleQuad_OnEnable hook called!");
     auto gameObject = self->get_gameObject();
     gameObject->SetActive(false);
 
@@ -151,8 +156,8 @@ MAKE_HOOK_MATCH(MainCamera_Awake, &GlobalNamespace::MainCamera::Awake, void, Glo
         // ovrManager->___isInsightPassthroughEnabled = true;
         // ovrManager->set_trackingOriginType(GlobalNamespace::__OVRManager__TrackingOrigin::FloorLevel);
         // ovrManager->SetSpaceWarp(true);
-        ovrManager->set_cpuLevel(1);
-        ovrManager->set_gpuLevel(1);
+        ovrManager->set_cpuLevel(4);
+        ovrManager->set_gpuLevel(4);
         ovrManagerGO->SetActive(true);
 
         firstTimeInit = true;
@@ -182,9 +187,10 @@ MAKE_HOOK_MATCH(MainCamera_Awake, &GlobalNamespace::MainCamera::Awake, void, Glo
 
 // Called later on in the game loading - a good time to install function hooks
 GT_EXPORT_FUNC void load() {
+    INFO("Loading GraphicsTweaks...");
     il2cpp_functions::Init();
-    BSML::Init();
     custom_types::Register::AutoRegister();
+    BSML::Init();
 
     auto logger = Paper::ConstLoggerContext("GraphicsTweaks");
 
@@ -193,12 +199,12 @@ GT_EXPORT_FUNC void load() {
     INSTALL_HOOK(logger, OculusLoader_Initialize);
     // Bloom (expensive, not sure if it's worth it?)
     INSTALL_HOOK(logger, MainSystemInit_Init);
-    INSTALL_HOOK(logger, MainSettingsModelSO_Load);
+    INSTALL_HOOK(logger, MainSettingsModelSO_SetSaveConfig);
     INSTALL_HOOK(logger, ConditionalActivation_Awake);
     INSTALL_HOOK(logger, ConditionalMaterialSwitcher_Awake);
     
     // Passthrough
-    INSTALL_HOOK(logger, MainCamera_Awake);
+    // INSTALL_HOOK(logger, MainCamera_Awake);
     // INSTALL_HOOK(logger, AlwaysVisibleQuad_OnEnable);
 
     INFO("Installed all hooks!");
@@ -206,4 +212,6 @@ GT_EXPORT_FUNC void load() {
 
     // BSML::Register::RegisterMenuButton<
     BSML::Register::RegisterSettingsMenu<GraphicsTweaks::UI::GraphicsTweaksFlowCoordinator*>("GraphicsTweaks");
+    INFO("Registered settings menu!");
+    INFO("GraphicsTweaks loaded!");
 }
