@@ -18,7 +18,7 @@ Param(
     [String] $custom="",
 
     [Parameter(Mandatory=$false)]
-    [Switch] $file="",
+    [Switch] $file,
 
     [Parameter(Mandatory=$false)]
     [Switch] $help
