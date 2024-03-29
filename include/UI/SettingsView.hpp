@@ -16,7 +16,7 @@
 
 
 #ifdef HotReload
-DECLARE_CLASS_CODEGEN(GraphicsTweaks::UI, SettingsView, BSML::HotReloadViewController,
+DECLARE_CLASS_CUSTOM(GraphicsTweaks::UI, SettingsView, BSML::HotReloadViewController,
 #else
 DECLARE_CLASS_CODEGEN(GraphicsTweaks::UI, SettingsView, HMUI::ViewController,
 #endif

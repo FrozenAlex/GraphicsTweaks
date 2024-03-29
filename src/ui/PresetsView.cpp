@@ -15,7 +15,7 @@ void GraphicsTweaks::UI::PresetsView::DidActivate(bool firstActivation, bool add
    
     BSML::parse_and_construct(Assets::PresetsView_bsml, this->get_transform(), this);
 
-    // #ifdef HotReload
-    //     fileWatcher->filePath = "/sdcard/bsml/GraphicsTweaks/PresetsView.bsml";
-    // #endif
+    #ifdef HotReload
+        fileWatcher->filePath = "/sdcard/bsml/GraphicsTweaks/PresetsView.bsml";
+    #endif
 };
