@@ -9,7 +9,7 @@ DECLARE_CONFIG(GraphicsTweaksConfig,
     CONFIG_VALUE(MenuRefreshRate, float, "Menu Refresh Rate", -1); // We don't know the Refresh Rate, at this time.
     CONFIG_VALUE(GameRefreshRate, float, "Game Refresh Rate", -1); // We don't know the Refresh Rate, at this time.
     CONFIG_VALUE(Bloom, bool, "Bloom", false);
-    CONFIG_VALUE(Shockwave, bool, "Shockwave", false);
+    CONFIG_VALUE(NumShockwaves, int, "NumShockwaves", 0);
     CONFIG_VALUE(BloomQuality, int, "BloomQuality", 0); // 0 = Low Quality, 1 = High Quality
     CONFIG_VALUE(Mirror, int, "Mirror", 1); // 0 = Off, 1 = Low, 2 = Medium, 3 = High
     CONFIG_VALUE(SmokeQuality, int, "SmokeQuality", 1); // 0 = Off, 1 = Low, 3 = High

@@ -47,7 +47,7 @@ void GraphicsTweaks::UI::SettingsView::DidActivate(bool firstActivation, bool ad
     bloomQualityValue = getGraphicsTweaksConfig().Bloom.GetValue() == 0 ? "Off" : getGraphicsTweaksConfig().BloomQuality.GetValue() == 1 ? "Low" : "High";
     smokeQualityValue = getGraphicsTweaksConfig().SmokeQuality.GetValue() == 0 ? "Off" : getGraphicsTweaksConfig().SmokeQuality.GetValue() == 1 ? "Low" : "High";
     wallQualityValue = getGraphicsTweaksConfig().WallQuality.GetValue() == 0 ? "Transparent" : getGraphicsTweaksConfig().WallQuality.GetValue() == 1 ? "Textured" : "Distorted";
-    shockwaveParticlesValue = getGraphicsTweaksConfig().Shockwave.GetValue();
+    shockwaveParticlesValue = getGraphicsTweaksConfig().NumShockwaves.GetValue();
     
     foveationLevelValueMenu = getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.GetValue() == 0 ? "Off" : getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.GetValue() == 1 ? "Low" : getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.GetValue() == 2 ? "Medium" : getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.GetValue() == 3 ? "High" : "HighTop";
     foveationLevelValueGame = getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.GetValue() == 0 ? "Off" : getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.GetValue() == 1 ? "Low" : getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.GetValue() == 2 ? "Medium" : getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.GetValue() == 3 ? "High" : "HighTop"; 
@@ -145,7 +145,7 @@ void GraphicsTweaks::UI::SettingsView::UpdateGraphicsSettings() {
         }
         DEBUG("config WallQuality: {}", getGraphicsTweaksConfig().WallQuality.GetValue());
 
-        getGraphicsTweaksConfig().Shockwave.SetValue(shockwaveParticlesValue);
+        getGraphicsTweaksConfig().NumShockwaves.SetValue(shockwaveParticlesValue);
 
         if(foveationLevelValueMenu == "Off") {
             getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.SetValue(0);

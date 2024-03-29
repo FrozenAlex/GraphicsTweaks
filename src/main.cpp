@@ -31,13 +31,13 @@
 #include "GlobalNamespace/OVRPlugin.hpp"
 #include "GlobalNamespace/ObstacleMaterialSetter.hpp"
 #include "GlobalNamespace/ShockwaveEffect.hpp"
+#include "GlobalNamespace/VisualEffectsController.hpp"
 #include "bsml/shared/BSML/MainThreadScheduler.hpp"
 #include "bsml/shared/BSML.hpp"
 #include "UI/GraphicsTweaksFlowCoordinator.hpp"
 #include "logging.hpp"
 
 inline modloader::ModInfo modInfo = {MOD_ID, VERSION, GIT_COMMIT}; // Stores the ID and version of our mod, and is sent to the modloader upon startup
-
 
 // Called at the early stages of game loading
 GT_EXPORT_FUNC void setup(CModInfo& info) {
@@ -52,7 +52,6 @@ GT_EXPORT_FUNC void setup(CModInfo& info) {
     INFO("Completed setup!");
 }
 
-
 // Enable Phase Sync (latency reduction) by default
 MAKE_HOOK_MATCH(OculusLoader_Initialize, &Unity::XR::Oculus::OculusLoader::Initialize, bool, Unity::XR::Oculus::OculusLoader* self) {
     INFO("OculusLoader_Initialize hook called!");
@@ -60,7 +59,6 @@ MAKE_HOOK_MATCH(OculusLoader_Initialize, &Unity::XR::Oculus::OculusLoader::Initi
     settings->___PhaseSync = true;
     return OculusLoader_Initialize(self);
 }
-
 
 // Sabers burn marks
 MAKE_HOOK_MATCH(MainSystemInit_Init, &GlobalNamespace::MainSystemInit::Init, void, GlobalNamespace::MainSystemInit* self) {
@@ -89,7 +87,7 @@ MAKE_HOOK_MATCH(MainSystemInit_Init, &GlobalNamespace::MainSystemInit::Init, voi
     UnityEngine::QualitySettings::set_antiAliasing(0);
 }
 
-// Set the ConditionalActivation to always be active and set the eyeTextureResolutionScale to 1.0 and antiAliasing to 0
+// Enable or disable shockwaves
 MAKE_HOOK_MATCH(ConditionalActivation_Awake, &GlobalNamespace::ConditionalActivation::Awake, void, GlobalNamespace::ConditionalActivation* self) {
     DEBUG("ConditionalActivation_Awake hook called! {}", self->get_gameObject()->get_name());
     auto name = self->get_gameObject()->get_name();
@@ -104,6 +102,12 @@ MAKE_HOOK_MATCH(ConditionalActivation_Awake, &GlobalNamespace::ConditionalActiva
     } else if(name == "MenuShockwave" && !getGraphicsTweaksConfig().MenuShockwaves.GetValue()) {
         self->get_gameObject()->SetActive(false);
     }
+}
+
+MAKE_HOOK_MATCH(ShockwaveEffect_Start, &GlobalNamespace::ShockwaveEffect::Start, void, GlobalNamespace::ShockwaveEffect* self) {
+    DEBUG("ShockwaveEffect_Start hook called!");
+    ShockwaveEffect_Start(self);
+    self->____shockwavePS->get_main().set_maxParticles(getGraphicsTweaksConfig().NumShockwaves.GetValue());
 }
 
 MAKE_HOOK_MATCH(ObstacleMaterialSetter_SetCoreMaterial, &GlobalNamespace::ObstacleMaterialSetter::SetCoreMaterial, void, GlobalNamespace::ObstacleMaterialSetter* self, UnityEngine::Renderer* renderer, BeatSaber::PerformancePresets::ObstaclesQuality obstaclesQuality) {
@@ -155,10 +159,19 @@ MAKE_HOOK_MATCH(ConditionalMaterialSwitcher_Awake, &GlobalNamespace::Conditional
     renderer->set_sharedMaterial(material1);
 }
 
-MAKE_HOOK_MATCH(ShockwaveEffect_Start, &GlobalNamespace::ShockwaveEffect::Start, void, GlobalNamespace::ShockwaveEffect* self) {
-    DEBUG("ShockwaveEffect_Start hook called!");
-    ShockwaveEffect_Start(self);
-    self->____shockwavePS->get_main().set_maxParticles(getGraphicsTweaksConfig().Shockwave.GetValue());
+//Force depth to on if using high quality smoke.
+MAKE_HOOK_MATCH(VisualEffectsController_OnPreRender, &GlobalNamespace::VisualEffectsController::OnPreRender, void, GlobalNamespace::VisualEffectsController* self) {
+    DEBUG("VisualEffectsController_OnPreRender hook called!");
+    self->SetShaderKeyword("DEPTH_TEXTURE_ENABLED", getGraphicsTweaksConfig().SmokeQuality.GetValue() > 1);
+}
+
+MAKE_HOOK_MATCH(VisualEffectsController_HandleDepthTextureEnabledDidChange, &GlobalNamespace::VisualEffectsController::HandleDepthTextureEnabledDidChange, void, GlobalNamespace::VisualEffectsController* self) {
+    DEBUG("VisualEffectsController_HandleDepthTextureEnabledDidChange hook called!");
+    if(getGraphicsTweaksConfig().SmokeQuality.GetValue() > 1) {
+        self->____camera->set_depthTextureMode(UnityEngine::DepthTextureMode::Depth);
+    } else {
+        self->____camera->set_depthTextureMode(UnityEngine::DepthTextureMode::None);
+    }
 }
 
 // Called later on in the game loading - a good time to install function hooks
@@ -178,7 +191,10 @@ GT_EXPORT_FUNC void load() {
     INSTALL_HOOK(logger, ConditionalActivation_Awake);
     INSTALL_HOOK(logger, ConditionalMaterialSwitcher_Awake);
     INSTALL_HOOK(logger, ObstacleMaterialSetter_SetCoreMaterial);
-    
+    INSTALL_HOOK(logger, ShockwaveEffect_Start);
+    INSTALL_HOOK(logger, VisualEffectsController_OnPreRender);
+    INSTALL_HOOK(logger, VisualEffectsController_HandleDepthTextureEnabledDidChange);
+
     INFO("Installed all hooks!");
 
     BSML::Register::RegisterMainMenu<GraphicsTweaks::UI::GraphicsTweaksFlowCoordinator*>("<color=#f0cdff>Graphics Tweaks", "Tweak your graphics");
