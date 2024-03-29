@@ -26,6 +26,8 @@ DECLARE_CLASS_CODEGEN(GraphicsTweaks::UI, SettingsView, HMUI::ViewController,
 
     DECLARE_INSTANCE_METHOD(void, PostParse);
 
+    DECLARE_INSTANCE_METHOD(void, UpdateGraphicsSettings);
+
     DECLARE_INSTANCE_FIELD(ListW<float>, systemDisplayFrequenciesAvailableValues);
     DECLARE_INSTANCE_FIELD(ListW<StringW>, systemDisplayFrequenciesAvailableLabels);
 

@@ -4,6 +4,9 @@
 #include "bsml/shared/Helpers/getters.hpp"
 #include "logging.hpp"
 
+#include "GlobalNamespace/MenuTransitionsHelper.hpp"
+#include "UnityEngine/Resources.hpp"
+
 DEFINE_TYPE(GraphicsTweaks::UI, GraphicsTweaksFlowCoordinator);
 
 void GraphicsTweaks::UI::GraphicsTweaksFlowCoordinator::Awake() {
@@ -33,6 +36,11 @@ void GraphicsTweaks::UI::GraphicsTweaksFlowCoordinator::BackButtonWasPressed(HMU
 
 void GraphicsTweaks::UI::GraphicsTweaksFlowCoordinator::Close(bool immediately){
     // Do nothing if there's no parent flow coordinator (in multiplayer if you never called it it crashed)
+
+    auto menuTransitionsHelper = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::MenuTransitionsHelper*>()->FirstOrDefault();
+    if (menuTransitionsHelper) {
+        menuTransitionsHelper->RestartGame(nullptr);
+    }
 
     if (fcInstance && fcInstance->get_isActiveAndEnabled() && fcInstance->get_isActivated()) {
         this->____parentFlowCoordinator->DismissFlowCoordinator(this, HMUI::ViewController::AnimationDirection::Horizontal, nullptr, immediately);

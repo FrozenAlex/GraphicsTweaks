@@ -12,15 +12,15 @@
 		<vertical spacing='2'>
 			<vertical child-control-height='false' bg='panel-top' pad='2' pad-bottom='1' pad-top='1' preferred-width='64'>
 				<text text='&lt;color=#DDD>Graphics (requires game reload)' align='Center' bold='true' font-size='3.5' color='#69B' size-delta-y='5'/>
-				<list-setting id="bloomSetting" text='Bloom' options="bloomQualityOptions" value="bloomQualityValue" bind-value="true" apply-on-change="true" />
-				<list-setting id="mirrorsSetting" text='Mirrors' options="mirrorOptions" value="mirrorValue" bind-value="true" apply-on-change="true" />
-				<list-setting id="smokeSetting" text='Smoke' options="smokeQualityOptions" value="smokeQualityValue" bind-value="true" apply-on-change="true" />
-				<list-setting id="antiAliasingSetting" text='Anti-Aliasing' options="antiAliasingOptions" value="antiAliasingValue" bind-value="true" apply-on-change="true"  />
-				<list-setting id="wallsSetting" text='Walls' options="wallQualityOptions" value="wallQualityValue" bind-value="true" apply-on-change="true"  />
-				<increment-setting id="shockwaveParticlesSetting" text='Shockwave particles' value="shockwaveParticlesValue" increment="1" min="0" max="4" integer-only="true" hover-hint="Max Shockwave Particles (distortions on impact)"/>
-				<bool-setting id="burnMarksSetting" text='Burn marks' value="burnMarksValue"  bind-value="true" apply-on-change="true" />
-				<bool-setting id="screenDistortionSetting" text='Screen distortion' value="screenDistortionValue"  bind-value="true" apply-on-change="true" />
-				<bool-setting id="screenDistortionSetting" text='Passthrough' value="screenDistortionValue"  active="false" bind-value="true" apply-on-change="true" hover-hint="This feature requires patching BeatSaber with passthrough support" />
+				<list-setting id="bloomSetting" text='Bloom' options="bloomQualityOptions" value="bloomQualityValue" bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
+				<list-setting id="mirrorsSetting" text='Mirrors' options="mirrorOptions" value="mirrorValue" bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
+				<list-setting id="smokeSetting" text='Smoke' options="smokeQualityOptions" value="smokeQualityValue" bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
+				<list-setting id="antiAliasingSetting" text='Anti-Aliasing' options="antiAliasingOptions" value="antiAliasingValue" bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
+				<list-setting id="wallsSetting" text='Walls' options="wallQualityOptions" value="wallQualityValue" bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
+				<increment-setting id="shockwaveParticlesSetting" text='Shockwave particles' value="shockwaveParticlesValue" increment="1" min="0" max="4" integer-only="true" hover-hint="Max Shockwave Particles (distortions on impact)" on-change="UpdateGraphicsSettings" />
+				<bool-setting id="burnMarksSetting" text='Burn marks' value="burnMarksValue"  bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
+				<bool-setting id="screenDistortionSetting" text='Screen distortion' value="screenDistortionValue"  bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
+				<!--<bool-setting id="screenDistortionSetting" text='Passthrough' value="screenDistortionValue"  active="false" bind-value="true" apply-on-change="true" hover-hint="This feature requires patching BeatSaber with passthrough support" on-change="UpdateGraphicsSettings" />-->
 			</vertical>
 			<!-- <horizontal spacing="2" child-control-height='false' pad='2' pad-bottom='1' pad-top='1' preferred-width='64'>
 				<action-button text="Reset" pref-width="20" />
@@ -30,20 +30,20 @@
 		<vertical spacing='1'>
 			<vertical child-control-height='false' bg='panel-top' pad='4' pad-bottom='1' pad-top='1' preferred-width='64'>
 				<text text='&lt;color=#DDD>Real time settings (In-Game)' align='Center' bold='true' font-size='3.5' color='#69B' size-delta-y='5'/>
-				<increment-setting id="performanceLevelGPU" text='Resolution' min="0.2" max="2" increment="0.1"   />
-				<list-setting id="performanceLevelCPU" text='Target FPS' choices="systemDisplayFrequenciesAvailableLabels" />
-				<list-setting id="foveationLevel" text='Foveation' hover-hint="Foveated Rendering decreases visual clarity in peripheral vision to increase performance" choices="foveationLevelOptions" />
+				<increment-setting id="performanceLevelGPU" text='Resolution' min="0.2" max="2" increment="0.1" on-change="UpdateGraphicsSettings" />
+				<list-setting id="performanceLevelCPU" text='Target FPS' choices="systemDisplayFrequenciesAvailableLabels" on-change="UpdateGraphicsSettings" />
+				<list-setting id="foveationLevel" text='Foveation' hover-hint="Foveated Rendering decreases visual clarity in peripheral vision to increase performance" choices="foveationLevelOptions" on-change="UpdateGraphicsSettings" />
 			</vertical>
 			<vertical child-control-height='false' bg='panel-top' pad='4' pad-bottom='1' pad-top='1' preferred-width='64'>
 				<text text='&lt;color=#DDD>Real time settings (In-Menu)' align='Center' bold='true' font-size='3.5' color='#69B'  size-delta-y='5'/>
-				<increment-setting id="performanceLevelGPU" text='Resolution' min="0.2" max="2" increment="0.1"  />
-				<list-setting id="performanceLevelCPU" text='Target FPS' choices="systemDisplayFrequenciesAvailableLabels"  />
-				<list-setting id="foveationLevel" text='Foveation' hover-hint="Foveated Rendering decreases visual clarity in peripheral vision to increase performance"  choices="foveationLevelOptions" />
+				<increment-setting id="performanceLevelGPU" text='Resolution' min="0.2" max="2" increment="0.1" on-change="UpdateGraphicsSettings" />
+				<list-setting id="performanceLevelCPU" text='Target FPS' choices="systemDisplayFrequenciesAvailableLabels" on-change="UpdateGraphicsSettings" />
+				<list-setting id="foveationLevel" text='Foveation' hover-hint="Foveated Rendering decreases visual clarity in peripheral vision to increase performance"  choices="foveationLevelOptions" on-change="UpdateGraphicsSettings" />
 			</vertical>
 			<vertical child-control-height='false' bg='panel-top' pad='4' pad-bottom='1' pad-top='1' preferred-width='64'>
 				<text text='&lt;color=#FDD>Performance levels' align='Center' bold='true' font-size='3.5' color='#69B' size-delta-y='5'/>
-				<increment-setting id="performanceLevelGPUSetting" text='GPU Level' min="1" max="4" integer-only="true" />
-				<increment-setting id="performanceLevelCPUSetting" text='CPU Level' min="1" max="4" integer-only="true" />
+				<increment-setting id="performanceLevelGPUSetting" text='GPU Level' min="1" max="4" integer-only="true" on-change="UpdateGraphicsSettings" />
+				<increment-setting id="performanceLevelCPUSetting" text='CPU Level' min="1" max="4" integer-only="true" on-change="UpdateGraphicsSettings" />
 			</vertical>
 		</vertical>
 

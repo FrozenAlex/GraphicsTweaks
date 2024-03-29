@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "*.bsml": "xml",
         "bsml": "xml",
         "iosfwd": "cpp",
         "__config": "cpp",
@@ -113,6 +114,7 @@
         "xstddef": "cpp",
         "xtr1common": "cpp",
         "xtree": "cpp",
-        "xutility": "cpp"
+        "xutility": "cpp",
+        "ranges": "cpp"
     }
 }

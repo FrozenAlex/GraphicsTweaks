@@ -11,6 +11,7 @@
 #include "UnityEngine/XR/XRSettings.hpp"
 #include "UnityEngine/QualitySettings.hpp"
 #include "UnityEngine/CameraClearFlags.hpp"
+#include "UnityEngine/Renderer.hpp"
 #include "GlobalNamespace/MainSettingsModelSO.hpp"
 #include "GlobalNamespace/ObservableVariableSO_1.hpp"
 #include "GlobalNamespace/MainCamera.hpp"
@@ -22,6 +23,7 @@
 #include "GlobalNamespace/OVROverlay.hpp"
 #include "GlobalNamespace/BloomPrePass.hpp"
 #include "GlobalNamespace/OVRPlugin.hpp"
+#include "GlobalNamespace/ObstacleMaterialSetter.hpp"
 #include "bsml/shared/BSML/MainThreadScheduler.hpp"
 #include "bsml/shared/BSML.hpp"
 #include "UI/GraphicsTweaksFlowCoordinator.hpp"
@@ -57,20 +59,22 @@ MAKE_HOOK_MATCH(OculusLoader_Initialize, &Unity::XR::Oculus::OculusLoader::Initi
 MAKE_HOOK_MATCH(MainSystemInit_Init, &GlobalNamespace::MainSystemInit::Init, void, GlobalNamespace::MainSystemInit* self) {
     INFO("MainSystemInit_Init hook called!");
    
-    auto scriptableObjects = UnityEngine::Resources::FindObjectsOfTypeAll<UnityEngine::ScriptableObject*>();
+    if (getGraphicsTweaksConfig().Bloom.GetValue()) {
+        auto scriptableObjects = UnityEngine::Resources::FindObjectsOfTypeAll<UnityEngine::ScriptableObject*>();
 
-    for (int i = 0; i < scriptableObjects->get_Length(); i++) {
+        for (int i = 0; i < scriptableObjects->get_Length(); i++) {
 
-        auto scriptableObject = scriptableObjects[i];
-        auto csName = scriptableObject->get_name();
-        auto name = csName;
-        DEBUG("Scriptable Object Name: {}", name);
-        if (name == "PyramidBloomMainEffect") {
-            INFO("Found PyramidBloomMainEffect!");
-            auto mainEffectGraphicsSettingsPresets = self->____mainEffectGraphicsSettingsPresets;
-            auto presets = mainEffectGraphicsSettingsPresets->____presets;
-            presets->_values[0]->___mainEffect = reinterpret_cast<GlobalNamespace::MainEffectSO*>(scriptableObject);
-            break;
+            auto scriptableObject = scriptableObjects[i];
+            auto csName = scriptableObject->get_name();
+            auto name = csName;
+            DEBUG("Scriptable Object Name: {}", name);
+            if (name == "PyramidBloomMainEffect") {
+                INFO("Found PyramidBloomMainEffect!");
+                auto mainEffectGraphicsSettingsPresets = self->____mainEffectGraphicsSettingsPresets;
+                auto presets = mainEffectGraphicsSettingsPresets->____presets;
+                presets->_values[0]->___mainEffect = reinterpret_cast<GlobalNamespace::MainEffectSO*>(scriptableObject);
+                break;
+            }
         }
     }
     MainSystemInit_Init(self);
@@ -104,25 +108,45 @@ MAKE_HOOK_MATCH(MainSettingsModelSO_SetSaveConfig, &GlobalNamespace::MainSetting
 
     DEBUG("Depth Texture Enabled before: {}", value);
 
-    obstaclesQuality->set_value(::BeatSaber::PerformancePresets::ObstaclesQuality::ObstacleHW);
     vrResolutionScale->set_value(1.0f);
     targetFramerate->set_value(120);
     // Improves smoke quality
     depthTextureEnabled->set_value(true);
     enableFPSCounter->set_value(false);
     smokeGraphicsSettings->set_value(true);
-    antiAliasingLevel->set_value(0);
-    screenDisplacementEffectsEnabled->set_value(true);
-    maxShockwaveParticles->set_value(0);
-    mirrorGraphicsSettings->set_value(3);
+    antiAliasingLevel->set_value(getGraphicsTweaksConfig().AntiAliasing.GetValue());
+    screenDisplacementEffectsEnabled->set_value(getGraphicsTweaksConfig().ScreenDistortion.GetValue());
+    maxShockwaveParticles->set_value(getGraphicsTweaksConfig().Shockwave.GetValue());
+    mirrorGraphicsSettings->set_value(getGraphicsTweaksConfig().Mirror.GetValue());
     
-    GlobalNamespace::OVRPlugin::set_cpuLevel(4);
-    GlobalNamespace::OVRPlugin::set_gpuLevel(4);
-    // OVRPlugin::set_gpuLevel(getAnyTweaksConfig().GpuLevel.GetValue());
-
+    GlobalNamespace::OVRPlugin::set_cpuLevel(getGraphicsTweaksConfig().CpuLevel.GetValue());
+    GlobalNamespace::OVRPlugin::set_gpuLevel(getGraphicsTweaksConfig().GpuLevel.GetValue());
 
     DEBUG("Depth Texture Enabled after: {}", depthTextureEnabled->get_value());
+}
 
+MAKE_HOOK_MATCH(ObstacleMaterialSetter_SetCoreMaterial, &GlobalNamespace::ObstacleMaterialSetter::SetCoreMaterial, void, GlobalNamespace::ObstacleMaterialSetter* self, UnityEngine::Renderer* renderer, BeatSaber::PerformancePresets::ObstaclesQuality obstaclesQuality) {
+    DEBUG("ObstacleMaterialSetter_SetCoreMaterial hook called! >_<");
+
+    BeatSaber::PerformancePresets::ObstaclesQuality quality;
+
+    DEBUG("config quaality {} :3", getGraphicsTweaksConfig().WallQuality.GetValue());
+
+    switch(getGraphicsTweaksConfig().WallQuality.GetValue()) {
+        case 0:
+            quality = ::BeatSaber::PerformancePresets::ObstaclesQuality::ObstacleLW;
+            break;
+        case 1:
+            quality = ::BeatSaber::PerformancePresets::ObstaclesQuality::TexturedObstacle;
+            break;
+        case 2:
+            quality = ::BeatSaber::PerformancePresets::ObstaclesQuality::ObstacleHW;
+            break;
+    }
+
+    DEBUG("quaality {} :3", quality.value__);
+
+    ObstacleMaterialSetter_SetCoreMaterial(self, renderer, quality);
 }
 
 // Not sure what this does, but it's a hook
@@ -202,6 +226,7 @@ GT_EXPORT_FUNC void load() {
     INSTALL_HOOK(logger, MainSettingsModelSO_SetSaveConfig);
     INSTALL_HOOK(logger, ConditionalActivation_Awake);
     INSTALL_HOOK(logger, ConditionalMaterialSwitcher_Awake);
+    INSTALL_HOOK(logger, ObstacleMaterialSetter_SetCoreMaterial);
     
     // Passthrough
     // INSTALL_HOOK(logger, MainCamera_Awake);
