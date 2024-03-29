@@ -93,9 +93,9 @@ MAKE_HOOK_MATCH(MainSystemInit_Init, &GlobalNamespace::MainSystemInit::Init, voi
 MAKE_HOOK_MATCH(ConditionalActivation_Awake, &GlobalNamespace::ConditionalActivation::Awake, void, GlobalNamespace::ConditionalActivation* self) {
     DEBUG("ConditionalActivation_Awake hook called! {}", self->get_gameObject()->get_name());
     auto name = self->get_gameObject()->get_name();
-    if(name == "Shockwave" && getGraphicsTweaksConfig().GameShockwaves.GetValue()) {
+    if(name == "ShockwaveEffect" && getGraphicsTweaksConfig().GameShockwaves.GetValue()) {
         self->get_gameObject()->SetActive(true);
-    } else if(name == "Shockwave" && !getGraphicsTweaksConfig().GameShockwaves.GetValue()) {
+    } else if(name == "ShockwaveEffect" && !getGraphicsTweaksConfig().GameShockwaves.GetValue()) {
         self->get_gameObject()->SetActive(false);
     }
 
@@ -104,8 +104,6 @@ MAKE_HOOK_MATCH(ConditionalActivation_Awake, &GlobalNamespace::ConditionalActiva
     } else if(name == "MenuShockwave" && !getGraphicsTweaksConfig().MenuShockwaves.GetValue()) {
         self->get_gameObject()->SetActive(false);
     }
-
-    self->get_gameObject()->SetActive(true);
 }
 
 MAKE_HOOK_MATCH(ObstacleMaterialSetter_SetCoreMaterial, &GlobalNamespace::ObstacleMaterialSetter::SetCoreMaterial, void, GlobalNamespace::ObstacleMaterialSetter* self, UnityEngine::Renderer* renderer, BeatSaber::PerformancePresets::ObstaclesQuality obstaclesQuality) {
@@ -183,7 +181,7 @@ GT_EXPORT_FUNC void load() {
     
     INFO("Installed all hooks!");
 
-    BSML::Register::RegisterMenuButton<GraphicsTweaks::UI::GraphicsTweaksFlowCoordinator*>("GraphicsTweaks");
+    BSML::Register::RegisterMainMenu<GraphicsTweaks::UI::GraphicsTweaksFlowCoordinator*>("<color=#f0cdff>Graphics Tweaks", "Tweak your graphics");
     INFO("Registered settings menu!");
     INFO("GraphicsTweaks loaded!");
 }
