@@ -1,4 +1,4 @@
-#pragma once
+    #pragma once
 
 #include "bsml/shared/macros.hpp"
 #include "bsml/shared/BSML.hpp"

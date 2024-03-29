@@ -102,6 +102,11 @@ MAKE_HOOK_MATCH(ConditionalActivation_Awake, &GlobalNamespace::ConditionalActiva
     } else if(name == "MenuShockwave" && !getGraphicsTweaksConfig().MenuShockwaves.GetValue()) {
         self->get_gameObject()->SetActive(false);
     }
+
+    //Disable fake glow
+    if(std::find(name.begin(), name.end(), "Fake") != name.end()) {
+        self->get_gameObject()->SetActive(false);
+    }
 }
 
 MAKE_HOOK_MATCH(ShockwaveEffect_Start, &GlobalNamespace::ShockwaveEffect::Start, void, GlobalNamespace::ShockwaveEffect* self) {
