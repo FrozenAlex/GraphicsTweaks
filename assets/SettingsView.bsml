@@ -1,4 +1,4 @@
-<vertical preferred-width="130" pad-top='-10' anchor-min-y="1" child-control-height="false" xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='https://raw.githubusercontent.com/RedBrumbler/Quest-BSML-Docs/gh-pages/schema.xsd'>
+<vertical preferred-width="130" pad-top='-0' anchor-min-y="1" child-control-height="false" xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='https://raw.githubusercontent.com/RedBrumbler/Quest-BSML-Docs/gh-pages/schema.xsd'>
 	<horizontal id='filterbarContainer' child-align='MiddleRight' child-control-width='false'>
 		<horizontal ignore-layout='true' pad-top='1' pad-bottom="0">
 			<text text='Graphics Settings' align='Center' font-size='7' italics='true'/>
@@ -22,23 +22,26 @@
 				<bool-setting id="screenDistortionSetting" text='Screen distortion' value="screenDistortionValue"  bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
 				<!--<bool-setting id="screenDistortionSetting" text='Passthrough' value="screenDistortionValue"  active="false" bind-value="true" apply-on-change="true" hover-hint="This feature requires patching BeatSaber with passthrough support" on-change="UpdateGraphicsSettings" />-->
 			</vertical>
-			<!-- <horizontal spacing="2" child-control-height='false' pad='2' pad-bottom='1' pad-top='1' preferred-width='64'>
-				<action-button text="Reset" pref-width="20" />
-				<action-button text="Reload" />
-			</horizontal> -->
 		</vertical>
 		<vertical spacing='1'>
 			<vertical child-control-height='false' bg='panel-top' pad='4' pad-bottom='1' pad-top='1' preferred-width='64'>
-				<text text='&lt;color=#DDD>Real time settings (In-Game)' align='Center' bold='true' font-size='3.5' color='#69B' size-delta-y='5'/>
-				<increment-setting id="performanceLevelGPU" text='Resolution' min="0.2" max="2" increment="0.1" on-change="UpdateGraphicsSettings" />
-				<list-setting id="performanceLevelCPU" text='Target FPS' choices="systemDisplayFrequenciesAvailableLabels" on-change="UpdateGraphicsSettings" />
-				<list-setting id="foveationLevel" text='Foveation' hover-hint="Foveated Rendering decreases visual clarity in peripheral vision to increase performance" choices="foveationLevelOptions" on-change="UpdateGraphicsSettings" />
-			</vertical>
-			<vertical child-control-height='false' bg='panel-top' pad='4' pad-bottom='1' pad-top='1' preferred-width='64'>
-				<text text='&lt;color=#DDD>Real time settings (In-Menu)' align='Center' bold='true' font-size='3.5' color='#69B'  size-delta-y='5'/>
-				<increment-setting id="performanceLevelGPU" text='Resolution' min="0.2" max="2" increment="0.1" on-change="UpdateGraphicsSettings" />
-				<list-setting id="performanceLevelCPU" text='Target FPS' choices="systemDisplayFrequenciesAvailableLabels" on-change="UpdateGraphicsSettings" />
-				<list-setting id="foveationLevel" text='Foveation' hover-hint="Foveated Rendering decreases visual clarity in peripheral vision to increase performance"  choices="foveationLevelOptions" on-change="UpdateGraphicsSettings" />
+				<text text='&lt;color=#DDD>Settings based on environment' align='Center' bold='true' font-size='3.5' color='#69B' size-delta-y='5'/>
+				<tab-selector tab-tag="main" anchor-pos-y='0' size-delta-y='6' size-delta-x='-60' 
+					child-expand-width='true' child-control-width='true'  />
+				<tab tags="main" tab-name="menu" size-delta-y="22">
+					<vertical child-control-height='false' horizontal-fit="Unconstrained">
+						<increment-setting id="performanceLevelGPU" text='Resolution' min="0.2" max="2" increment="0.1" on-change="UpdateGraphicsSettings" />
+						<list-setting id="performanceLevelCPU" text='Target FPS' choices="systemDisplayFrequenciesAvailableLabels" on-change="UpdateGraphicsSettings" />
+						<list-setting id="foveationLevel" text='Foveation' hover-hint="Foveated Rendering decreases visual clarity in peripheral vision to increase performance" choices="foveationLevelOptions" on-change="UpdateGraphicsSettings" />
+					</vertical>
+				</tab>	
+				<tab tags="main" tab-name="game" size-delta-y="22">
+					<vertical child-control-height='false' horizontal-fit="Unconstrained">
+						<increment-setting id="performanceLevelGPU" text='Resolution' min="0.2" max="2" increment="0.1" on-change="UpdateGraphicsSettings" />
+						<list-setting id="performanceLevelCPU" text='Target FPS' choices="systemDisplayFrequenciesAvailableLabels" on-change="UpdateGraphicsSettings" />
+						<list-setting id="foveationLevel" text='Foveation' hover-hint="Foveated Rendering decreases visual clarity in peripheral vision to increase performance" choices="foveationLevelOptions" on-change="UpdateGraphicsSettings" />
+					</vertical>
+				</tab>
 			</vertical>
 			<vertical child-control-height='false' bg='panel-top' pad='4' pad-bottom='1' pad-top='1' preferred-width='64'>
 				<text text='&lt;color=#FDD>Performance levels' align='Center' bold='true' font-size='3.5' color='#69B' size-delta-y='5'/>
