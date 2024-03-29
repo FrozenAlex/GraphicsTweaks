@@ -22,6 +22,8 @@ DECLARE_CONFIG(GraphicsTweaksConfig,
     CONFIG_VALUE(ColorSpace, int, "ColorSpace", 4);
     CONFIG_VALUE(CpuLevel, int, "CpuLevel", 2);
     CONFIG_VALUE(GpuLevel, int, "GpuLevel", 4);
-    CONFIG_VALUE(ScreenDistortion, bool, "ScreenDistortion", true);
+    CONFIG_VALUE(Burnmarks, bool, "Burnmarks", true);
+    CONFIG_VALUE(MenuShockwaves, bool, "MenuShockwaves", true);
+    CONFIG_VALUE(GameShockwaves, bool, "GameShockwaves", true);
     CONFIG_VALUE(UsedGraphicsPresetBefore, bool, "UsedGraphicsPresetBefore", false);
 )

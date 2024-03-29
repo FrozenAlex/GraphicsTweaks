@@ -56,9 +56,10 @@ DECLARE_CLASS_CODEGEN(GraphicsTweaks::UI, SettingsView, HMUI::ViewController,
     DECLARE_INSTANCE_FIELD(float, resolutionLevelValueGame);
     DECLARE_INSTANCE_FIELD(float, targetFPSValueMenu);
     DECLARE_INSTANCE_FIELD(float, targetFPSValueGame);
+    DECLARE_INSTANCE_FIELD(bool, menuScreenDistortionValue);
+    DECLARE_INSTANCE_FIELD(bool, gameScreenDistortionValue);
 
     // Boolean settings
-    DECLARE_INSTANCE_FIELD(bool, screenDistortionValue);
     DECLARE_INSTANCE_FIELD(bool, burnMarksValue);
 
     // Levels

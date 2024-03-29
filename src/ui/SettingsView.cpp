@@ -42,6 +42,31 @@ void GraphicsTweaks::UI::SettingsView::DidActivate(bool firstActivation, bool ad
 
     DEBUG("Got FPS values");
 
+    mirrorValue = getGraphicsTweaksConfig().Mirror.GetValue() == 0 ? "Off" : getGraphicsTweaksConfig().Mirror.GetValue() == 1 ? "Low" : getGraphicsTweaksConfig().Mirror.GetValue() == 2 ? "Medium" : "High";
+    antiAliasingValue = getGraphicsTweaksConfig().AntiAliasing.GetValue() == 0 ? "Off" : getGraphicsTweaksConfig().AntiAliasing.GetValue() == 1 ? "2x" : "4x";
+    bloomQualityValue = getGraphicsTweaksConfig().Bloom.GetValue() == 0 ? "Off" : getGraphicsTweaksConfig().BloomQuality.GetValue() == 1 ? "Low" : "High";
+    smokeQualityValue = getGraphicsTweaksConfig().SmokeQuality.GetValue() == 0 ? "Off" : getGraphicsTweaksConfig().SmokeQuality.GetValue() == 1 ? "Low" : "High";
+    wallQualityValue = getGraphicsTweaksConfig().WallQuality.GetValue() == 0 ? "Transparent" : getGraphicsTweaksConfig().WallQuality.GetValue() == 1 ? "Textured" : "Distorted";
+    shockwaveParticlesValue = getGraphicsTweaksConfig().Shockwave.GetValue();
+    
+    foveationLevelValueMenu = getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.GetValue() == 0 ? "Off" : getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.GetValue() == 1 ? "Low" : getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.GetValue() == 2 ? "Medium" : getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.GetValue() == 3 ? "High" : "HighTop";
+    foveationLevelValueGame = getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.GetValue() == 0 ? "Off" : getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.GetValue() == 1 ? "Low" : getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.GetValue() == 2 ? "Medium" : getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.GetValue() == 3 ? "High" : "HighTop"; 
+
+    resolutionLevelValueMenu = getGraphicsTweaksConfig().MenuResolution.GetValue();
+    resolutionLevelValueGame = getGraphicsTweaksConfig().GameResolution.GetValue();
+
+    targetFPSValueMenu = getGraphicsTweaksConfig().MenuRefreshRate.GetValue();
+    targetFPSValueGame = getGraphicsTweaksConfig().GameRefreshRate.GetValue();
+
+    menuScreenDistortionValue = getGraphicsTweaksConfig().MenuShockwaves.GetValue();
+    gameScreenDistortionValue = getGraphicsTweaksConfig().GameShockwaves.GetValue();
+
+    burnMarksValue = getGraphicsTweaksConfig().Burnmarks.GetValue();
+
+    gpuLevelValue = getGraphicsTweaksConfig().GpuLevel.GetValue();
+    cpuLevelValue = getGraphicsTweaksConfig().CpuLevel.GetValue();
+
+
     BSML::parse_and_construct(Assets::SettingsView_bsml, this->get_transform(), this);
 
     #ifdef HotReload
@@ -152,10 +177,13 @@ void GraphicsTweaks::UI::SettingsView::UpdateGraphicsSettings() {
         getGraphicsTweaksConfig().MenuRefreshRate.SetValue(targetFPSValueMenu);
         getGraphicsTweaksConfig().GameRefreshRate.SetValue(targetFPSValueGame);
 
+
+
         getGraphicsTweaksConfig().CpuLevel.SetValue(cpuLevelValue);
         getGraphicsTweaksConfig().GpuLevel.SetValue(gpuLevelValue);
 
-        getGraphicsTweaksConfig().ScreenDistortion.SetValue(screenDistortionValue);
+        getGraphicsTweaksConfig().MenuShockwaves.SetValue(menuScreenDistortionValue);
+        getGraphicsTweaksConfig().GameShockwaves.SetValue(gameScreenDistortionValue);
 
         getGraphicsTweaksConfig().Save();
     });

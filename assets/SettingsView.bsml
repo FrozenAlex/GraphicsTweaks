@@ -19,7 +19,6 @@
 				<list-setting id="wallsSetting" text='Walls' options="wallQualityOptions" value="wallQualityValue" bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
 				<increment-setting id="shockwaveParticlesSetting" text='Shockwave particles' value="shockwaveParticlesValue" increment="1" min="0" max="4" integer-only="true" hover-hint="Max Shockwave Particles (distortions on impact)" on-change="UpdateGraphicsSettings" />
 				<bool-setting id="burnMarksSetting" text='Burn marks' value="burnMarksValue"  bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
-				<bool-setting id="screenDistortionSetting" text='Screen distortion' value="screenDistortionValue"  bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
 				<!--<bool-setting id="screenDistortionSetting" text='Passthrough' value="screenDistortionValue"  active="false" bind-value="true" apply-on-change="true" hover-hint="This feature requires patching BeatSaber with passthrough support" on-change="UpdateGraphicsSettings" />-->
 			</vertical>
 		</vertical>
@@ -33,6 +32,7 @@
 						<increment-setting id="performanceLevelGPU" text='Resolution' min="0.2" max="2" increment="0.1" on-change="UpdateGraphicsSettings" />
 						<list-setting id="performanceLevelCPU" text='Target FPS' choices="systemDisplayFrequenciesAvailableLabels" on-change="UpdateGraphicsSettings" />
 						<list-setting id="foveationLevel" text='Foveation' hover-hint="Foveated Rendering decreases visual clarity in peripheral vision to increase performance" choices="foveationLevelOptions" on-change="UpdateGraphicsSettings" />
+						<bool-setting id="menuScreenDistortionSetting" text='Menu Shockwaves' value="menuScreenDistortionValue"  bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
 					</vertical>
 				</tab>	
 				<tab tags="main" tab-name="game" size-delta-y="22">
@@ -40,6 +40,7 @@
 						<increment-setting id="performanceLevelGPU" text='Resolution' min="0.2" max="2" increment="0.1" on-change="UpdateGraphicsSettings" />
 						<list-setting id="performanceLevelCPU" text='Target FPS' choices="systemDisplayFrequenciesAvailableLabels" on-change="UpdateGraphicsSettings" />
 						<list-setting id="foveationLevel" text='Foveation' hover-hint="Foveated Rendering decreases visual clarity in peripheral vision to increase performance" choices="foveationLevelOptions" on-change="UpdateGraphicsSettings" />
+						<bool-setting id="gameScreenDistortionSetting" text='Game Shockwaves' value="gameScreenDistortionValue"  bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
 					</vertical>
 				</tab>
 			</vertical>

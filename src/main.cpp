@@ -13,6 +13,11 @@
 #include "UnityEngine/CameraClearFlags.hpp"
 #include "UnityEngine/Renderer.hpp"
 #include "UnityEngine/Rendering/CommandBuffer.hpp"
+#include "UnityEngine/RenderTexture.hpp"
+#include "UnityEngine/RenderTextureFormat.hpp"
+#include "UnityEngine/RenderTextureReadWrite.hpp"
+#include "UnityEngine/VRTextureUsage.hpp"
+#include "UnityEngine/ParticleSystem.hpp"
 #include "GlobalNamespace/MainSettingsModelSO.hpp"
 #include "GlobalNamespace/ObservableVariableSO_1.hpp"
 #include "GlobalNamespace/MainCamera.hpp"
@@ -25,7 +30,7 @@
 #include "GlobalNamespace/BloomPrePass.hpp"
 #include "GlobalNamespace/OVRPlugin.hpp"
 #include "GlobalNamespace/ObstacleMaterialSetter.hpp"
-#include "GlobalNamespace/CommandBufferGrabPass.hpp"
+#include "GlobalNamespace/ShockwaveEffect.hpp"
 #include "bsml/shared/BSML/MainThreadScheduler.hpp"
 #include "bsml/shared/BSML.hpp"
 #include "UI/GraphicsTweaksFlowCoordinator.hpp"
@@ -76,61 +81,35 @@ MAKE_HOOK_MATCH(MainSystemInit_Init, &GlobalNamespace::MainSystemInit::Init, voi
                 auto presets = mainEffectGraphicsSettingsPresets->____presets;
                 presets->_values[0]->___mainEffect = reinterpret_cast<GlobalNamespace::MainEffectSO*>(scriptableObject);
                 break;
-            }
+            }   
         }
     }
     MainSystemInit_Init(self);
+
+    UnityEngine::QualitySettings::set_antiAliasing(0);
 }
 
 // Set the ConditionalActivation to always be active and set the eyeTextureResolutionScale to 1.0 and antiAliasing to 0
 MAKE_HOOK_MATCH(ConditionalActivation_Awake, &GlobalNamespace::ConditionalActivation::Awake, void, GlobalNamespace::ConditionalActivation* self) {
-    DEBUG("ConditionalActivation_Awake hook called!");
+    DEBUG("ConditionalActivation_Awake hook called! {}", self->get_gameObject()->get_name());
+    auto name = self->get_gameObject()->get_name();
+    if(name == "Shockwave" && getGraphicsTweaksConfig().GameShockwaves.GetValue()) {
+        self->get_gameObject()->SetActive(true);
+    } else if(name == "Shockwave" && !getGraphicsTweaksConfig().GameShockwaves.GetValue()) {
+        self->get_gameObject()->SetActive(false);
+    }
+
+    if(name == "MenuShockwave" && getGraphicsTweaksConfig().MenuShockwaves.GetValue()) {
+        self->get_gameObject()->SetActive(true);
+    } else if(name == "MenuShockwave" && !getGraphicsTweaksConfig().MenuShockwaves.GetValue()) {
+        self->get_gameObject()->SetActive(false);
+    }
+
     self->get_gameObject()->SetActive(true);
-    UnityEngine::XR::XRSettings::set_eyeTextureResolutionScale(1.0f);
-    // ConditionalActivation_Awake(self);
-}
-
-// Graphics Tweaks
-MAKE_HOOK_MATCH(MainSettingsModelSO_SetSaveConfig, &GlobalNamespace::MainSettingsModelSO::SetSaveConfig, void, GlobalNamespace::MainSettingsModelSO* self, GlobalNamespace::MainSettingsModelSO::Config* config) {
-    DEBUG("MainSettingsModelSO_SetSaveConfig hook called!");
-    MainSettingsModelSO_SetSaveConfig(self, config);
-    auto vrResolutionScale = self->___vrResolutionScale;
-    auto smokeGraphicsSettings = self->___smokeGraphicsSettings;
-    auto depthTextureEnabled = self->___depthTextureEnabled;
-    auto mainEffectGraphicsSettings = self->___mainEffectGraphicsSettings;
-    auto mirrorGraphicsSettings = self->___mirrorGraphicsSettings;
-    auto screenDisplacementEffectsEnabled = self->___screenDisplacementEffectsEnabled;
-    auto antiAliasingLevel = self->___antiAliasingLevel;
-    auto enableFPSCounter = self->___enableFPSCounter;
-    auto maxShockwaveParticles = self->___maxShockwaveParticles;
-    auto targetFramerate = self->___targetFramerate;
-    auto obstaclesQuality = self->___obstaclesQuality;
-    
-    bool value = depthTextureEnabled->get_value();
-
-    DEBUG("Depth Texture Enabled before: {}", value);
-
-    vrResolutionScale->set_value(1.0f);
-    targetFramerate->set_value(120);
-    // Improves smoke quality
-    depthTextureEnabled->set_value(true);
-    enableFPSCounter->set_value(false);
-    smokeGraphicsSettings->set_value(true);
-    antiAliasingLevel->set_value(getGraphicsTweaksConfig().AntiAliasing.GetValue());
-    screenDisplacementEffectsEnabled->set_value(true);
-    maxShockwaveParticles->set_value(getGraphicsTweaksConfig().Shockwave.GetValue());
-    mirrorGraphicsSettings->set_value(getGraphicsTweaksConfig().Mirror.GetValue());
-    
-    GlobalNamespace::OVRPlugin::set_cpuLevel(getGraphicsTweaksConfig().CpuLevel.GetValue());
-    GlobalNamespace::OVRPlugin::set_gpuLevel(getGraphicsTweaksConfig().GpuLevel.GetValue());
-
-    DEBUG("Depth Texture Enabled after: {}", depthTextureEnabled->get_value());
 }
 
 MAKE_HOOK_MATCH(ObstacleMaterialSetter_SetCoreMaterial, &GlobalNamespace::ObstacleMaterialSetter::SetCoreMaterial, void, GlobalNamespace::ObstacleMaterialSetter* self, UnityEngine::Renderer* renderer, BeatSaber::PerformancePresets::ObstaclesQuality obstaclesQuality) {
     DEBUG("ObstacleMaterialSetter_SetCoreMaterial hook called! >_<");
-
-    self->_screenDisplacement->set_value(getGraphicsTweaksConfig().ScreenDistortion.GetValue());
 
     BeatSaber::PerformancePresets::ObstaclesQuality quality;
 
@@ -145,13 +124,29 @@ MAKE_HOOK_MATCH(ObstacleMaterialSetter_SetCoreMaterial, &GlobalNamespace::Obstac
             break;
         case 2:
             quality = ::BeatSaber::PerformancePresets::ObstaclesQuality::ObstacleHW;
-            self->_screenDisplacement->set_value(true);
             break;
     }
 
-    DEBUG("quaality {} :3", quality.value__);
-
-    ObstacleMaterialSetter_SetCoreMaterial(self, renderer, quality);
+    switch (quality.value__)
+    {
+    case 0:
+    case 1:
+        renderer->set_sharedMaterial(self->____texturedCoreMaterial);
+        DEBUG("TEXTUREDDDDD");
+        break;
+    case 2:
+        renderer->set_sharedMaterial(self->____lwCoreMaterial);
+        DEBUG("TRANSPARENTTTTTT");
+        break;
+    case 3:
+        renderer->set_sharedMaterial(self->____hwCoreMaterial);
+        DEBUG("DISTORTEDDDDD");
+        break;
+    default:
+        renderer->set_sharedMaterial(self->____lwCoreMaterial);
+        DEBUG("TRANSPARENTTTTTT");
+        break;
+    }
 }
 
 // Not sure what this does, but it's a hook
@@ -160,63 +155,12 @@ MAKE_HOOK_MATCH(ConditionalMaterialSwitcher_Awake, &GlobalNamespace::Conditional
     auto renderer = self->____renderer;
     auto material1 = self->____material1;
     renderer->set_sharedMaterial(material1);
-    // Don't call the original method, as it's not needed?
-    // ConditionalMaterialSwitcher_Awake(self);
 }
 
-bool firstTimeInit = false;
-
-MAKE_HOOK_MATCH(AlwaysVisibleQuad_OnEnable, &GlobalNamespace::AlwaysVisibleQuad::OnEnable, void, GlobalNamespace::AlwaysVisibleQuad* self) {
-    DEBUG("AlwaysVisibleQuad_OnEnable hook called!");
-    auto gameObject = self->get_gameObject();
-    gameObject->SetActive(false);
-
-}
-
-MAKE_HOOK_MATCH(MainCamera_Awake, &GlobalNamespace::MainCamera::Awake, void, GlobalNamespace::MainCamera* self) {
-    MainCamera_Awake(self);
-
-    if (!firstTimeInit) {
-        auto ovrManagerGO = UnityEngine::GameObject::New_ctor("OVRManager");
-        UnityEngine::Object::DontDestroyOnLoad(ovrManagerGO);
-        ovrManagerGO->SetActive(false);
-        auto ovrManager = ovrManagerGO->AddComponent<GlobalNamespace::OVRManager*>();
-        ovrManager->___useRecommendedMSAALevel = false;
-        // ovrManager->___isInsightPassthroughEnabled = true;
-        // ovrManager->set_trackingOriginType(GlobalNamespace::__OVRManager__TrackingOrigin::FloorLevel);
-        // ovrManager->SetSpaceWarp(true);
-        ovrManager->set_cpuLevel(4);
-        ovrManager->set_gpuLevel(4);
-        ovrManagerGO->SetActive(true);
-
-        firstTimeInit = true;
-        DEBUG("Initialized OVRManager!");
-    }
-
-    // auto mainCamera = self->get_camera();
-    // auto mainCameraGO = mainCamera->get_gameObject();
-
-    // // Bloom prepass, not sure if this is needed (it looks kinda bad with it on?)
-    // // mainCameraGO->GetComponent<GlobalNamespace::BloomPrePass*>()->set_enabled(false);
-
-    // auto backgroundColor = UnityEngine::Color(
-    //     0.0f,
-    //     0.0f,
-    //     0.0f,
-    //     0.0f
-    // );
-
-    // mainCamera->set_clearFlags(UnityEngine::CameraClearFlags::SolidColor);
-    // mainCamera->set_backgroundColor(backgroundColor);
-
-    // auto ovrPassthroughLayer = mainCameraGO->AddComponent<GlobalNamespace::OVRPassthroughLayer*>();
-    // ovrPassthroughLayer->___overlayType = GlobalNamespace::OVROverlay::OverlayType::Underlay;
-    // ovrPassthroughLayer->___textureOpacity_ = 0.1f;
-}
-
-MAKE_HOOK_MATCH(CommandBufferGrabPass_CreateCommandBuffer, &GlobalNamespace::CommandBufferGrabPass::CreateCommandBuffer, UnityEngine::Rendering::CommandBuffer*, GlobalNamespace::CommandBufferGrabPass* self, UnityEngine::Camera* camera) {
-    INFO("CommandBufferGrabPass_CreateCommandBuffer hook called! HAI! >_<");
-    return CommandBufferGrabPass_CreateCommandBuffer(self, camera);
+MAKE_HOOK_MATCH(ShockwaveEffect_Start, &GlobalNamespace::ShockwaveEffect::Start, void, GlobalNamespace::ShockwaveEffect* self) {
+    DEBUG("ShockwaveEffect_Start hook called!");
+    ShockwaveEffect_Start(self);
+    self->____shockwavePS->get_main().set_maxParticles(getGraphicsTweaksConfig().Shockwave.GetValue());
 }
 
 // Called later on in the game loading - a good time to install function hooks
@@ -233,20 +177,13 @@ GT_EXPORT_FUNC void load() {
     INSTALL_HOOK(logger, OculusLoader_Initialize);
     // Bloom (expensive, not sure if it's worth it?)
     INSTALL_HOOK(logger, MainSystemInit_Init);
-    INSTALL_HOOK(logger, MainSettingsModelSO_SetSaveConfig);
     INSTALL_HOOK(logger, ConditionalActivation_Awake);
     INSTALL_HOOK(logger, ConditionalMaterialSwitcher_Awake);
     INSTALL_HOOK(logger, ObstacleMaterialSetter_SetCoreMaterial);
     
-    // Passthrough
-    // INSTALL_HOOK(logger, MainCamera_Awake);
-    // INSTALL_HOOK(logger, AlwaysVisibleQuad_OnEnable);
-
     INFO("Installed all hooks!");
 
-
-    // BSML::Register::RegisterMenuButton<
-    BSML::Register::RegisterSettingsMenu<GraphicsTweaks::UI::GraphicsTweaksFlowCoordinator*>("GraphicsTweaks");
+    BSML::Register::RegisterMenuButton<GraphicsTweaks::UI::GraphicsTweaksFlowCoordinator*>("GraphicsTweaks");
     INFO("Registered settings menu!");
     INFO("GraphicsTweaks loaded!");
 }
