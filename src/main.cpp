@@ -12,6 +12,7 @@
 #include "UnityEngine/QualitySettings.hpp"
 #include "UnityEngine/CameraClearFlags.hpp"
 #include "UnityEngine/Renderer.hpp"
+#include "UnityEngine/Rendering/CommandBuffer.hpp"
 #include "GlobalNamespace/MainSettingsModelSO.hpp"
 #include "GlobalNamespace/ObservableVariableSO_1.hpp"
 #include "GlobalNamespace/MainCamera.hpp"
@@ -24,6 +25,7 @@
 #include "GlobalNamespace/BloomPrePass.hpp"
 #include "GlobalNamespace/OVRPlugin.hpp"
 #include "GlobalNamespace/ObstacleMaterialSetter.hpp"
+#include "GlobalNamespace/CommandBufferGrabPass.hpp"
 #include "bsml/shared/BSML/MainThreadScheduler.hpp"
 #include "bsml/shared/BSML.hpp"
 #include "UI/GraphicsTweaksFlowCoordinator.hpp"
@@ -115,7 +117,7 @@ MAKE_HOOK_MATCH(MainSettingsModelSO_SetSaveConfig, &GlobalNamespace::MainSetting
     enableFPSCounter->set_value(false);
     smokeGraphicsSettings->set_value(true);
     antiAliasingLevel->set_value(getGraphicsTweaksConfig().AntiAliasing.GetValue());
-    screenDisplacementEffectsEnabled->set_value(getGraphicsTweaksConfig().ScreenDistortion.GetValue());
+    screenDisplacementEffectsEnabled->set_value(true);
     maxShockwaveParticles->set_value(getGraphicsTweaksConfig().Shockwave.GetValue());
     mirrorGraphicsSettings->set_value(getGraphicsTweaksConfig().Mirror.GetValue());
     
@@ -127,6 +129,8 @@ MAKE_HOOK_MATCH(MainSettingsModelSO_SetSaveConfig, &GlobalNamespace::MainSetting
 
 MAKE_HOOK_MATCH(ObstacleMaterialSetter_SetCoreMaterial, &GlobalNamespace::ObstacleMaterialSetter::SetCoreMaterial, void, GlobalNamespace::ObstacleMaterialSetter* self, UnityEngine::Renderer* renderer, BeatSaber::PerformancePresets::ObstaclesQuality obstaclesQuality) {
     DEBUG("ObstacleMaterialSetter_SetCoreMaterial hook called! >_<");
+
+    self->_screenDisplacement->set_value(getGraphicsTweaksConfig().ScreenDistortion.GetValue());
 
     BeatSaber::PerformancePresets::ObstaclesQuality quality;
 
@@ -141,6 +145,7 @@ MAKE_HOOK_MATCH(ObstacleMaterialSetter_SetCoreMaterial, &GlobalNamespace::Obstac
             break;
         case 2:
             quality = ::BeatSaber::PerformancePresets::ObstaclesQuality::ObstacleHW;
+            self->_screenDisplacement->set_value(true);
             break;
     }
 
@@ -207,6 +212,11 @@ MAKE_HOOK_MATCH(MainCamera_Awake, &GlobalNamespace::MainCamera::Awake, void, Glo
     // auto ovrPassthroughLayer = mainCameraGO->AddComponent<GlobalNamespace::OVRPassthroughLayer*>();
     // ovrPassthroughLayer->___overlayType = GlobalNamespace::OVROverlay::OverlayType::Underlay;
     // ovrPassthroughLayer->___textureOpacity_ = 0.1f;
+}
+
+MAKE_HOOK_MATCH(CommandBufferGrabPass_CreateCommandBuffer, &GlobalNamespace::CommandBufferGrabPass::CreateCommandBuffer, UnityEngine::Rendering::CommandBuffer*, GlobalNamespace::CommandBufferGrabPass* self, UnityEngine::Camera* camera) {
+    INFO("CommandBufferGrabPass_CreateCommandBuffer hook called! HAI! >_<");
+    return CommandBufferGrabPass_CreateCommandBuffer(self, camera);
 }
 
 // Called later on in the game loading - a good time to install function hooks

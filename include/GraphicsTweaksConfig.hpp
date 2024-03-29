@@ -3,11 +3,11 @@
 #include "config-utils/shared/config-utils.hpp"
 
 DECLARE_CONFIG(GraphicsTweaksConfig,
-    CONFIG_VALUE(MenuResolution, float, "Resolution", 1);
-    CONFIG_VALUE(GameResolution, float, "Resolution", 1);
-    CONFIG_VALUE(AntiAliasing, int, "AntiAliasing", 2);
-    CONFIG_VALUE(MenuRefreshRate, float, "RefreshRate", -1); // We don't know the Refresh Rate, at this time.
-    CONFIG_VALUE(GameRefreshRate, float, "RefreshRate", -1); // We don't know the Refresh Rate, at this time.
+    CONFIG_VALUE(MenuResolution, float, "Menu Resolution", 1);
+    CONFIG_VALUE(GameResolution, float, "Game Resolution", 1);
+    CONFIG_VALUE(AntiAliasing, int, "Anti Aliasing", 2);
+    CONFIG_VALUE(MenuRefreshRate, float, "Menu Refresh Rate", -1); // We don't know the Refresh Rate, at this time.
+    CONFIG_VALUE(GameRefreshRate, float, "Game Refresh Rate", -1); // We don't know the Refresh Rate, at this time.
     CONFIG_VALUE(Bloom, bool, "Bloom", false);
     CONFIG_VALUE(Shockwave, bool, "Shockwave", false);
     CONFIG_VALUE(BloomQuality, int, "BloomQuality", 0); // 0 = Low Quality, 1 = High Quality
