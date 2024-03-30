@@ -16,6 +16,7 @@ DECLARE_CONFIG(GraphicsTweaksConfig,
     CONFIG_VALUE(WallQuality, int, "WallQuality", 1); // 0 = Transparent, 1 = Textured, 2 = Distorted
     CONFIG_VALUE(EnhancedLQMirror, bool, "EnhancedLQMirror", true);
     CONFIG_VALUE(FpsCounter, bool, "FpsCounter", true);
+    CONFIG_VALUE(FpsCounterAdvanced, bool, "FpsCounterAdvanced", false);
     CONFIG_VALUE(LightBrightness, float, "LightBrightness", 1);
     CONFIG_VALUE(MenuFoveatedRenderingLevel, int, "MenuFoveatedRenderingLevel", 0);
     CONFIG_VALUE(InGameFoveatedRenderingLevel, int, "InGameFoveatedRenderingLevel", 4);

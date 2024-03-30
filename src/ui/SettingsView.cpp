@@ -9,11 +9,14 @@
 #include "sombrero/shared/FastColor.hpp"
 #include "GlobalNamespace/OVRPlugin.hpp"
 #include "bsml/shared/BSML/MainThreadScheduler.hpp"
-
+#include "GlobalNamespace/OVRPlugin.hpp"
+#include "Unity/XR/Oculus/NativeMethods.hpp"
 #include "GraphicsTweaksConfig.hpp"
 
 DEFINE_TYPE(GraphicsTweaks::UI, SettingsView);
 
+using namespace UnityEngine;
+using namespace GlobalNamespace;
 
 UnityEngine::Sprite* GetBGSprite(std::string str)
 {
@@ -264,6 +267,7 @@ void GraphicsTweaks::UI::SettingsView::set_wallQualityValue(StringW value) {
 
 // resolutionLevelValueMenu
 float GraphicsTweaks::UI::SettingsView::get_resolutionLevelValueMenu() {
+    
     return getGraphicsTweaksConfig().MenuResolution.GetValue();
 }
 
@@ -291,10 +295,13 @@ StringW GraphicsTweaks::UI::SettingsView::get_targetFPSValueMenu() {
     }
 }
 void GraphicsTweaks::UI::SettingsView::set_targetFPSValueMenu(StringW value) {
+    
     auto index = this->systemDisplayFrequenciesAvailableLabels->IndexOf(value);
 
     if (index >= 0) {
+        DEBUG("Setting refresh rate to {}", value);
         auto item = this->systemDisplayFrequenciesAvailableValues->get_Item(index);
+        OVRPlugin::set_systemDisplayFrequency(item);
         getGraphicsTweaksConfig().MenuRefreshRate.SetValue(item, false);
     }
 }
@@ -350,15 +357,39 @@ float GraphicsTweaks::UI::SettingsView::get_gpuLevelValue() {
 }
 void GraphicsTweaks::UI::SettingsView::set_gpuLevelValue(float value) {
     DEBUG("Setting GPU Level {}", value);
+    OVRPlugin::set_gpuLevel(value);
     getGraphicsTweaksConfig().GpuLevel.SetValue(static_cast<int>(value), false);
 }
 
 // cpuLevelValue
 float GraphicsTweaks::UI::SettingsView::get_cpuLevelValue() {
     DEBUG("Getting CPU Level {}", getGraphicsTweaksConfig().CpuLevel.GetValue());
+    
     return getGraphicsTweaksConfig().CpuLevel.GetValue();
 }
 void GraphicsTweaks::UI::SettingsView::set_cpuLevelValue(float value) {
     DEBUG("Setting CPU Level {}", value);
+    OVRPlugin::set_cpuLevel(value);
     getGraphicsTweaksConfig().CpuLevel.SetValue(static_cast<int>(value), false);
+}
+
+// FPSCounterValue
+bool GraphicsTweaks::UI::SettingsView::get_FPSCounterValue() {
+    DEBUG("Getting FPS Counter {}", getGraphicsTweaksConfig().FpsCounter.GetValue());
+    return getGraphicsTweaksConfig().FpsCounter.GetValue();
+}
+void GraphicsTweaks::UI::SettingsView::set_FPSCounterValue(bool value) {
+    DEBUG("Setting FPS Counter {}", value);
+    getGraphicsTweaksConfig().FpsCounter.SetValue(value, false);
+}
+
+// FPSCounterAdvancedValue
+bool GraphicsTweaks::UI::SettingsView::get_FPSCounterAdvancedValue() {
+    DEBUG("Getting Advanced FPS Counter {}", getGraphicsTweaksConfig().FpsCounterAdvanced.GetValue());
+    return getGraphicsTweaksConfig().FpsCounterAdvanced.GetValue();
+}
+
+void GraphicsTweaks::UI::SettingsView::set_FPSCounterAdvancedValue(bool value) {
+    DEBUG("Setting Advanced FPS Counter {}", value);
+    getGraphicsTweaksConfig().FpsCounterAdvanced.SetValue(value, false);
 }

@@ -36,7 +36,10 @@
 #include "bsml/shared/BSML.hpp"
 #include "UI/GraphicsTweaksFlowCoordinator.hpp"
 #include "logging.hpp"
-
+#include "GlobalNamespace/FPSCounter.hpp"
+#include "GlobalNamespace/FPSCounterUIController.hpp"
+#include "GlobalNamespace/GameplayCoreInstaller.hpp"
+#include "GlobalNamespace/PerformanceVisualizer.hpp"
 inline modloader::ModInfo modInfo = {MOD_ID, VERSION, GIT_COMMIT}; // Stores the ID and version of our mod, and is sent to the modloader upon startup
 
 // Called at the early stages of game loading
@@ -176,6 +179,26 @@ MAKE_HOOK_MATCH(VisualEffectsController_HandleDepthTextureEnabledDidChange, &Glo
     }
 }
 
+
+MAKE_HOOK_MATCH(
+    GameplayCoreInstaller_InstallBindings,
+    &GlobalNamespace::GameplayCoreInstaller::InstallBindings,
+    void,
+    GlobalNamespace::GameplayCoreInstaller* self
+) {
+    using namespace GlobalNamespace;
+    using namespace UnityEngine;
+
+    GameplayCoreInstaller_InstallBindings(self);
+
+    if (getGraphicsTweaksConfig().FpsCounter.GetValue()) {
+        UnityW<FPSCounterUIController> fpsCounterUIController = Object::Instantiate(Resources::FindObjectsOfTypeAll<FPSCounterUIController*>()[0]);
+        if (fpsCounterUIController->____fpsCounter) {
+            fpsCounterUIController->____fpsCounter->set_enabled(true);
+        }
+    }
+}
+
 // Called later on in the game loading - a good time to install function hooks
 GT_EXPORT_FUNC void load() {
     INFO("Loading GraphicsTweaks...");
@@ -196,6 +219,7 @@ GT_EXPORT_FUNC void load() {
     INSTALL_HOOK(logger, ShockwaveEffect_Start);
     INSTALL_HOOK(logger, VisualEffectsController_OnPreRender);
     INSTALL_HOOK(logger, VisualEffectsController_HandleDepthTextureEnabledDidChange);
+    INSTALL_HOOK(logger, GameplayCoreInstaller_InstallBindings);
 
     INFO("Installed all hooks!");
 

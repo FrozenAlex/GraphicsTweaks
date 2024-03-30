@@ -15,6 +15,7 @@
 
 
 
+
 #ifdef HotReload
 DECLARE_CLASS_CUSTOM(GraphicsTweaks::UI, SettingsView, BSML::HotReloadViewController,
 #else
@@ -65,6 +66,8 @@ DECLARE_CLASS_CODEGEN(GraphicsTweaks::UI, SettingsView, HMUI::ViewController,
 
     // Boolean settings
     DECLARE_BSML_PROPERTY(bool, burnMarksValue);
+    DECLARE_BSML_PROPERTY(bool, FPSCounterValue);
+    DECLARE_BSML_PROPERTY(bool, FPSCounterAdvancedValue);
 
     // Levels
     DECLARE_BSML_PROPERTY(float, gpuLevelValue);

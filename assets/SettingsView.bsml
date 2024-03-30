@@ -18,7 +18,9 @@
 				<list-setting id="antiAliasingSetting" text='Anti-Aliasing' options="antiAliasingOptions" value="antiAliasingValue" bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
 				<list-setting id="wallsSetting" text='Walls' options="wallQualityOptions" value="wallQualityValue" bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
 				<increment-setting id="shockwaveParticlesSetting" text='Shockwave particles' value="shockwaveParticlesValue" bind-value="true" apply-on-change="true" increment="1" min="0" max="3" hover-hint="Max Shockwave Particles (distortions on impact)" on-change="UpdateGraphicsSettings" />
-				<bool-setting id="burnMarksSetting" text='Burn marks' value="burnMarksValue"  bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
+				<bool-setting id="burnMarksSetting" text='Burn marks' value="burnMarksValue"  bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" hover-hint="Allows you to see cuts in the platform you stand on" />
+				<bool-setting text='FPS Counter' value="FPSCounterValue"  bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" hover-hint="Minimal FPS counter pinned next to the standing platform" />
+				<bool-setting text='Advanced FPS Counter' value="FPSCounterAdvancedValue"  bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" hover-hint="FPS counter with more information, not recommended for use during playing the game, as it appears in front of you" />
 				<!--<bool-setting id="screenDistortionSetting" text='Passthrough' value="screenDistortionValue"  active="false" bind-value="true" apply-on-change="true" hover-hint="This feature requires patching BeatSaber with passthrough support" on-change="UpdateGraphicsSettings" />-->
 			</vertical>
 		</vertical>
@@ -46,8 +48,8 @@
 			</vertical>
 			<vertical child-control-height='false' bg='panel-top' pad='4' pad-bottom='1' pad-top='1' preferred-width='64'>
 				<text text='&lt;color=#FDD>Performance levels' align='Center' bold='true' font-size='3.5' color='#69B' size-delta-y='5'/>
-				<increment-setting text='GPU Level' bind-value="true"  apply-on-change="true" value="gpuLevelValue" min="1" increment="1.0" max="4" on-change="UpdateGraphicsSettings" />
-				<increment-setting text='CPU Level' bind-value="true" apply-on-change="true" value="cpuLevelValue" min="1" increment="1.0" max="4"  on-change="UpdateGraphicsSettings" />
+				<increment-setting text='GPU Level' bind-value="true"  apply-on-change="true" value="gpuLevelValue" min="1" increment="1.0" max="8" on-change="UpdateGraphicsSettings" />
+				<increment-setting text='CPU Level' bind-value="true" apply-on-change="true" value="cpuLevelValue" min="1" increment="1.0" max="8"  on-change="UpdateGraphicsSettings" />
 			</vertical>
 		</vertical>
 	</horizontal>

@@ -55,8 +55,7 @@ $command = "adb logcat "
 if ($all -eq $false) {
     $pattern = "("
     if ($self -eq $true) {
-        $modID = (Get-Content "./mod.json" -Raw | ConvertFrom-Json).id
-        $pattern += "$modID|"
+        $pattern += "GraphicsTweaks|"
     }
     if (![string]::IsNullOrEmpty($custom)) {
         $pattern += "$custom|"
