@@ -6,7 +6,9 @@
 
 #include "GlobalNamespace/MenuTransitionsHelper.hpp"
 #include "UnityEngine/Resources.hpp"
-
+#include "bsml/shared/BSML/ViewControllers/HotReloadViewController.hpp"
+#include "GraphicsTweaksConfig.hpp"
+#include "bsml/shared/BSML/MainThreadScheduler.hpp"
 DEFINE_TYPE(GraphicsTweaks::UI, GraphicsTweaksFlowCoordinator);
 
 void GraphicsTweaks::UI::GraphicsTweaksFlowCoordinator::Awake() {
@@ -27,7 +29,7 @@ void GraphicsTweaks::UI::GraphicsTweaksFlowCoordinator::DidActivate(bool firstAc
 
     SetTitle(il2cpp_utils::newcsstr("Graphics Tweaks"), HMUI::ViewController::AnimationType::In);
     this->____showBackButton = true;
-    ProvideInitialViewControllers(presetsView, settingsView, advancedSettingsView, nullptr, nullptr);
+    ProvideInitialViewControllers(settingsView, presetsView,  advancedSettingsView, nullptr, nullptr);
 }
 
 void GraphicsTweaks::UI::GraphicsTweaksFlowCoordinator::BackButtonWasPressed(HMUI::ViewController* topViewController) {
@@ -39,8 +41,15 @@ void GraphicsTweaks::UI::GraphicsTweaksFlowCoordinator::Close(bool immediately){
 
     auto menuTransitionsHelper = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::MenuTransitionsHelper*>()->FirstOrDefault();
     if (menuTransitionsHelper) {
+
+        
         menuTransitionsHelper->RestartGame(nullptr);
     }
+    
+    BSML::MainThreadScheduler::ScheduleAfterTime(4.0f,[this]() {
+        INFO("Saving GraphicsTweaks config...");
+        getGraphicsTweaksConfig().Save();
+    });
 
     if (fcInstance && fcInstance->get_isActiveAndEnabled() && fcInstance->get_isActivated()) {
         this->____parentFlowCoordinator->DismissFlowCoordinator(this, HMUI::ViewController::AnimationDirection::Horizontal, nullptr, immediately);

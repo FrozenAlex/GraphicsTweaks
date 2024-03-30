@@ -41,28 +41,32 @@ DECLARE_CLASS_CODEGEN(GraphicsTweaks::UI, SettingsView, HMUI::ViewController,
     BSML_OPTIONS_LIST_OBJECT(wallQualityOptions, "Transparent", "Textured", "Distorted");
 
     // Fields
-    DECLARE_INSTANCE_FIELD(StringW, mirrorValue);
-    DECLARE_INSTANCE_FIELD(StringW, antiAliasingValue);
-    DECLARE_INSTANCE_FIELD(StringW, bloomQualityValue);
-    DECLARE_INSTANCE_FIELD(StringW, smokeQualityValue);
-    DECLARE_INSTANCE_FIELD(StringW, wallQualityValue);
+    DECLARE_BSML_PROPERTY(StringW, mirrorValue);
+    DECLARE_BSML_PROPERTY(StringW, antiAliasingValue);
+    DECLARE_BSML_PROPERTY(StringW, bloomQualityValue);
+    DECLARE_BSML_PROPERTY(StringW, smokeQualityValue);
+    DECLARE_BSML_PROPERTY(StringW, wallQualityValue);
 
-    DECLARE_INSTANCE_FIELD(int, shockwaveParticlesValue);
+    DECLARE_BSML_PROPERTY(float, shockwaveParticlesValue);
+    DECLARE_BSML_PROPERTY(StringW, foveationLevelValueMenu);
+    DECLARE_BSML_PROPERTY(StringW, foveationLevelValueGame);
+
+    DECLARE_BSML_PROPERTY(float, resolutionLevelValueMenu);
+    DECLARE_BSML_PROPERTY(float, resolutionLevelValueGame);
+
+    DECLARE_BSML_PROPERTY(StringW, targetFPSValueMenu);
+    DECLARE_BSML_PROPERTY(StringW, targetFPSValueGame);
+
+
 
     // Instant settings
-    DECLARE_INSTANCE_FIELD(StringW, foveationLevelValueMenu);
-    DECLARE_INSTANCE_FIELD(StringW, foveationLevelValueGame);
-    DECLARE_INSTANCE_FIELD(float, resolutionLevelValueMenu);
-    DECLARE_INSTANCE_FIELD(float, resolutionLevelValueGame);
-    DECLARE_INSTANCE_FIELD(float, targetFPSValueMenu);
-    DECLARE_INSTANCE_FIELD(float, targetFPSValueGame);
-    DECLARE_INSTANCE_FIELD(bool, menuScreenDistortionValue);
-    DECLARE_INSTANCE_FIELD(bool, gameScreenDistortionValue);
+    DECLARE_BSML_PROPERTY(bool, menuScreenDistortionValue);
+    DECLARE_BSML_PROPERTY(bool, gameScreenDistortionValue);
 
     // Boolean settings
-    DECLARE_INSTANCE_FIELD(bool, burnMarksValue);
+    DECLARE_BSML_PROPERTY(bool, burnMarksValue);
 
     // Levels
-    DECLARE_INSTANCE_FIELD(int, gpuLevelValue);
-    DECLARE_INSTANCE_FIELD(int, cpuLevelValue);
+    DECLARE_BSML_PROPERTY(float, gpuLevelValue);
+    DECLARE_BSML_PROPERTY(float, cpuLevelValue);
 )

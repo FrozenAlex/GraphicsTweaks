@@ -42,31 +42,6 @@ void GraphicsTweaks::UI::SettingsView::DidActivate(bool firstActivation, bool ad
 
     DEBUG("Got FPS values");
 
-    mirrorValue = getGraphicsTweaksConfig().Mirror.GetValue() == 0 ? "Off" : getGraphicsTweaksConfig().Mirror.GetValue() == 1 ? "Low" : getGraphicsTweaksConfig().Mirror.GetValue() == 2 ? "Medium" : "High";
-    antiAliasingValue = getGraphicsTweaksConfig().AntiAliasing.GetValue() == 0 ? "Off" : getGraphicsTweaksConfig().AntiAliasing.GetValue() == 1 ? "2x" : "4x";
-    bloomQualityValue = getGraphicsTweaksConfig().Bloom.GetValue() == 0 ? "Off" : getGraphicsTweaksConfig().BloomQuality.GetValue() == 1 ? "Low" : "High";
-    smokeQualityValue = getGraphicsTweaksConfig().SmokeQuality.GetValue() == 0 ? "Off" : getGraphicsTweaksConfig().SmokeQuality.GetValue() == 1 ? "Low" : "High";
-    wallQualityValue = getGraphicsTweaksConfig().WallQuality.GetValue() == 0 ? "Transparent" : getGraphicsTweaksConfig().WallQuality.GetValue() == 1 ? "Textured" : "Distorted";
-    shockwaveParticlesValue = getGraphicsTweaksConfig().NumShockwaves.GetValue();
-    
-    foveationLevelValueMenu = getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.GetValue() == 0 ? "Off" : getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.GetValue() == 1 ? "Low" : getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.GetValue() == 2 ? "Medium" : getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.GetValue() == 3 ? "High" : "HighTop";
-    foveationLevelValueGame = getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.GetValue() == 0 ? "Off" : getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.GetValue() == 1 ? "Low" : getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.GetValue() == 2 ? "Medium" : getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.GetValue() == 3 ? "High" : "HighTop"; 
-
-    resolutionLevelValueMenu = getGraphicsTweaksConfig().MenuResolution.GetValue();
-    resolutionLevelValueGame = getGraphicsTweaksConfig().GameResolution.GetValue();
-
-    targetFPSValueMenu = getGraphicsTweaksConfig().MenuRefreshRate.GetValue();
-    targetFPSValueGame = getGraphicsTweaksConfig().GameRefreshRate.GetValue();
-
-    menuScreenDistortionValue = getGraphicsTweaksConfig().MenuShockwaves.GetValue();
-    gameScreenDistortionValue = getGraphicsTweaksConfig().GameShockwaves.GetValue();
-
-    burnMarksValue = getGraphicsTweaksConfig().Burnmarks.GetValue();
-
-    gpuLevelValue = getGraphicsTweaksConfig().GpuLevel.GetValue();
-    cpuLevelValue = getGraphicsTweaksConfig().CpuLevel.GetValue();
-
-
     BSML::parse_and_construct(Assets::SettingsView_bsml, this->get_transform(), this);
 
     #ifdef HotReload
@@ -98,94 +73,292 @@ void GraphicsTweaks::UI::SettingsView::PostParse() {
 void GraphicsTweaks::UI::SettingsView::UpdateGraphicsSettings() {
     BSML::MainThreadScheduler::ScheduleNextFrame([this]() {
         INFO("Updating graphics settings");
-        if(mirrorValue == "Off") {
-            getGraphicsTweaksConfig().Mirror.SetValue(0);
-        } else if(mirrorValue == "Low") {
-            getGraphicsTweaksConfig().Mirror.SetValue(1);
-        } else if(mirrorValue == "Medium") {
-            getGraphicsTweaksConfig().Mirror.SetValue(2);
-        } else if(mirrorValue == "High") {
-            getGraphicsTweaksConfig().Mirror.SetValue(3);
-        }
 
-        if(antiAliasingValue == "Off") {
-            getGraphicsTweaksConfig().AntiAliasing.SetValue(0);
-        } else if(antiAliasingValue == "2x") {
-            getGraphicsTweaksConfig().AntiAliasing.SetValue(1);
-        } else if(antiAliasingValue == "4x") {
-            getGraphicsTweaksConfig().AntiAliasing.SetValue(2);
-        }
-
-        if(bloomQualityValue == "Off") {
-            getGraphicsTweaksConfig().Bloom.SetValue(false);
-            getGraphicsTweaksConfig().BloomQuality.SetValue(0);
-        } else if(bloomQualityValue == "Low") {
-            getGraphicsTweaksConfig().Bloom.SetValue(true);
-            getGraphicsTweaksConfig().BloomQuality.SetValue(1);
-        } else if(bloomQualityValue == "High") {
-            getGraphicsTweaksConfig().Bloom.SetValue(true);
-            getGraphicsTweaksConfig().BloomQuality.SetValue(2);
-        }
-
-        if(smokeQualityValue == "Off") {
-            getGraphicsTweaksConfig().SmokeQuality.SetValue(0);
-        } else if(smokeQualityValue == "Low") {
-            getGraphicsTweaksConfig().SmokeQuality.SetValue(1);
-        } else if(smokeQualityValue == "High") {
-            getGraphicsTweaksConfig().SmokeQuality.SetValue(2);
-        }
-
-        DEBUG("WallQualityValue: {}", wallQualityValue);
-        if(wallQualityValue == "Transparent") {
-            getGraphicsTweaksConfig().WallQuality.SetValue(0);
-        } else if(wallQualityValue == "Textured") {
-            getGraphicsTweaksConfig().WallQuality.SetValue(1);
-        } else if(wallQualityValue == "Distorted") {
-            getGraphicsTweaksConfig().WallQuality.SetValue(2);
-        }
-        DEBUG("config WallQuality: {}", getGraphicsTweaksConfig().WallQuality.GetValue());
-
-        getGraphicsTweaksConfig().NumShockwaves.SetValue(shockwaveParticlesValue);
-
-        if(foveationLevelValueMenu == "Off") {
-            getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.SetValue(0);
-        } else if(foveationLevelValueMenu == "Low") {
-            getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.SetValue(1);
-        } else if(foveationLevelValueMenu == "Medium") {
-            getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.SetValue(2);
-        } else if(foveationLevelValueMenu == "High") {
-            getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.SetValue(3);
-        } else if(foveationLevelValueMenu == "HighTop") {
-            getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.SetValue(4);
-        }
-
-        if(foveationLevelValueGame == "Off") {
-            getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.SetValue(0);
-        } else if(foveationLevelValueGame == "Low") {
-            getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.SetValue(1);
-        } else if(foveationLevelValueGame == "Medium") {
-            getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.SetValue(2);
-        } else if(foveationLevelValueGame == "High") {
-            getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.SetValue(3);
-        } else if(foveationLevelValueGame == "HighTop") {
-            getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.SetValue(4);
-        }
-
-        getGraphicsTweaksConfig().MenuResolution.SetValue(resolutionLevelValueMenu);
-        getGraphicsTweaksConfig().GameResolution.SetValue(resolutionLevelValueGame);
-
-        getGraphicsTweaksConfig().MenuRefreshRate.SetValue(targetFPSValueMenu);
-        getGraphicsTweaksConfig().GameRefreshRate.SetValue(targetFPSValueGame);
-
-
-
-        getGraphicsTweaksConfig().CpuLevel.SetValue(cpuLevelValue);
-        getGraphicsTweaksConfig().GpuLevel.SetValue(gpuLevelValue);
-
-        getGraphicsTweaksConfig().MenuShockwaves.SetValue(menuScreenDistortionValue);
-        getGraphicsTweaksConfig().GameShockwaves.SetValue(gameScreenDistortionValue);
-
-        getGraphicsTweaksConfig().Save();
+        
     });
     
+}
+
+// shockwaveParticlesValue
+float GraphicsTweaks::UI::SettingsView::get_shockwaveParticlesValue() {
+   return getGraphicsTweaksConfig().NumShockwaves.GetValue();
+}
+void GraphicsTweaks::UI::SettingsView::set_shockwaveParticlesValue(float value) {
+    getGraphicsTweaksConfig().NumShockwaves.SetValue(value, false);
+}
+
+// foveationLevelValueMenu
+StringW GraphicsTweaks::UI::SettingsView::get_foveationLevelValueMenu() {
+    auto value = getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.GetValue();
+    switch(value) {
+        case 0:
+            return "Off";
+        case 1:
+            return "Low";
+        case 2:
+            return "Medium";
+        case 3:
+            return "High";
+        case 4:
+            return "HighTop";
+    }
+    return "Off";
+}
+void GraphicsTweaks::UI::SettingsView::set_foveationLevelValueMenu(StringW value) {
+    if(value == "Off") {
+        getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.SetValue(0, false);
+    } else if(value == "Low") {
+        getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.SetValue(1, false);
+    } else if(value == "Medium") {
+        getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.SetValue(2, false);
+    } else if(value == "High") {
+        getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.SetValue(3, false);
+    } else if(value == "HighTop") {
+        getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.SetValue(4, false);
+    }
+}
+
+// foveationLevelValueGame
+StringW GraphicsTweaks::UI::SettingsView::get_foveationLevelValueGame() {
+    auto value = getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.GetValue();
+    switch(value) {
+        case 0:
+            return "Off";
+        case 1:
+            return "Low";
+        case 2:
+            return "Medium";
+        case 3:
+            return "High";
+        case 4:
+            return "HighTop";
+    }
+    return "Off";
+}
+void GraphicsTweaks::UI::SettingsView::set_foveationLevelValueGame(StringW value) {
+    if(value == "Off") {
+        getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.SetValue(0, false);
+    } else if(value == "Low") {
+        getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.SetValue(1, false);
+    } else if(value == "Medium") {
+        getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.SetValue(2, false);
+    } else if(value == "High") {
+        getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.SetValue(3, false);
+    } else if(value == "HighTop") {
+        getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.SetValue(4, false);
+    }
+}
+
+// mirrorValue
+StringW GraphicsTweaks::UI::SettingsView::get_mirrorValue() {
+    if (getGraphicsTweaksConfig().Mirror.GetValue() == 0) {
+        return "Off";
+    } else if (getGraphicsTweaksConfig().Mirror.GetValue() == 1) {
+        return "Low";
+    } else if (getGraphicsTweaksConfig().Mirror.GetValue() == 2) {
+        return "Medium";
+    } else if (getGraphicsTweaksConfig().Mirror.GetValue() == 3) {
+        return "High";
+    }
+    return "Off";
+}
+void GraphicsTweaks::UI::SettingsView::set_mirrorValue(StringW value) {
+    if(value == "Off") {
+        getGraphicsTweaksConfig().Mirror.SetValue(0, false);
+    } else if(value == "Low") {
+        getGraphicsTweaksConfig().Mirror.SetValue(1, false);
+    } else if(value == "Medium") {
+        getGraphicsTweaksConfig().Mirror.SetValue(2, false);
+    } else if(value == "High") {
+        getGraphicsTweaksConfig().Mirror.SetValue(3, false);
+    }
+}
+
+// antiAliasingValue
+StringW GraphicsTweaks::UI::SettingsView::get_antiAliasingValue() {
+    if (getGraphicsTweaksConfig().AntiAliasing.GetValue() == 0) {
+        return "Off";
+    } else if (getGraphicsTweaksConfig().AntiAliasing.GetValue() == 1) {
+        return "2x";
+    } else if (getGraphicsTweaksConfig().AntiAliasing.GetValue() == 2) {
+        return "4x";
+    }
+    return "Off";
+}
+void GraphicsTweaks::UI::SettingsView::set_antiAliasingValue(StringW value) {
+    if(value == "Off") {
+        getGraphicsTweaksConfig().AntiAliasing.SetValue(0, false);
+    } else if(value == "2x") {
+        getGraphicsTweaksConfig().AntiAliasing.SetValue(1, false);
+    } else if(value == "4x") {
+        getGraphicsTweaksConfig().AntiAliasing.SetValue(2, false);
+    }
+}
+
+// bloomQualityValue
+StringW GraphicsTweaks::UI::SettingsView::get_bloomQualityValue() {
+    if (getGraphicsTweaksConfig().Bloom.GetValue() == false) {
+        return "Off";
+    } else if (getGraphicsTweaksConfig().BloomQuality.GetValue() == 1) {
+        return "Low";
+    } else if (getGraphicsTweaksConfig().BloomQuality.GetValue() == 2) {
+        return "High";
+    }
+    return "Off";
+}
+void GraphicsTweaks::UI::SettingsView::set_bloomQualityValue(StringW value) {
+    if(value == "Off") {
+        getGraphicsTweaksConfig().Bloom.SetValue(false, false);
+        getGraphicsTweaksConfig().BloomQuality.SetValue(0, false);
+    } else if(value == "Low") {
+        getGraphicsTweaksConfig().Bloom.SetValue(true, false);
+        getGraphicsTweaksConfig().BloomQuality.SetValue(1, false);
+    } else if(value == "High") {
+        getGraphicsTweaksConfig().Bloom.SetValue(true, false);
+        getGraphicsTweaksConfig().BloomQuality.SetValue(2, false);
+    }
+}
+
+// smokeQualityValue
+StringW GraphicsTweaks::UI::SettingsView::get_smokeQualityValue() {
+    if (getGraphicsTweaksConfig().SmokeQuality.GetValue() == 0) {
+        return "Off";
+    } else if (getGraphicsTweaksConfig().SmokeQuality.GetValue() == 1) {
+        return "Low";
+    } else if (getGraphicsTweaksConfig().SmokeQuality.GetValue() == 2) {
+        return "High";
+    }
+    return "Off";
+}
+void GraphicsTweaks::UI::SettingsView::set_smokeQualityValue(StringW value) {
+    if(value == "Off") {
+        getGraphicsTweaksConfig().SmokeQuality.SetValue(0, false);
+    } else if(value == "Low") {
+        getGraphicsTweaksConfig().SmokeQuality.SetValue(1, false);
+    } else if(value == "High") {
+        getGraphicsTweaksConfig().SmokeQuality.SetValue(2, false);
+    }
+}
+
+// wallQualityValue
+StringW GraphicsTweaks::UI::SettingsView::get_wallQualityValue() {
+    if (getGraphicsTweaksConfig().WallQuality.GetValue() == 0) {
+        return "Transparent";
+    } else if (getGraphicsTweaksConfig().WallQuality.GetValue() == 1) {
+        return "Textured";
+    } else if (getGraphicsTweaksConfig().WallQuality.GetValue() == 2) {
+        return "Distorted";
+    }
+    return "Transparent";
+}
+void GraphicsTweaks::UI::SettingsView::set_wallQualityValue(StringW value) {
+    if(value == "Transparent") {
+        getGraphicsTweaksConfig().WallQuality.SetValue(0, false);
+    } else if(value == "Textured") {
+        getGraphicsTweaksConfig().WallQuality.SetValue(1, false);
+    } else if(value == "Distorted") {
+        getGraphicsTweaksConfig().WallQuality.SetValue(2, false);
+    }
+}
+
+
+// resolutionLevelValueMenu
+float GraphicsTweaks::UI::SettingsView::get_resolutionLevelValueMenu() {
+    return getGraphicsTweaksConfig().MenuResolution.GetValue();
+}
+
+void GraphicsTweaks::UI::SettingsView::set_resolutionLevelValueMenu(float value) {
+    getGraphicsTweaksConfig().MenuResolution.SetValue(value, false);
+}
+
+// resolutionLevelValueGame
+float GraphicsTweaks::UI::SettingsView::get_resolutionLevelValueGame() {
+    return getGraphicsTweaksConfig().GameResolution.GetValue();
+}
+void GraphicsTweaks::UI::SettingsView::set_resolutionLevelValueGame(float value) {
+    getGraphicsTweaksConfig().GameResolution.SetValue(value, false);
+}
+
+// targetFPSValueMenu
+StringW GraphicsTweaks::UI::SettingsView::get_targetFPSValueMenu() {
+    auto value = getGraphicsTweaksConfig().MenuRefreshRate.GetValue();
+    
+    auto index = this->systemDisplayFrequenciesAvailableValues->IndexOf(value);
+    if (index >= 0) {
+        return this->systemDisplayFrequenciesAvailableLabels->get_Item(index);
+    } else {
+        return "Unkown";
+    }
+}
+void GraphicsTweaks::UI::SettingsView::set_targetFPSValueMenu(StringW value) {
+    auto index = this->systemDisplayFrequenciesAvailableLabels->IndexOf(value);
+
+    if (index >= 0) {
+        auto item = this->systemDisplayFrequenciesAvailableValues->get_Item(index);
+        getGraphicsTweaksConfig().MenuRefreshRate.SetValue(item, false);
+    }
+}
+
+// targetFPSValueGame
+StringW GraphicsTweaks::UI::SettingsView::get_targetFPSValueGame() {
+    auto value = getGraphicsTweaksConfig().GameRefreshRate.GetValue();
+    
+    auto index = this->systemDisplayFrequenciesAvailableValues->IndexOf(value);
+    if (index >= 0) {
+        return this->systemDisplayFrequenciesAvailableLabels->get_Item(index);
+    } else {
+        return "Unkown";
+    }
+}
+void GraphicsTweaks::UI::SettingsView::set_targetFPSValueGame(StringW value) {
+    auto index = this->systemDisplayFrequenciesAvailableLabels->IndexOf(value);
+
+    if (index >= 0) {
+        auto item = this->systemDisplayFrequenciesAvailableValues->get_Item(index);
+        getGraphicsTweaksConfig().GameRefreshRate.SetValue(item, false);
+    }
+}
+
+// menuScreenDistortionValue
+bool GraphicsTweaks::UI::SettingsView::get_menuScreenDistortionValue() {
+    return getGraphicsTweaksConfig().MenuShockwaves.GetValue();
+}
+void GraphicsTweaks::UI::SettingsView::set_menuScreenDistortionValue(bool value) {
+    getGraphicsTweaksConfig().MenuShockwaves.SetValue(value, false);
+}
+
+// gameScreenDistortionValue
+bool GraphicsTweaks::UI::SettingsView::get_gameScreenDistortionValue() {
+    return getGraphicsTweaksConfig().GameShockwaves.GetValue();
+}
+void GraphicsTweaks::UI::SettingsView::set_gameScreenDistortionValue(bool value) {
+    getGraphicsTweaksConfig().GameShockwaves.SetValue(value, false);
+}
+
+// burnMarksValue
+bool GraphicsTweaks::UI::SettingsView::get_burnMarksValue() {
+    return getGraphicsTweaksConfig().Burnmarks.GetValue();
+}
+void GraphicsTweaks::UI::SettingsView::set_burnMarksValue(bool value) {
+    getGraphicsTweaksConfig().Burnmarks.SetValue(value, false);
+}
+
+// gpuLevelValue
+float GraphicsTweaks::UI::SettingsView::get_gpuLevelValue() {
+    DEBUG("Getting GPU Level {}", getGraphicsTweaksConfig().GpuLevel.GetValue());
+    return getGraphicsTweaksConfig().GpuLevel.GetValue();
+}
+void GraphicsTweaks::UI::SettingsView::set_gpuLevelValue(float value) {
+    DEBUG("Setting GPU Level {}", value);
+    getGraphicsTweaksConfig().GpuLevel.SetValue(static_cast<int>(value), false);
+}
+
+// cpuLevelValue
+float GraphicsTweaks::UI::SettingsView::get_cpuLevelValue() {
+    DEBUG("Getting CPU Level {}", getGraphicsTweaksConfig().CpuLevel.GetValue());
+    return getGraphicsTweaksConfig().CpuLevel.GetValue();
+}
+void GraphicsTweaks::UI::SettingsView::set_cpuLevelValue(float value) {
+    DEBUG("Setting CPU Level {}", value);
+    getGraphicsTweaksConfig().CpuLevel.SetValue(static_cast<int>(value), false);
 }

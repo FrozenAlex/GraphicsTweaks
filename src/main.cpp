@@ -103,8 +103,8 @@ MAKE_HOOK_MATCH(ConditionalActivation_Awake, &GlobalNamespace::ConditionalActiva
         self->get_gameObject()->SetActive(false);
     }
 
-    //Disable fake glow
-    if(std::find(name.begin(), name.end(), "Fake") != name.end()) {
+    //Disable fake glow    
+    if(std::u16string_view(name).find(u"Fake") != std::string::npos) {
         self->get_gameObject()->SetActive(false);
     }
 }
@@ -158,7 +158,6 @@ MAKE_HOOK_MATCH(ObstacleMaterialSetter_SetCoreMaterial, &GlobalNamespace::Obstac
 
 // Not sure what this does, but it's a hook
 MAKE_HOOK_MATCH(ConditionalMaterialSwitcher_Awake, &GlobalNamespace::ConditionalMaterialSwitcher::Awake, void, GlobalNamespace::ConditionalMaterialSwitcher* self) {
-    DEBUG("ConditionalMaterialSwitcher_Awake hook called!");
     auto renderer = self->____renderer;
     auto material1 = self->____material1;
     renderer->set_sharedMaterial(material1);
@@ -166,12 +165,10 @@ MAKE_HOOK_MATCH(ConditionalMaterialSwitcher_Awake, &GlobalNamespace::Conditional
 
 //Force depth to on if using high quality smoke.
 MAKE_HOOK_MATCH(VisualEffectsController_OnPreRender, &GlobalNamespace::VisualEffectsController::OnPreRender, void, GlobalNamespace::VisualEffectsController* self) {
-    DEBUG("VisualEffectsController_OnPreRender hook called!");
     self->SetShaderKeyword("DEPTH_TEXTURE_ENABLED", getGraphicsTweaksConfig().SmokeQuality.GetValue() > 1);
 }
 
 MAKE_HOOK_MATCH(VisualEffectsController_HandleDepthTextureEnabledDidChange, &GlobalNamespace::VisualEffectsController::HandleDepthTextureEnabledDidChange, void, GlobalNamespace::VisualEffectsController* self) {
-    DEBUG("VisualEffectsController_HandleDepthTextureEnabledDidChange hook called!");
     if(getGraphicsTweaksConfig().SmokeQuality.GetValue() > 1) {
         self->____camera->set_depthTextureMode(UnityEngine::DepthTextureMode::Depth);
     } else {

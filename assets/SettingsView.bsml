@@ -1,5 +1,5 @@
 <vertical preferred-width="130" pad-top='-0' anchor-min-y="1" child-control-height="false" xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='https://raw.githubusercontent.com/RedBrumbler/Quest-BSML-Docs/gh-pages/schema.xsd'>
-	<horizontal id='filterbarContainer' child-align='MiddleRight' child-control-width='false'>
+	<!-- <horizontal id='filterbarContainer' child-align='MiddleRight' child-control-width='false'>
 		<horizontal ignore-layout='true' pad-top='1' pad-bottom="0">
 			<text text='Graphics Settings' align='Center' font-size='7' italics='true'/>
 		</horizontal>
@@ -7,7 +7,7 @@
 			<button text='Reset' on-click='ResetSettings' pref-width="15" />
 			<button text='Presets' on-click='ShowPresets' pref-width="15" />
 		</horizontal>
-	</horizontal>
+	</horizontal> -->
 	<horizontal horizontal-fit='PreferredSize' pad='4' spacing='2' preferred-height='79' child-control-height='false'>
 		<vertical spacing='2'>
 			<vertical child-control-height='false' bg='panel-top' pad='2' pad-bottom='1' pad-top='1' preferred-width='64'>
@@ -17,7 +17,7 @@
 				<list-setting id="smokeSetting" text='Smoke' options="smokeQualityOptions" value="smokeQualityValue" bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
 				<list-setting id="antiAliasingSetting" text='Anti-Aliasing' options="antiAliasingOptions" value="antiAliasingValue" bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
 				<list-setting id="wallsSetting" text='Walls' options="wallQualityOptions" value="wallQualityValue" bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
-				<increment-setting id="shockwaveParticlesSetting" text='Shockwave particles' value="shockwaveParticlesValue" increment="1" min="0" max="4" integer-only="true" hover-hint="Max Shockwave Particles (distortions on impact)" on-change="UpdateGraphicsSettings" />
+				<increment-setting id="shockwaveParticlesSetting" text='Shockwave particles' value="shockwaveParticlesValue" bind-value="true" apply-on-change="true" increment="1" min="0" max="3" hover-hint="Max Shockwave Particles (distortions on impact)" on-change="UpdateGraphicsSettings" />
 				<bool-setting id="burnMarksSetting" text='Burn marks' value="burnMarksValue"  bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
 				<!--<bool-setting id="screenDistortionSetting" text='Passthrough' value="screenDistortionValue"  active="false" bind-value="true" apply-on-change="true" hover-hint="This feature requires patching BeatSaber with passthrough support" on-change="UpdateGraphicsSettings" />-->
 			</vertical>
@@ -27,27 +27,27 @@
 				<text text='&lt;color=#DDD>Settings based on environment' align='Center' bold='true' font-size='3.5' color='#69B' size-delta-y='5'/>
 				<tab-selector tab-tag="main" anchor-pos-y='0' size-delta-y='6' size-delta-x='-60' 
 					child-expand-width='true' child-control-width='true'  />
-				<tab tags="main" tab-name="menu" size-delta-y="22">
+				<tab tags="main" tab-name="menu" size-delta-y="31">
 					<vertical child-control-height='false' horizontal-fit="Unconstrained">
-						<increment-setting id="performanceLevelGPU" text='Resolution' min="0.2" max="2" increment="0.1" on-change="UpdateGraphicsSettings" />
-						<list-setting id="performanceLevelCPU" text='Target FPS' choices="systemDisplayFrequenciesAvailableLabels" on-change="UpdateGraphicsSettings" />
-						<list-setting id="foveationLevel" text='Foveation' hover-hint="Foveated Rendering decreases visual clarity in peripheral vision to increase performance" choices="foveationLevelOptions" on-change="UpdateGraphicsSettings" />
-						<bool-setting id="menuScreenDistortionSetting" text='Menu Shockwaves' value="menuScreenDistortionValue"  bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
+						<increment-setting id="performanceLevelGPU" text='Resolution' min="0.2" max="2" increment="0.1" value="resolutionLevelValueMenu"  bind-value="true" apply-on-change="true"  on-change="UpdateGraphicsSettings" />
+						<list-setting text='Target FPS' choices="systemDisplayFrequenciesAvailableLabels" value="targetFPSValueMenu" bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
+						<list-setting value="foveationLevelValueMenu" bind-value="true" apply-on-change="true" text='Foveation' hover-hint="Foveated Rendering decreases visual clarity in peripheral vision to increase performance" choices="foveationLevelOptions" on-change="UpdateGraphicsSettings" />
+						<bool-setting text='Menu Shockwaves' value="menuScreenDistortionValue"  bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
 					</vertical>
 				</tab>	
-				<tab tags="main" tab-name="game" size-delta-y="22">
+				<tab tags="main" tab-name="game" size-delta-y="31">
 					<vertical child-control-height='false' horizontal-fit="Unconstrained">
-						<increment-setting id="performanceLevelGPU" text='Resolution' min="0.2" max="2" increment="0.1" on-change="UpdateGraphicsSettings" />
-						<list-setting id="performanceLevelCPU" text='Target FPS' choices="systemDisplayFrequenciesAvailableLabels" on-change="UpdateGraphicsSettings" />
-						<list-setting id="foveationLevel" text='Foveation' hover-hint="Foveated Rendering decreases visual clarity in peripheral vision to increase performance" choices="foveationLevelOptions" on-change="UpdateGraphicsSettings" />
-						<bool-setting id="gameScreenDistortionSetting" text='Game Shockwaves' value="gameScreenDistortionValue"  bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
+						<increment-setting id="performanceLevelGPU" text='Resolution' min="0.2" max="2" increment="0.1" value="resolutionLevelValueGame"  bind-value="true" apply-on-change="true"  on-change="UpdateGraphicsSettings" />
+						<list-setting value="targetFPSValueGame" bind-value="true" apply-on-change="true" text='Target FPS' choices="systemDisplayFrequenciesAvailableLabels" on-change="UpdateGraphicsSettings" />
+						<list-setting text='Foveation' value="foveationLevelValueGame" bind-value="true" apply-on-change="true" hover-hint="Foveated Rendering decreases visual clarity in peripheral vision to increase performance" choices="foveationLevelOptions" on-change="UpdateGraphicsSettings" />
+						<bool-setting text='Game Shockwaves' value="gameScreenDistortionValue"  bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
 					</vertical>
 				</tab>
 			</vertical>
 			<vertical child-control-height='false' bg='panel-top' pad='4' pad-bottom='1' pad-top='1' preferred-width='64'>
 				<text text='&lt;color=#FDD>Performance levels' align='Center' bold='true' font-size='3.5' color='#69B' size-delta-y='5'/>
-				<increment-setting id="performanceLevelGPUSetting" text='GPU Level' min="1" max="4" integer-only="true" on-change="UpdateGraphicsSettings" />
-				<increment-setting id="performanceLevelCPUSetting" text='CPU Level' min="1" max="4" integer-only="true" on-change="UpdateGraphicsSettings" />
+				<increment-setting text='GPU Level' bind-value="true"  apply-on-change="true" value="gpuLevelValue" min="1" increment="1.0" max="4" on-change="UpdateGraphicsSettings" />
+				<increment-setting text='CPU Level' bind-value="true" apply-on-change="true" value="cpuLevelValue" min="1" increment="1.0" max="4"  on-change="UpdateGraphicsSettings" />
 			</vertical>
 		</vertical>
 	</horizontal>
