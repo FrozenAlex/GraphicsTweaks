@@ -11,3 +11,14 @@
 #include "beatsaber-hook/shared/utils/hooking.hpp"
 
 #include "GraphicsTweaksConfig.hpp"
+
+namespace GraphicsTweaks {
+    namespace Hooks {
+        void VRRenderingParamsSetup();
+
+    }
+
+    namespace VRRenderingParamsSetup {
+        void Reload(std::optional<float> vrResolutionScale = std::nullopt);
+    }
+}

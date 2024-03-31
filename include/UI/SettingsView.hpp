@@ -40,7 +40,7 @@ DECLARE_CLASS_CODEGEN(GraphicsTweaks::UI, SettingsView, HMUI::ViewController,
     BSML_OPTIONS_LIST_OBJECT(smokeQualityOptions, "Off", "Low", "High");
     BSML_OPTIONS_LIST_OBJECT(booleanOptions, "Off", "On");
     BSML_OPTIONS_LIST_OBJECT(wallQualityOptions, "Transparent", "Textured", "Distorted");
-
+    BSML_OPTIONS_LIST_OBJECT(colorSpaceOptions, "Unknown", "Unmanaged", "Rec_2020", "Rec_709", "Rift_CV1", "Rift_S", "Quest", "P3", "Adobe_RGB" );
     // Fields
     DECLARE_BSML_PROPERTY(StringW, mirrorValue);
     DECLARE_BSML_PROPERTY(StringW, antiAliasingValue);
@@ -72,4 +72,7 @@ DECLARE_CLASS_CODEGEN(GraphicsTweaks::UI, SettingsView, HMUI::ViewController,
     // Levels
     DECLARE_BSML_PROPERTY(float, gpuLevelValue);
     DECLARE_BSML_PROPERTY(float, cpuLevelValue);
+
+    // Color space
+    DECLARE_BSML_PROPERTY(StringW, colorSpaceValue);
 )

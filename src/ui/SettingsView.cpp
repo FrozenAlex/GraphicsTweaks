@@ -12,7 +12,9 @@
 #include "GlobalNamespace/OVRPlugin.hpp"
 #include "Unity/XR/Oculus/NativeMethods.hpp"
 #include "GraphicsTweaksConfig.hpp"
-
+#include "main.hpp"
+#include "FPSCounter.hpp"
+#include "bsml/shared/BSML/SharedCoroutineStarter.hpp"
 DEFINE_TYPE(GraphicsTweaks::UI, SettingsView);
 
 using namespace UnityEngine;
@@ -74,11 +76,7 @@ void GraphicsTweaks::UI::SettingsView::PostParse() {
 }
 
 void GraphicsTweaks::UI::SettingsView::UpdateGraphicsSettings() {
-    BSML::MainThreadScheduler::ScheduleNextFrame([this]() {
-        INFO("Updating graphics settings");
 
-        
-    });
     
 }
 
@@ -119,6 +117,7 @@ void GraphicsTweaks::UI::SettingsView::set_foveationLevelValueMenu(StringW value
     } else if(value == "HighTop") {
         getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.SetValue(4, false);
     }
+    GraphicsTweaks::VRRenderingParamsSetup::Reload();
 }
 
 // foveationLevelValueGame
@@ -150,6 +149,7 @@ void GraphicsTweaks::UI::SettingsView::set_foveationLevelValueGame(StringW value
     } else if(value == "HighTop") {
         getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.SetValue(4, false);
     }
+    GraphicsTweaks::VRRenderingParamsSetup::Reload();
 }
 
 // mirrorValue
@@ -267,12 +267,12 @@ void GraphicsTweaks::UI::SettingsView::set_wallQualityValue(StringW value) {
 
 // resolutionLevelValueMenu
 float GraphicsTweaks::UI::SettingsView::get_resolutionLevelValueMenu() {
-    
     return getGraphicsTweaksConfig().MenuResolution.GetValue();
 }
 
 void GraphicsTweaks::UI::SettingsView::set_resolutionLevelValueMenu(float value) {
     getGraphicsTweaksConfig().MenuResolution.SetValue(value, false);
+    GraphicsTweaks::VRRenderingParamsSetup::Reload();
 }
 
 // resolutionLevelValueGame
@@ -281,6 +281,7 @@ float GraphicsTweaks::UI::SettingsView::get_resolutionLevelValueGame() {
 }
 void GraphicsTweaks::UI::SettingsView::set_resolutionLevelValueGame(float value) {
     getGraphicsTweaksConfig().GameResolution.SetValue(value, false);
+    GraphicsTweaks::VRRenderingParamsSetup::Reload();
 }
 
 // targetFPSValueMenu
@@ -301,8 +302,8 @@ void GraphicsTweaks::UI::SettingsView::set_targetFPSValueMenu(StringW value) {
     if (index >= 0) {
         DEBUG("Setting refresh rate to {}", value);
         auto item = this->systemDisplayFrequenciesAvailableValues->get_Item(index);
-        OVRPlugin::set_systemDisplayFrequency(item);
         getGraphicsTweaksConfig().MenuRefreshRate.SetValue(item, false);
+        GraphicsTweaks::VRRenderingParamsSetup::Reload();
     }
 }
 
@@ -323,6 +324,7 @@ void GraphicsTweaks::UI::SettingsView::set_targetFPSValueGame(StringW value) {
     if (index >= 0) {
         auto item = this->systemDisplayFrequenciesAvailableValues->get_Item(index);
         getGraphicsTweaksConfig().GameRefreshRate.SetValue(item, false);
+        GraphicsTweaks::VRRenderingParamsSetup::Reload();
     }
 }
 
@@ -357,8 +359,8 @@ float GraphicsTweaks::UI::SettingsView::get_gpuLevelValue() {
 }
 void GraphicsTweaks::UI::SettingsView::set_gpuLevelValue(float value) {
     DEBUG("Setting GPU Level {}", value);
-    OVRPlugin::set_gpuLevel(value);
     getGraphicsTweaksConfig().GpuLevel.SetValue(static_cast<int>(value), false);
+    GraphicsTweaks::VRRenderingParamsSetup::Reload();
 }
 
 // cpuLevelValue
@@ -369,8 +371,8 @@ float GraphicsTweaks::UI::SettingsView::get_cpuLevelValue() {
 }
 void GraphicsTweaks::UI::SettingsView::set_cpuLevelValue(float value) {
     DEBUG("Setting CPU Level {}", value);
-    OVRPlugin::set_cpuLevel(value);
     getGraphicsTweaksConfig().CpuLevel.SetValue(static_cast<int>(value), false);
+    GraphicsTweaks::VRRenderingParamsSetup::Reload();
 }
 
 // FPSCounterValue
@@ -392,4 +394,64 @@ bool GraphicsTweaks::UI::SettingsView::get_FPSCounterAdvancedValue() {
 void GraphicsTweaks::UI::SettingsView::set_FPSCounterAdvancedValue(bool value) {
     DEBUG("Setting Advanced FPS Counter {}", value);
     getGraphicsTweaksConfig().FpsCounterAdvanced.SetValue(value, false);
+
+    if (FPSCounter::counter) {
+        FPSCounter::counter->SetActive(value);
+    }
+    if(value && !GraphicsTweaks::FPSCounter::counter) {
+        // Load the FPS counter
+        BSML::SharedCoroutineStarter::get_instance()->StartCoroutine(custom_types::Helpers::CoroutineHelper::New(GraphicsTweaks::FPSCounter::LoadBund()));
+    }
+}
+
+// colorSpaceValue
+StringW GraphicsTweaks::UI::SettingsView::get_colorSpaceValue() {
+    auto value = getGraphicsTweaksConfig().ColorSpace.GetValue();
+    switch(value) {
+        case 0:
+            return "Unknown";
+        case 1:
+            return "Unmanaged";
+        case 2:
+            return "Rec_2020";
+        case 3:
+            return "Rec_709";
+        case 4:
+            return "Rift_CV1";
+        case 5:
+            return "Rift_S";
+        case 6:
+            return "Quest";
+        case 7:
+            return "P3";
+        case 8:
+            return "Adobe_RGB";
+    }
+    return "Unknown";
+}
+
+void GraphicsTweaks::UI::SettingsView::set_colorSpaceValue(StringW value) {
+    int intValue = 0;
+    if(value == "Unknown") {
+        intValue = 0;
+    } else if(value == "Unmanaged") {
+        intValue = 1;
+    } else if(value == "Rec_2020") {
+        intValue = 2;
+    } else if(value == "Rec_709") {
+        intValue = 3;
+    } else if(value == "Rift_CV1") {
+        intValue = 4;
+    } else if(value == "Rift_S") {
+        intValue = 5;
+    } else if(value == "Quest") {
+        intValue = 6;
+    } else if(value == "P3") {
+        intValue = 7;
+    } else if(value == "Adobe_RGB") {
+        intValue = 8;
+    }
+    
+    getGraphicsTweaksConfig().ColorSpace.SetValue(intValue, false);
+    GraphicsTweaks::VRRenderingParamsSetup::Reload();
 }

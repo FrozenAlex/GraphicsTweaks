@@ -21,6 +21,7 @@
 				<bool-setting id="burnMarksSetting" text='Burn marks' value="burnMarksValue"  bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" hover-hint="Allows you to see cuts in the platform you stand on" />
 				<bool-setting text='FPS Counter' value="FPSCounterValue"  bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" hover-hint="Minimal FPS counter pinned next to the standing platform" />
 				<bool-setting text='Advanced FPS Counter' value="FPSCounterAdvancedValue"  bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" hover-hint="FPS counter with more information, not recommended for use during playing the game, as it appears in front of you" />
+				<list-setting value="colorSpaceValue" bind-value="true" apply-on-change="true" text='Color Space' choices="colorSpaceOptions" on-change="UpdateGraphicsSettings" />
 				<!--<bool-setting id="screenDistortionSetting" text='Passthrough' value="screenDistortionValue"  active="false" bind-value="true" apply-on-change="true" hover-hint="This feature requires patching BeatSaber with passthrough support" on-change="UpdateGraphicsSettings" />-->
 			</vertical>
 		</vertical>

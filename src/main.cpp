@@ -41,13 +41,17 @@
 #include "GlobalNamespace/FPSCounterUIController.hpp"
 #include "GlobalNamespace/GameplayCoreInstaller.hpp"
 #include "GlobalNamespace/PerformanceVisualizer.hpp"
+
+
 #include "Tayx/Graphy/GraphyManager.hpp"
 #include "Tayx/Graphy/Fps/G_FpsMonitor.hpp"
 #include "Tayx/Graphy/Ram/G_RamMonitor.hpp"
 #include "Tayx/Graphy/Audio/G_AudioMonitor.hpp"
-
 #include "FPSCounter.hpp"
+
 inline modloader::ModInfo modInfo = {MOD_ID, VERSION, GIT_COMMIT}; // Stores the ID and version of our mod, and is sent to the modloader upon startup
+
+using namespace GraphicsTweaks;
 
 // Called at the early stages of game loading
 GT_EXPORT_FUNC void setup(CModInfo& info) {
@@ -117,9 +121,12 @@ MAKE_HOOK_MATCH(ConditionalActivation_Awake, &GlobalNamespace::ConditionalActiva
     if((name == "FakeGlow0" || name == "FakeGlow1" || name == "ObstacleFakeGlow") && getGraphicsTweaksConfig().Bloom.GetValue()) {
         self->get_gameObject()->SetActive(false);
     }
-
-    //MOVE THIS LATER
-    if(!GraphicsTweaks::FPSCounter::counter) {
+   
+    bool showAdvancedCounter = getGraphicsTweaksConfig().FpsCounterAdvanced.GetValue();
+    if (FPSCounter::counter) {
+        FPSCounter::counter->SetActive(showAdvancedCounter);
+    }
+    if(showAdvancedCounter && !GraphicsTweaks::FPSCounter::counter) {
         // Load the FPS counter
         BSML::SharedCoroutineStarter::get_instance()->StartCoroutine(custom_types::Helpers::CoroutineHelper::New(GraphicsTweaks::FPSCounter::LoadBund()));
     }
@@ -225,6 +232,9 @@ MAKE_HOOK_MATCH(
     }
 }
 
+
+
+
 // Called later on in the game loading - a good time to install function hooks
 GT_EXPORT_FUNC void load() {
     INFO("Loading GraphicsTweaks...");
@@ -232,21 +242,24 @@ GT_EXPORT_FUNC void load() {
     custom_types::Register::AutoRegister();
     BSML::Init();
 
-    auto logger = Paper::ConstLoggerContext("GraphicsTweaks");
+    
 
     INFO("Installing hooks...");
     // Phase Sync (latency reduction)
-    INSTALL_HOOK(logger, OculusLoader_Initialize);
+    INSTALL_HOOK(Logger, OculusLoader_Initialize);
     // Bloom (expensive, not sure if it's worth it?)
-    INSTALL_HOOK(logger, MainSystemInit_Init);
-    INSTALL_HOOK(logger, ConditionalActivation_Awake);
-    INSTALL_HOOK(logger, ConditionalMaterialSwitcher_Awake);
-    INSTALL_HOOK(logger, ObstacleMaterialSetter_SetCoreMaterial);
-    INSTALL_HOOK(logger, ShockwaveEffect_Start);
-    INSTALL_HOOK(logger, VisualEffectsController_OnPreRender);
-    INSTALL_HOOK(logger, VisualEffectsController_HandleDepthTextureEnabledDidChange);
-    INSTALL_HOOK(logger, GameplayCoreInstaller_InstallBindings);
-    //INSTALL_HOOK(logger, GraphyManager_Init);
+
+    INSTALL_HOOK(Logger, MainSystemInit_Init);
+    INSTALL_HOOK(Logger, ConditionalActivation_Awake);
+    INSTALL_HOOK(Logger, ConditionalMaterialSwitcher_Awake);
+    INSTALL_HOOK(Logger, ObstacleMaterialSetter_SetCoreMaterial);
+    INSTALL_HOOK(Logger, ShockwaveEffect_Start);
+    INSTALL_HOOK(Logger, VisualEffectsController_OnPreRender);
+    INSTALL_HOOK(Logger, VisualEffectsController_HandleDepthTextureEnabledDidChange);
+    INSTALL_HOOK(Logger, GameplayCoreInstaller_InstallBindings);
+    // INSTALL_HOOK(Logger, GraphyManager_Init);
+
+    GraphicsTweaks::Hooks::VRRenderingParamsSetup();
 
     INFO("Installed all hooks!");
 

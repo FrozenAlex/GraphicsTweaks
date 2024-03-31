@@ -11,3 +11,7 @@
 #define ERROR(str, ...) Paper::Logger::fmtLogTag<Paper::LogLevel::ERR>(str, "GraphicsTweaks" __VA_OPT__(, __VA_ARGS__))
 #define WARNING(str, ...) Paper::Logger::fmtLogTag<Paper::LogLevel::WRN>(str, "GraphicsTweaks" __VA_OPT__(, __VA_ARGS__))
 #define CRITICAL(str, ...) Paper::Logger::fmtLogTag<Paper::LogLevel::CRIT>(str, "GraphicsTweaks" __VA_OPT__(, __VA_ARGS__))
+
+namespace GraphicsTweaks {
+    static constexpr auto Logger = Paper::ConstLoggerContext("GraphicsTweaks");
+}
