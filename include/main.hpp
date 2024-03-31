@@ -12,6 +12,9 @@
 #include "GlobalNamespace/MainSystemInit.hpp"
 #include "GlobalNamespace/MirrorRendererSO.hpp"
 #include "GlobalNamespace/MirrorRendererGraphicsSettingsPresets.hpp"
+#include "GlobalNamespace/MainEffectContainerSO.hpp"
+#include "GlobalNamespace/MirrorRendererSO.hpp"
+#include "GlobalNamespace/MirrorRendererGraphicsSettingsPresets.hpp"
 
 #include "GraphicsTweaksConfig.hpp"
 
@@ -30,5 +33,16 @@ namespace GraphicsTweaks {
             static void ApplySettings();
             inline static SafePtr<GlobalNamespace::MirrorRendererSO> mirrorRenderer;
             inline static SafePtr<GlobalNamespace::MirrorRendererGraphicsSettingsPresets> mirrorRendererGraphicsSettingsPresets;
+    };
+
+    class BloomData {
+        public:
+            static void ApplySettings();
+            inline static SafePtr<GlobalNamespace::MainEffectContainerSO> mainEffectContainer;
+            inline static SafePtr<GlobalNamespace::MainEffectSO> noEffect;
+            inline static SafePtr<GlobalNamespace::MainEffectSO> bloomEffect; //Should we support both pyramid and kawase bloom?
+            inline static SafePtr<GlobalNamespace::BloomPrePassEffectSO> hdffect;
+            inline static SafePtr<GlobalNamespace::BloomPrePassEffectSO> ldffect;
+            inline static SafePtr<GlobalNamespace::BloomPrePassEffectContainerSO> bloomPrePassEffectContainerSO;
     };
 }

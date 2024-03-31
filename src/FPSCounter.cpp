@@ -39,16 +39,12 @@ namespace GraphicsTweaks
         auto counterObj = UnityEngine::GameObject::Instantiate(data);
         UnityEngine::GameObject::DontDestroyOnLoad(counterObj);
         counterObj->SetActive(true);
-        //counterObj->get_transform()->set_localScale({0.1f,0.1f,0.1f});
-        //counterObj->get_transform()->set_position({0,3,3});
+        counter = counterObj;
 
-        counter = counterObj;//BSML::FloatingScreen::CreateFloatingScreen({200,200}, true, {0,2,2}, UnityEngine::Quaternion::Euler(-10,0,0), 0.0f, false)->get_gameObject();
-
-        //counterObj->get_transform()->SetParent(counter->get_transform(), false);
-        //counterObj->get_transform()->set_localPosition({3,3,0});
-
-        //UnityEngine::GameObject::DontDestroyOnLoad(counter.ptr());
-        //counter->SetActive(true);
+        bool showAdvancedCounter = getGraphicsTweaksConfig().FpsCounterAdvanced.GetValue();
+        if (counter) {
+            counter->SetActive(showAdvancedCounter);
+        }
 
         co_return;
     }

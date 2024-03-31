@@ -35,21 +35,29 @@
 #include "GlobalNamespace/MainSystemInit.hpp"
 #include "GlobalNamespace/MirrorRendererSO.hpp"
 #include "GlobalNamespace/MirrorRendererGraphicsSettingsPresets.hpp"
+#include "GlobalNamespace/BloomPrePassEffectContainerSO.hpp"
+#include "GlobalNamespace/BloomPrePassEffectSO.hpp"
+#include "GlobalNamespace/FakeReflectionDynamicObjectsState.hpp"
+#include "GlobalNamespace/FPSCounter.hpp"
+#include "GlobalNamespace/FPSCounterUIController.hpp"
+#include "GlobalNamespace/GameplayCoreInstaller.hpp"
+#include "GlobalNamespace/PerformanceVisualizer.hpp"
+#include "GlobalNamespace/FakeMirrorObjectsInstaller.hpp"
+#include "GlobalNamespace/MirroredGameNoteController.hpp"
+#include "GlobalNamespace/MirroredBombNoteController.hpp"
+#include "GlobalNamespace/MirroredObstacleController.hpp"
+#include "GlobalNamespace/MirroredSliderController.hpp"
+#include "GlobalNamespace/MirroredBeatmapObjectManager.hpp"
+#include "GlobalNamespace/MirrorRendererGraphicsSettingsPresets.hpp"
+#include "Zenject/DiContainer.hpp"
+#include "Zenject/ScopeConcreteIdArgConditionCopyNonLazyBinder.hpp"
+#include "Zenject/FromBinderGeneric_1.hpp"
 #include "bsml/shared/BSML/MainThreadScheduler.hpp"
 #include "bsml/shared/BSML/SharedCoroutineStarter.hpp"
 #include "bsml/shared/BSML.hpp"
 #include "UI/GraphicsTweaksFlowCoordinator.hpp"
 #include "logging.hpp"
-#include "GlobalNamespace/FPSCounter.hpp"
-#include "GlobalNamespace/FPSCounterUIController.hpp"
-#include "GlobalNamespace/GameplayCoreInstaller.hpp"
-#include "GlobalNamespace/PerformanceVisualizer.hpp"
 
-
-#include "Tayx/Graphy/GraphyManager.hpp"
-#include "Tayx/Graphy/Fps/G_FpsMonitor.hpp"
-#include "Tayx/Graphy/Ram/G_RamMonitor.hpp"
-#include "Tayx/Graphy/Audio/G_AudioMonitor.hpp"
 #include "FPSCounter.hpp"
 
 inline modloader::ModInfo modInfo = {MOD_ID, VERSION, GIT_COMMIT}; // Stores the ID and version of our mod, and is sent to the modloader upon startup
@@ -112,31 +120,73 @@ void GraphicsTweaks::MirrorsData::ApplySettings(){
     );
 };
 
+void GraphicsTweaks::BloomData::ApplySettings() {
+    if (!GraphicsTweaks::BloomData::noEffect) {
+        return;
+    }
+    if (!GraphicsTweaks::BloomData::bloomEffect) {
+        return;
+    }
+
+    GlobalNamespace::MainEffectSO* mainEffect = nullptr;
+
+    // Set the bloom settings to the ones we want
+    auto bloom = getGraphicsTweaksConfig().Bloom.GetValue();
+    if (bloom) {
+        mainEffect = GraphicsTweaks::BloomData::bloomEffect.ptr();
+    } else {
+        mainEffect = GraphicsTweaks::BloomData::noEffect.ptr();
+    }
+
+    auto hd = getGraphicsTweaksConfig().BloomQuality.GetValue() == 2;
+    GraphicsTweaks::BloomData::mainEffectContainer->Init(mainEffect);
+    auto textureEffect = (hd ? GraphicsTweaks::BloomData::hdffect : GraphicsTweaks::BloomData::ldffect).ptr();
+    DEBUG("{} {}", textureEffect->get_name(), textureEffect->get_toneMapping().value__);
+    GraphicsTweaks::BloomData::bloomPrePassEffectContainerSO->Init(textureEffect);
+};
+
 // Sabers burn marks
 MAKE_HOOK_MATCH(MainSystemInit_Init, &GlobalNamespace::MainSystemInit::Init, void, GlobalNamespace::MainSystemInit* self) {
     INFO("MainSystemInit_Init hook called!");
-   
-    if (getGraphicsTweaksConfig().Bloom.GetValue()) {
-        auto scriptableObjects = UnityEngine::Resources::FindObjectsOfTypeAll<UnityEngine::ScriptableObject*>();
-
-        for (int i = 0; i < scriptableObjects->get_Length(); i++) {
-
-            auto scriptableObject = scriptableObjects[i];
-            auto csName = scriptableObject->get_name();
-            auto name = csName;
-            DEBUG("Scriptable Object Name: {}", name);
-            if (name == "PyramidBloomMainEffect") {
-                INFO("Found PyramidBloomMainEffect!");
-                auto mainEffectGraphicsSettingsPresets = self->____mainEffectGraphicsSettingsPresets;
-                auto presets = mainEffectGraphicsSettingsPresets->____presets;
-                presets->_values[0]->___mainEffect = reinterpret_cast<GlobalNamespace::MainEffectSO*>(scriptableObject);
-                break;
-            }   
-        }
-    }
     MainSystemInit_Init(self);
 
-    UnityEngine::QualitySettings::set_antiAliasing(0);
+    auto scriptableObjects = UnityEngine::Resources::FindObjectsOfTypeAll<UnityEngine::ScriptableObject*>();
+
+    for (int i = 0; i < scriptableObjects->get_Length(); i++) {
+        auto scriptableObject = scriptableObjects[i];
+        auto name = scriptableObject->get_name();
+        DEBUG("Scriptable Object Name: {}", name);
+        if(name == "NoPostProcessMainEffect") {
+            auto noPostProcessMainEffect = reinterpret_cast<GlobalNamespace::MainEffectSO*>(scriptableObject);
+            GraphicsTweaks::BloomData::noEffect = noPostProcessMainEffect;
+        }
+        if(name == "PyramidBloomMainEffect") {
+            auto pyramidBloomMainEffect = reinterpret_cast<GlobalNamespace::MainEffectSO*>(scriptableObject);
+            GraphicsTweaks::BloomData::bloomEffect = pyramidBloomMainEffect;
+        }
+        if(name == "BloomPrePassHDBloomTextureEffect") {
+            auto highDefinitonBloomTextureEffect = reinterpret_cast<GlobalNamespace::BloomPrePassEffectSO*>(scriptableObject);
+            GraphicsTweaks::BloomData::hdffect = highDefinitonBloomTextureEffect;
+
+            auto lowDefinitonBloomTextureEffect = UnityEngine::GameObject::Instantiate(highDefinitonBloomTextureEffect);
+            lowDefinitonBloomTextureEffect->set_name("BloomPrePassLDBloomTextureEffect");
+            //lowDefinitonBloomTextureEffect->____textureWidth = 256;
+            //lowDefinitonBloomTextureEffect->____textureHeight = 256;
+            GraphicsTweaks::BloomData::ldffect = lowDefinitonBloomTextureEffect;
+        }
+        if(name == "MainCameraMainEffectContainer") {
+            auto mainEffectContainer = reinterpret_cast<GlobalNamespace::MainEffectContainerSO*>(scriptableObject);
+            GraphicsTweaks::BloomData::mainEffectContainer = mainEffectContainer;
+        }
+    }
+
+    GraphicsTweaks::BloomData::bloomPrePassEffectContainerSO = self->_bloomPrePassEffectContainer;
+
+    GraphicsTweaks::BloomData::ApplySettings();
+
+    bool distortionsUsed = getGraphicsTweaksConfig().WallQuality.GetValue() == 2 || getGraphicsTweaksConfig().MenuShockwaves.GetValue() || getGraphicsTweaksConfig().GameShockwaves.GetValue();
+
+    UnityEngine::QualitySettings::set_antiAliasing(distortionsUsed ? 0 : getGraphicsTweaksConfig().AntiAliasing.GetValue());
 
     // MirrorRendererSO
     // Save the MirrorRendererSO instance for later use (get graphics settings presets, etc.)
@@ -152,28 +202,24 @@ MAKE_HOOK_MATCH(MainSystemInit_Init, &GlobalNamespace::MainSystemInit::Init, voi
 MAKE_HOOK_MATCH(ConditionalActivation_Awake, &GlobalNamespace::ConditionalActivation::Awake, void, GlobalNamespace::ConditionalActivation* self) {
     DEBUG("ConditionalActivation_Awake hook called! {}", self->get_gameObject()->get_name());
     auto name = self->get_gameObject()->get_name();
-    if(name == "ShockwaveEffect" && getGraphicsTweaksConfig().GameShockwaves.GetValue()) {
-        self->get_gameObject()->SetActive(true);
-    } else if(name == "ShockwaveEffect" && !getGraphicsTweaksConfig().GameShockwaves.GetValue()) {
-        self->get_gameObject()->SetActive(false);
+    if(name == "ShockwaveEffect") {
+        self->get_gameObject()->SetActive(getGraphicsTweaksConfig().GameShockwaves.GetValue());
     }
 
-    if(name == "MenuShockwave" && getGraphicsTweaksConfig().MenuShockwaves.GetValue()) {
-        self->get_gameObject()->SetActive(true);
-    } else if(name == "MenuShockwave" && !getGraphicsTweaksConfig().MenuShockwaves.GetValue()) {
-        self->get_gameObject()->SetActive(false);
+    if(name == "MenuShockwave") {
+        self->get_gameObject()->SetActive(getGraphicsTweaksConfig().MenuShockwaves.GetValue());
     }
 
     //Disable fake glow    
-    if((name == "FakeGlow0" || name == "FakeGlow1" || name == "ObstacleFakeGlow") && getGraphicsTweaksConfig().Bloom.GetValue()) {
-        self->get_gameObject()->SetActive(false);
+    if((name == "FakeGlow0" || name == "FakeGlow1" || name == "ObstacleFakeGlow")) {
+        self->get_gameObject()->SetActive(!getGraphicsTweaksConfig().Bloom.GetValue());
     }
-   
-    bool showAdvancedCounter = getGraphicsTweaksConfig().FpsCounterAdvanced.GetValue();
-    if (FPSCounter::counter) {
-        FPSCounter::counter->SetActive(showAdvancedCounter);
+
+    if(name == "BigSmokePS") {
+        self->get_gameObject()->SetActive(getGraphicsTweaksConfig().SmokeQuality.GetValue() > 0);
     }
-    if(showAdvancedCounter && !GraphicsTweaks::FPSCounter::counter) {
+
+    if(!GraphicsTweaks::FPSCounter::counter) {
         // Load the FPS counter
         BSML::SharedCoroutineStarter::get_instance()->StartCoroutine(custom_types::Helpers::CoroutineHelper::New(GraphicsTweaks::FPSCounter::LoadBund()));
     }
@@ -246,19 +292,23 @@ MAKE_HOOK_MATCH(VisualEffectsController_HandleDepthTextureEnabledDidChange, &Glo
     }
 }
 
-MAKE_HOOK_MATCH(GraphyManager_Init, &Tayx::Graphy::GraphyManager::Init, void, Tayx::Graphy::GraphyManager* self) {
-    if (self->m_keepAlive)
-	{
-		UnityEngine::Object::DontDestroyOnLoad(self->transform->root->gameObject);
-	}
-    self->m_fpsMonitor = self->GetComponentInChildren<Tayx::Graphy::Fps::G_FpsMonitor*>(true);
-	self->m_fpsMonitor->Init();
-	self->m_ramMonitor = self->GetComponentInChildren<Tayx::Graphy::Ram::G_RamMonitor*>(true);
-	self->m_ramMonitor->Init();
-    self->m_audioMonitor = self->GetComponentInChildren<Tayx::Graphy::Audio::G_AudioMonitor*>(true);
-	self->m_audioMonitor->Init();
+MAKE_HOOK_MATCH(FakeMirrorObjectsInstaller_InstallBindings, &GlobalNamespace::FakeMirrorObjectsInstaller::InstallBindings, void, GlobalNamespace::FakeMirrorObjectsInstaller* self) {
+    auto mirrorQuality = getGraphicsTweaksConfig().Mirror.GetValue();
+    auto fakePreset = self->____mirrorRendererGraphicsSettingsPresets->get_presets()[0];
+    switch (mirrorQuality)
+    {
+        case 0:
+            fakePreset->___mirrorType = GlobalNamespace::MirrorRendererGraphicsSettingsPresets::Preset::MirrorType::None;
+            break;
+        case 1:
+            fakePreset->___mirrorType = GlobalNamespace::MirrorRendererGraphicsSettingsPresets::Preset::MirrorType::FakeMirror;
+            break;
+        default:
+            fakePreset->___mirrorType = GlobalNamespace::MirrorRendererGraphicsSettingsPresets::Preset::MirrorType::RenderedMirror;
+    }
+    self->____mirrorRendererGraphicsSettingsPresets->____presets = {fakePreset};
+    FakeMirrorObjectsInstaller_InstallBindings(self);
 }
-
 
 MAKE_HOOK_MATCH(
     GameplayCoreInstaller_InstallBindings,
@@ -303,7 +353,7 @@ GT_EXPORT_FUNC void load() {
     INSTALL_HOOK(Logger, VisualEffectsController_OnPreRender);
     INSTALL_HOOK(Logger, VisualEffectsController_HandleDepthTextureEnabledDidChange);
     INSTALL_HOOK(Logger, GameplayCoreInstaller_InstallBindings);
-    // INSTALL_HOOK(Logger, GraphyManager_Init);
+    INSTALL_HOOK(Logger, FakeMirrorObjectsInstaller_InstallBindings);
 
     GraphicsTweaks::Hooks::VRRenderingParamsSetup();
 

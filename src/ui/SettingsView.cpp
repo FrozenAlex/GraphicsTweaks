@@ -8,6 +8,7 @@
 #include "UnityEngine/Color.hpp"
 #include "sombrero/shared/FastColor.hpp"
 #include "GlobalNamespace/OVRPlugin.hpp"
+#include "GlobalNamespace/ConditionalActivation.hpp"
 #include "bsml/shared/BSML/MainThreadScheduler.hpp"
 #include "GlobalNamespace/OVRPlugin.hpp"
 #include "Unity/XR/Oculus/NativeMethods.hpp"
@@ -19,6 +20,8 @@ DEFINE_TYPE(GraphicsTweaks::UI, SettingsView);
 
 using namespace UnityEngine;
 using namespace GlobalNamespace;
+
+const bool instantlySave = true;
 
 UnityEngine::Sprite* GetBGSprite(std::string str)
 {
@@ -85,7 +88,7 @@ float GraphicsTweaks::UI::SettingsView::get_shockwaveParticlesValue() {
    return getGraphicsTweaksConfig().NumShockwaves.GetValue();
 }
 void GraphicsTweaks::UI::SettingsView::set_shockwaveParticlesValue(float value) {
-    getGraphicsTweaksConfig().NumShockwaves.SetValue(value, false);
+    getGraphicsTweaksConfig().NumShockwaves.SetValue(value, instantlySave);
 }
 
 // foveationLevelValueMenu
@@ -107,15 +110,15 @@ StringW GraphicsTweaks::UI::SettingsView::get_foveationLevelValueMenu() {
 }
 void GraphicsTweaks::UI::SettingsView::set_foveationLevelValueMenu(StringW value) {
     if(value == "Off") {
-        getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.SetValue(0, false);
+        getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.SetValue(0, instantlySave);
     } else if(value == "Low") {
-        getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.SetValue(1, false);
+        getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.SetValue(1, instantlySave);
     } else if(value == "Medium") {
-        getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.SetValue(2, false);
+        getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.SetValue(2, instantlySave);
     } else if(value == "High") {
-        getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.SetValue(3, false);
+        getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.SetValue(3, instantlySave);
     } else if(value == "HighTop") {
-        getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.SetValue(4, false);
+        getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.SetValue(4, instantlySave);
     }
     GraphicsTweaks::VRRenderingParamsSetup::Reload();
 }
@@ -139,15 +142,15 @@ StringW GraphicsTweaks::UI::SettingsView::get_foveationLevelValueGame() {
 }
 void GraphicsTweaks::UI::SettingsView::set_foveationLevelValueGame(StringW value) {
     if(value == "Off") {
-        getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.SetValue(0, false);
+        getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.SetValue(0, instantlySave);
     } else if(value == "Low") {
-        getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.SetValue(1, false);
+        getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.SetValue(1, instantlySave);
     } else if(value == "Medium") {
-        getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.SetValue(2, false);
+        getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.SetValue(2, instantlySave);
     } else if(value == "High") {
-        getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.SetValue(3, false);
+        getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.SetValue(3, instantlySave);
     } else if(value == "HighTop") {
-        getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.SetValue(4, false);
+        getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.SetValue(4, instantlySave);
     }
     GraphicsTweaks::VRRenderingParamsSetup::Reload();
 }
@@ -204,7 +207,7 @@ void GraphicsTweaks::UI::SettingsView::set_antiAliasingValue(StringW value) {
     } else if(value == "4x") {
         intValue = 2;
     }
-    getGraphicsTweaksConfig().AntiAliasing.SetValue(intValue, false);
+    getGraphicsTweaksConfig().AntiAliasing.SetValue(intValue, instantlySave);
 }
 
 // bloomQualityValue
@@ -220,14 +223,21 @@ StringW GraphicsTweaks::UI::SettingsView::get_bloomQualityValue() {
 }
 void GraphicsTweaks::UI::SettingsView::set_bloomQualityValue(StringW value) {
     if(value == "Off") {
-        getGraphicsTweaksConfig().Bloom.SetValue(false, false);
-        getGraphicsTweaksConfig().BloomQuality.SetValue(0, false);
+        getGraphicsTweaksConfig().Bloom.SetValue(false, instantlySave);
+        getGraphicsTweaksConfig().BloomQuality.SetValue(0, instantlySave);
     } else if(value == "Low") {
-        getGraphicsTweaksConfig().Bloom.SetValue(true, false);
-        getGraphicsTweaksConfig().BloomQuality.SetValue(1, false);
+        getGraphicsTweaksConfig().Bloom.SetValue(true, instantlySave);
+        getGraphicsTweaksConfig().BloomQuality.SetValue(1, instantlySave);
     } else if(value == "High") {
-        getGraphicsTweaksConfig().Bloom.SetValue(true, false);
-        getGraphicsTweaksConfig().BloomQuality.SetValue(2, false);
+        getGraphicsTweaksConfig().Bloom.SetValue(true, instantlySave);
+        getGraphicsTweaksConfig().BloomQuality.SetValue(2, instantlySave);
+    }
+
+    GraphicsTweaks::BloomData::ApplySettings();
+
+    auto conditionalActivations = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::ConditionalActivation*>();
+    for (auto & conditionalActivation : conditionalActivations) {
+        conditionalActivation->Awake();
     }
 }
 
@@ -244,11 +254,16 @@ StringW GraphicsTweaks::UI::SettingsView::get_smokeQualityValue() {
 }
 void GraphicsTweaks::UI::SettingsView::set_smokeQualityValue(StringW value) {
     if(value == "Off") {
-        getGraphicsTweaksConfig().SmokeQuality.SetValue(0, false);
+        getGraphicsTweaksConfig().SmokeQuality.SetValue(0, instantlySave);
     } else if(value == "Low") {
-        getGraphicsTweaksConfig().SmokeQuality.SetValue(1, false);
+        getGraphicsTweaksConfig().SmokeQuality.SetValue(1, instantlySave);
     } else if(value == "High") {
-        getGraphicsTweaksConfig().SmokeQuality.SetValue(2, false);
+        getGraphicsTweaksConfig().SmokeQuality.SetValue(2, instantlySave);
+    }
+
+    auto conditionalActivations = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::ConditionalActivation*>();
+    for (auto & conditionalActivation : conditionalActivations) {
+        conditionalActivation->Awake();
     }
 }
 
@@ -265,11 +280,11 @@ StringW GraphicsTweaks::UI::SettingsView::get_wallQualityValue() {
 }
 void GraphicsTweaks::UI::SettingsView::set_wallQualityValue(StringW value) {
     if(value == "Transparent") {
-        getGraphicsTweaksConfig().WallQuality.SetValue(0, false);
+        getGraphicsTweaksConfig().WallQuality.SetValue(0, instantlySave);
     } else if(value == "Textured") {
-        getGraphicsTweaksConfig().WallQuality.SetValue(1, false);
+        getGraphicsTweaksConfig().WallQuality.SetValue(1, instantlySave);
     } else if(value == "Distorted") {
-        getGraphicsTweaksConfig().WallQuality.SetValue(2, false);
+        getGraphicsTweaksConfig().WallQuality.SetValue(2, instantlySave);
     }
 }
 
@@ -280,7 +295,7 @@ float GraphicsTweaks::UI::SettingsView::get_resolutionLevelValueMenu() {
 }
 
 void GraphicsTweaks::UI::SettingsView::set_resolutionLevelValueMenu(float value) {
-    getGraphicsTweaksConfig().MenuResolution.SetValue(value, false);
+    getGraphicsTweaksConfig().MenuResolution.SetValue(value, instantlySave);
     GraphicsTweaks::VRRenderingParamsSetup::Reload();
 }
 
@@ -289,7 +304,7 @@ float GraphicsTweaks::UI::SettingsView::get_resolutionLevelValueGame() {
     return getGraphicsTweaksConfig().GameResolution.GetValue();
 }
 void GraphicsTweaks::UI::SettingsView::set_resolutionLevelValueGame(float value) {
-    getGraphicsTweaksConfig().GameResolution.SetValue(value, false);
+    getGraphicsTweaksConfig().GameResolution.SetValue(value, instantlySave);
     GraphicsTweaks::VRRenderingParamsSetup::Reload();
 }
 
@@ -311,7 +326,7 @@ void GraphicsTweaks::UI::SettingsView::set_targetFPSValueMenu(StringW value) {
     if (index >= 0) {
         DEBUG("Setting refresh rate to {}", value);
         auto item = this->systemDisplayFrequenciesAvailableValues->get_Item(index);
-        getGraphicsTweaksConfig().MenuRefreshRate.SetValue(item, false);
+        getGraphicsTweaksConfig().MenuRefreshRate.SetValue(item, instantlySave);
         GraphicsTweaks::VRRenderingParamsSetup::Reload();
     }
 }
@@ -332,7 +347,7 @@ void GraphicsTweaks::UI::SettingsView::set_targetFPSValueGame(StringW value) {
 
     if (index >= 0) {
         auto item = this->systemDisplayFrequenciesAvailableValues->get_Item(index);
-        getGraphicsTweaksConfig().GameRefreshRate.SetValue(item, false);
+        getGraphicsTweaksConfig().GameRefreshRate.SetValue(item, instantlySave);
         GraphicsTweaks::VRRenderingParamsSetup::Reload();
     }
 }
@@ -342,7 +357,12 @@ bool GraphicsTweaks::UI::SettingsView::get_menuScreenDistortionValue() {
     return getGraphicsTweaksConfig().MenuShockwaves.GetValue();
 }
 void GraphicsTweaks::UI::SettingsView::set_menuScreenDistortionValue(bool value) {
-    getGraphicsTweaksConfig().MenuShockwaves.SetValue(value, false);
+    getGraphicsTweaksConfig().MenuShockwaves.SetValue(value, instantlySave);
+
+    auto conditionalActivations = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::ConditionalActivation*>();
+    for (auto & conditionalActivation : conditionalActivations) {
+        conditionalActivation->Awake();
+    }
 }
 
 // gameScreenDistortionValue
@@ -350,7 +370,12 @@ bool GraphicsTweaks::UI::SettingsView::get_gameScreenDistortionValue() {
     return getGraphicsTweaksConfig().GameShockwaves.GetValue();
 }
 void GraphicsTweaks::UI::SettingsView::set_gameScreenDistortionValue(bool value) {
-    getGraphicsTweaksConfig().GameShockwaves.SetValue(value, false);
+    getGraphicsTweaksConfig().GameShockwaves.SetValue(value, instantlySave);
+
+    auto conditionalActivations = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::ConditionalActivation*>();
+    for (auto & conditionalActivation : conditionalActivations) {
+        conditionalActivation->Awake();
+    }
 }
 
 // burnMarksValue
@@ -358,7 +383,7 @@ bool GraphicsTweaks::UI::SettingsView::get_burnMarksValue() {
     return getGraphicsTweaksConfig().Burnmarks.GetValue();
 }
 void GraphicsTweaks::UI::SettingsView::set_burnMarksValue(bool value) {
-    getGraphicsTweaksConfig().Burnmarks.SetValue(value, false);
+    getGraphicsTweaksConfig().Burnmarks.SetValue(value, instantlySave);
 }
 
 // gpuLevelValue
@@ -368,7 +393,7 @@ float GraphicsTweaks::UI::SettingsView::get_gpuLevelValue() {
 }
 void GraphicsTweaks::UI::SettingsView::set_gpuLevelValue(float value) {
     DEBUG("Setting GPU Level {}", value);
-    getGraphicsTweaksConfig().GpuLevel.SetValue(static_cast<int>(value), false);
+    getGraphicsTweaksConfig().GpuLevel.SetValue(static_cast<int>(value), instantlySave);
     GraphicsTweaks::VRRenderingParamsSetup::Reload();
 }
 
@@ -380,7 +405,7 @@ float GraphicsTweaks::UI::SettingsView::get_cpuLevelValue() {
 }
 void GraphicsTweaks::UI::SettingsView::set_cpuLevelValue(float value) {
     DEBUG("Setting CPU Level {}", value);
-    getGraphicsTweaksConfig().CpuLevel.SetValue(static_cast<int>(value), false);
+    getGraphicsTweaksConfig().CpuLevel.SetValue(static_cast<int>(value), instantlySave);
     GraphicsTweaks::VRRenderingParamsSetup::Reload();
 }
 
@@ -391,7 +416,7 @@ bool GraphicsTweaks::UI::SettingsView::get_FPSCounterValue() {
 }
 void GraphicsTweaks::UI::SettingsView::set_FPSCounterValue(bool value) {
     DEBUG("Setting FPS Counter {}", value);
-    getGraphicsTweaksConfig().FpsCounter.SetValue(value, false);
+    getGraphicsTweaksConfig().FpsCounter.SetValue(value, instantlySave);
 }
 
 // FPSCounterAdvancedValue
@@ -402,14 +427,10 @@ bool GraphicsTweaks::UI::SettingsView::get_FPSCounterAdvancedValue() {
 
 void GraphicsTweaks::UI::SettingsView::set_FPSCounterAdvancedValue(bool value) {
     DEBUG("Setting Advanced FPS Counter {}", value);
-    getGraphicsTweaksConfig().FpsCounterAdvanced.SetValue(value, false);
+    getGraphicsTweaksConfig().FpsCounterAdvanced.SetValue(value, instantlySave);
 
     if (FPSCounter::counter) {
         FPSCounter::counter->SetActive(value);
-    }
-    if(value && !GraphicsTweaks::FPSCounter::counter) {
-        // Load the FPS counter
-        BSML::SharedCoroutineStarter::get_instance()->StartCoroutine(custom_types::Helpers::CoroutineHelper::New(GraphicsTweaks::FPSCounter::LoadBund()));
     }
 }
 
@@ -461,6 +482,6 @@ void GraphicsTweaks::UI::SettingsView::set_colorSpaceValue(StringW value) {
         intValue = 8;
     }
     
-    getGraphicsTweaksConfig().ColorSpace.SetValue(intValue, false);
+    getGraphicsTweaksConfig().ColorSpace.SetValue(intValue, instantlySave);
     GraphicsTweaks::VRRenderingParamsSetup::Reload();
 }

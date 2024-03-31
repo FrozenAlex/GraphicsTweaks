@@ -52,6 +52,8 @@
 				<increment-setting text='GPU Level' bind-value="true"  apply-on-change="true" value="gpuLevelValue" min="1" increment="1.0" max="8" on-change="UpdateGraphicsSettings" />
 				<increment-setting text='CPU Level' bind-value="true" apply-on-change="true" value="cpuLevelValue" min="1" increment="1.0" max="8"  on-change="UpdateGraphicsSettings" />
 			</vertical>
+			<text text="\nDistortion walls or shockwaves enabled, anti-aliasing will be forced to off" align="Center" bold="true" font-size="3" font-color="red"/>
+			<button text="Shockwave tester 3000"/>
 		</vertical>
 	</horizontal>
 </vertical>

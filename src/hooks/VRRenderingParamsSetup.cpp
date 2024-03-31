@@ -13,7 +13,9 @@
 #include "Unity/XR/Oculus/NativeMethods.hpp"
 #include "logging.hpp"
 #include "bsml/shared/BSML/MainThreadScheduler.hpp"
+#include "bsml/shared/BSML/SharedCoroutineStarter.hpp"
 #include "UnityEngine/QualitySettings.hpp"
+#include "FPSCounter.hpp"
 using namespace GlobalNamespace;
 
 SafePtrUnity<GlobalNamespace::VRRenderingParamsSetup> vrRenderingParamsSetup;
