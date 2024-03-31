@@ -13,7 +13,7 @@
 #include "Unity/XR/Oculus/NativeMethods.hpp"
 #include "logging.hpp"
 #include "bsml/shared/BSML/MainThreadScheduler.hpp"
-
+#include "UnityEngine/QualitySettings.hpp"
 using namespace GlobalNamespace;
 
 SafePtrUnity<GlobalNamespace::VRRenderingParamsSetup> vrRenderingParamsSetup;
@@ -50,6 +50,12 @@ void GraphicsTweaks::VRRenderingParamsSetup::Reload(std::optional<float> vrResol
         DEBUG("Setting resolution scale to {}", resolutionMultiplier);
         XRSettings::set_eyeTextureResolutionScale(resolutionMultiplier);
     }
+
+    // Anti-aliasing (hides some ui elements, not recommended to use, very buggy)
+    // auto aaValue = getGraphicsTweaksConfig().AntiAliasing.GetValue()*2;
+    // if (QualitySettings::get_antiAliasing() != aaValue) {
+    //     UnityEngine::QualitySettings::set_antiAliasing(aaValue);
+    // }
 
     // Next ftame is needed because the game sets the resolution scale after this function is called too.
     BSML::MainThreadScheduler::ScheduleNextFrame([]() {

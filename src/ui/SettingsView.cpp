@@ -166,15 +166,20 @@ StringW GraphicsTweaks::UI::SettingsView::get_mirrorValue() {
     return "Off";
 }
 void GraphicsTweaks::UI::SettingsView::set_mirrorValue(StringW value) {
-    if(value == "Off") {
-        getGraphicsTweaksConfig().Mirror.SetValue(0, false);
-    } else if(value == "Low") {
-        getGraphicsTweaksConfig().Mirror.SetValue(1, false);
-    } else if(value == "Medium") {
-        getGraphicsTweaksConfig().Mirror.SetValue(2, false);
-    } else if(value == "High") {
-        getGraphicsTweaksConfig().Mirror.SetValue(3, false);
+    auto numberValue = 0;
+    
+    if (value == "Off") {
+        numberValue = 0;
+    } else if (value == "Low") {
+        numberValue = 1;
+    } else if (value == "Medium") {
+        numberValue = 2;
+    } else if (value == "High") {
+        numberValue = 3;
     }
+    getGraphicsTweaksConfig().Mirror.SetValue(numberValue, false);
+
+    GraphicsTweaks::MirrorsData::ApplySettings();
 }
 
 // antiAliasingValue
@@ -185,17 +190,21 @@ StringW GraphicsTweaks::UI::SettingsView::get_antiAliasingValue() {
         return "2x";
     } else if (getGraphicsTweaksConfig().AntiAliasing.GetValue() == 2) {
         return "4x";
+    } else if (getGraphicsTweaksConfig().AntiAliasing.GetValue() == 4) {
+        return "8x";
     }
     return "Off";
 }
 void GraphicsTweaks::UI::SettingsView::set_antiAliasingValue(StringW value) {
+    int intValue = 0;
     if(value == "Off") {
-        getGraphicsTweaksConfig().AntiAliasing.SetValue(0, false);
+        intValue = 0;
     } else if(value == "2x") {
-        getGraphicsTweaksConfig().AntiAliasing.SetValue(1, false);
+        intValue = 1;
     } else if(value == "4x") {
-        getGraphicsTweaksConfig().AntiAliasing.SetValue(2, false);
+        intValue = 2;
     }
+    getGraphicsTweaksConfig().AntiAliasing.SetValue(intValue, false);
 }
 
 // bloomQualityValue

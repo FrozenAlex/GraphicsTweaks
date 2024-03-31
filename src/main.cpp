@@ -32,6 +32,9 @@
 #include "GlobalNamespace/ObstacleMaterialSetter.hpp"
 #include "GlobalNamespace/ShockwaveEffect.hpp"
 #include "GlobalNamespace/VisualEffectsController.hpp"
+#include "GlobalNamespace/MainSystemInit.hpp"
+#include "GlobalNamespace/MirrorRendererSO.hpp"
+#include "GlobalNamespace/MirrorRendererGraphicsSettingsPresets.hpp"
 #include "bsml/shared/BSML/MainThreadScheduler.hpp"
 #include "bsml/shared/BSML/SharedCoroutineStarter.hpp"
 #include "bsml/shared/BSML.hpp"
@@ -74,6 +77,41 @@ MAKE_HOOK_MATCH(OculusLoader_Initialize, &Unity::XR::Oculus::OculusLoader::Initi
     return OculusLoader_Initialize(self);
 }
 
+
+void GraphicsTweaks::MirrorsData::ApplySettings(){
+    if (!GraphicsTweaks::MirrorsData::mirrorRenderer) {
+        return;
+    }
+    if (!GraphicsTweaks::MirrorsData::mirrorRendererGraphicsSettingsPresets) {
+        return;
+    }
+
+    // Set the mirror renderer settings to the ones we want
+    auto currentPreset = getGraphicsTweaksConfig().Mirror.GetValue();
+
+    // Loop through presets and print them
+    auto presets = GraphicsTweaks::MirrorsData::mirrorRendererGraphicsSettingsPresets->get_namedPresets();
+    for (const auto& item : presets) {
+        DEBUG("Preset: {}", item->get_presetNameLocalizationKey());
+        //  item->ToString();
+    }
+
+    // Init the mirror renderer with the settings from the preset
+    if (currentPreset >= GraphicsTweaks::MirrorsData::mirrorRendererGraphicsSettingsPresets->get_presets().size()) {
+        currentPreset = 3;
+    }
+    auto presetObj = GraphicsTweaks::MirrorsData::mirrorRendererGraphicsSettingsPresets->get_presets()[currentPreset];
+    GraphicsTweaks::MirrorsData::mirrorRenderer->Init(
+        presetObj->___reflectLayers,
+        presetObj->___stereoTextureWidth,
+        presetObj->___stereoTextureHeight,
+        presetObj->___monoTextureWidth,
+        presetObj->___monoTextureHeight,
+        presetObj->___maxAntiAliasing,
+        presetObj->___enableBloomPrePassFog
+    );
+};
+
 // Sabers burn marks
 MAKE_HOOK_MATCH(MainSystemInit_Init, &GlobalNamespace::MainSystemInit::Init, void, GlobalNamespace::MainSystemInit* self) {
     INFO("MainSystemInit_Init hook called!");
@@ -99,6 +137,15 @@ MAKE_HOOK_MATCH(MainSystemInit_Init, &GlobalNamespace::MainSystemInit::Init, voi
     MainSystemInit_Init(self);
 
     UnityEngine::QualitySettings::set_antiAliasing(0);
+
+    // MirrorRendererSO
+    // Save the MirrorRendererSO instance for later use (get graphics settings presets, etc.)
+    GraphicsTweaks::MirrorsData::mirrorRenderer = self->____mirrorRenderer;
+    GraphicsTweaks::MirrorsData::mirrorRendererGraphicsSettingsPresets = self->____mirrorRendererGraphicsSettingsPresets;
+
+    // Apply the settings
+    GraphicsTweaks::MirrorsData::ApplySettings();
+   
 }
 
 // Enable or disable shockwaves
@@ -231,7 +278,6 @@ MAKE_HOOK_MATCH(
         }
     }
 }
-
 
 
 

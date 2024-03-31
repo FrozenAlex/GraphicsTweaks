@@ -9,6 +9,9 @@
 #include "beatsaber-hook/shared/config/config-utils.hpp"
 #include "beatsaber-hook/shared/utils/il2cpp-functions.hpp"
 #include "beatsaber-hook/shared/utils/hooking.hpp"
+#include "GlobalNamespace/MainSystemInit.hpp"
+#include "GlobalNamespace/MirrorRendererSO.hpp"
+#include "GlobalNamespace/MirrorRendererGraphicsSettingsPresets.hpp"
 
 #include "GraphicsTweaksConfig.hpp"
 
@@ -21,4 +24,11 @@ namespace GraphicsTweaks {
     namespace VRRenderingParamsSetup {
         void Reload(std::optional<float> vrResolutionScale = std::nullopt);
     }
+
+    class MirrorsData {
+        public:
+            static void ApplySettings();
+            inline static SafePtr<GlobalNamespace::MirrorRendererSO> mirrorRenderer;
+            inline static SafePtr<GlobalNamespace::MirrorRendererGraphicsSettingsPresets> mirrorRendererGraphicsSettingsPresets;
+    };
 }

@@ -41,8 +41,6 @@ void GraphicsTweaks::UI::GraphicsTweaksFlowCoordinator::Close(bool immediately){
 
     auto menuTransitionsHelper = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::MenuTransitionsHelper*>()->FirstOrDefault();
     if (menuTransitionsHelper) {
-
-        
         menuTransitionsHelper->RestartGame(nullptr);
     }
     
