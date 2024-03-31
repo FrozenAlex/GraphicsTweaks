@@ -40,9 +40,8 @@ namespace GraphicsTweaks {
             static void ApplySettings();
             inline static SafePtrUnity<GlobalNamespace::MainEffectContainerSO> mainEffectContainer;
             inline static SafePtrUnity<GlobalNamespace::MainEffectSO> noEffect;
-            inline static SafePtrUnity<GlobalNamespace::MainEffectSO> bloomEffect; //Should we support both pyramid and kawase bloom?
-            inline static SafePtrUnity<GlobalNamespace::BloomPrePassEffectSO> hdffect;
-            inline static SafePtrUnity<GlobalNamespace::BloomPrePassEffectSO> ldffect;
-            inline static SafePtrUnity<GlobalNamespace::BloomPrePassEffectContainerSO> bloomPrePassEffectContainerSO;
+            //Should we support both pyramid and kawase bloom?
+            inline static SafePtrUnity<GlobalNamespace::MainEffectSO> ldBloomEffect;
+            inline static SafePtrUnity<GlobalNamespace::MainEffectSO> hdBloomEffect;
     };
 }

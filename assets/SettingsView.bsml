@@ -12,7 +12,7 @@
 		<vertical spacing='2'>
 			<vertical child-control-height='false' bg='panel-top' pad='2' pad-bottom='1' pad-top='1' preferred-width='64'>
 				<text text='&lt;color=#DDD>Graphics (requires game reload)' align='Center' bold='true' font-size='3.5' color='#69B' size-delta-y='5'/>
-				<list-setting id="bloomSetting" text='Bloom' options="bloomQualityOptions" value="bloomQualityValue" bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
+				<bool-setting id="bloomSetting" text='Bloom' value="bloomValue" bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
 				<list-setting id="mirrorsSetting" text='Mirrors' options="mirrorOptions" value="mirrorValue" bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
 				<list-setting id="smokeSetting" text='Smoke' options="smokeQualityOptions" value="smokeQualityValue" bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
 				<list-setting id="antiAliasingSetting" text='Anti-Aliasing' options="antiAliasingOptions" value="antiAliasingValue" bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
@@ -52,8 +52,10 @@
 				<increment-setting text='GPU Level' bind-value="true"  apply-on-change="true" value="gpuLevelValue" min="1" increment="1.0" max="8" on-change="UpdateGraphicsSettings" />
 				<increment-setting text='CPU Level' bind-value="true" apply-on-change="true" value="cpuLevelValue" min="1" increment="1.0" max="8"  on-change="UpdateGraphicsSettings" />
 			</vertical>
-			<text text="\nDistortion walls or shockwaves enabled, anti-aliasing will be forced to off" align="Center" bold="true" font-size="3" font-color="red"/>
-			<button text="Shockwave tester 3000"/>
+			<vertical>
+				<text text="Distortion walls or shockwaves enabled, anti-aliasing will be forced to off" align="Center" bold="true" font-size="3" font-color="red" rich-text="true"/>
+				<button text="Shockwave tester 3000" pref-width="25"/>
+			</vertical>
 		</vertical>
 	</horizontal>
 </vertical>

@@ -371,11 +371,6 @@ bool GraphicsTweaks::UI::SettingsView::get_gameScreenDistortionValue() {
 }
 void GraphicsTweaks::UI::SettingsView::set_gameScreenDistortionValue(bool value) {
     getGraphicsTweaksConfig().GameShockwaves.SetValue(value, instantlySave);
-
-    auto conditionalActivations = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::ConditionalActivation*>();
-    for (auto & conditionalActivation : conditionalActivations) {
-        conditionalActivation->Awake();
-    }
 }
 
 // burnMarksValue

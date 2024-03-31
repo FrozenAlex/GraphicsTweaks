@@ -50,6 +50,7 @@
 #include "GlobalNamespace/MirroredBeatmapObjectManager.hpp"
 #include "GlobalNamespace/MirrorRendererGraphicsSettingsPresets.hpp"
 #include "GlobalNamespace/MainFlowCoordinator.hpp"
+#include "GlobalNamespace/PyramidBloomMainEffectSO.hpp"
 #include "Zenject/DiContainer.hpp"
 #include "Zenject/ScopeConcreteIdArgConditionCopyNonLazyBinder.hpp"
 #include "Zenject/FromBinderGeneric_1.hpp"
@@ -86,13 +87,35 @@ MAKE_HOOK_MATCH(OculusLoader_Initialize, &Unity::XR::Oculus::OculusLoader::Initi
     return OculusLoader_Initialize(self);
 }
 
+void GrabObjects() {
+    auto scriptableObjects = UnityEngine::Resources::FindObjectsOfTypeAll<UnityEngine::ScriptableObject*>();
 
-void GraphicsTweaks::MirrorsData::ApplySettings(){
-    if (!GraphicsTweaks::MirrorsData::mirrorRenderer) {
-        return;
+    for (int i = 0; i < scriptableObjects->get_Length(); i++) {
+        auto scriptableObject = scriptableObjects[i];
+        auto name = scriptableObject->get_name();
+        DEBUG("Scriptable Object Name: {}", name);
+        if(name == "NoPostProcessMainEffect") {
+            auto noPostProcessMainEffect = reinterpret_cast<GlobalNamespace::MainEffectSO*>(scriptableObject);
+            GraphicsTweaks::BloomData::noEffect = noPostProcessMainEffect;
+        }
+        if(name == "PyramidBloomMainEffect") {
+            auto pyramidBloomMainEffect = reinterpret_cast<GlobalNamespace::MainEffectSO*>(scriptableObject);
+            GraphicsTweaks::BloomData::hdBloomEffect = pyramidBloomMainEffect;
+            GraphicsTweaks::BloomData::ldBloomEffect = UnityEngine::Object::Instantiate(pyramidBloomMainEffect);
+            auto effect = reinterpret_cast<GlobalNamespace::PyramidBloomMainEffectSO*>(GraphicsTweaks::BloomData::ldBloomEffect.ptr());
+            effect->____bloomTextureWidth /= 2.0f;
+        }
+        if(name == "MainCameraMainEffectContainer") {
+            auto mainEffectContainer = reinterpret_cast<GlobalNamespace::MainEffectContainerSO*>(scriptableObject);
+            GraphicsTweaks::BloomData::mainEffectContainer = mainEffectContainer;
+        }
     }
-    if (!GraphicsTweaks::MirrorsData::mirrorRendererGraphicsSettingsPresets) {
-        return;
+}
+
+
+void GraphicsTweaks::MirrorsData::ApplySettings() {
+    if (!GraphicsTweaks::MirrorsData::mirrorRenderer || !GraphicsTweaks::MirrorsData::mirrorRendererGraphicsSettingsPresets) {
+        GrabObjects();
     }
 
     // Set the mirror renderer settings to the ones we want
@@ -132,28 +155,26 @@ void GraphicsTweaks::MirrorsData::ApplySettings(){
 };
 
 void GraphicsTweaks::BloomData::ApplySettings() {
-    if (!GraphicsTweaks::BloomData::noEffect) {
-        return;
-    }
-    if (!GraphicsTweaks::BloomData::bloomEffect) {
-        return;
+    if (!GraphicsTweaks::BloomData::noEffect || !GraphicsTweaks::BloomData::hdBloomEffect || !GraphicsTweaks::BloomData::ldBloomEffect) {
+        GrabObjects();
+        if (!GraphicsTweaks::BloomData::noEffect || !GraphicsTweaks::BloomData::hdBloomEffect || !GraphicsTweaks::BloomData::ldBloomEffect) {
+            ERROR("Failed to get bloom effects!");
+            return;
+        }
     }
 
     GlobalNamespace::MainEffectSO* mainEffect = nullptr;
 
     // Set the bloom settings to the ones we want
     auto bloom = getGraphicsTweaksConfig().Bloom.GetValue();
+    bool hd = getGraphicsTweaksConfig().BloomQuality.GetValue() == 2;
     if (bloom) {
-        mainEffect = GraphicsTweaks::BloomData::bloomEffect.ptr();
+        mainEffect = hd ? GraphicsTweaks::BloomData::hdBloomEffect.ptr() : GraphicsTweaks::BloomData::ldBloomEffect.ptr();
     } else {
         mainEffect = GraphicsTweaks::BloomData::noEffect.ptr();
     }
 
-    auto hd = getGraphicsTweaksConfig().BloomQuality.GetValue() == 2;
     GraphicsTweaks::BloomData::mainEffectContainer->Init(mainEffect);
-    auto textureEffect = (hd ? GraphicsTweaks::BloomData::hdffect : GraphicsTweaks::BloomData::ldffect).ptr();
-    DEBUG("{} {}", textureEffect->get_name(), textureEffect->get_toneMapping().value__);
-    GraphicsTweaks::BloomData::bloomPrePassEffectContainerSO->Init(textureEffect);
 };
 
 // Sabers burn marks
@@ -161,37 +182,7 @@ MAKE_HOOK_MATCH(MainSystemInit_Init, &GlobalNamespace::MainSystemInit::Init, voi
     INFO("MainSystemInit_Init hook called!");
     MainSystemInit_Init(self);
 
-    auto scriptableObjects = UnityEngine::Resources::FindObjectsOfTypeAll<UnityEngine::ScriptableObject*>();
-
-    for (int i = 0; i < scriptableObjects->get_Length(); i++) {
-        auto scriptableObject = scriptableObjects[i];
-        auto name = scriptableObject->get_name();
-        DEBUG("Scriptable Object Name: {}", name);
-        if(name == "NoPostProcessMainEffect") {
-            auto noPostProcessMainEffect = reinterpret_cast<GlobalNamespace::MainEffectSO*>(scriptableObject);
-            GraphicsTweaks::BloomData::noEffect = noPostProcessMainEffect;
-        }
-        if(name == "PyramidBloomMainEffect") {
-            auto pyramidBloomMainEffect = reinterpret_cast<GlobalNamespace::MainEffectSO*>(scriptableObject);
-            GraphicsTweaks::BloomData::bloomEffect = pyramidBloomMainEffect;
-        }
-        if(name == "BloomPrePassHDBloomTextureEffect") {
-            auto highDefinitonBloomTextureEffect = reinterpret_cast<GlobalNamespace::BloomPrePassEffectSO*>(scriptableObject);
-            GraphicsTweaks::BloomData::hdffect = highDefinitonBloomTextureEffect;
-
-            auto lowDefinitonBloomTextureEffect = UnityEngine::GameObject::Instantiate(highDefinitonBloomTextureEffect);
-            lowDefinitonBloomTextureEffect->set_name("BloomPrePassLDBloomTextureEffect");
-            //lowDefinitonBloomTextureEffect->____textureWidth = 256;
-            //lowDefinitonBloomTextureEffect->____textureHeight = 256;
-            GraphicsTweaks::BloomData::ldffect = lowDefinitonBloomTextureEffect;
-        }
-        if(name == "MainCameraMainEffectContainer") {
-            auto mainEffectContainer = reinterpret_cast<GlobalNamespace::MainEffectContainerSO*>(scriptableObject);
-            GraphicsTweaks::BloomData::mainEffectContainer = mainEffectContainer;
-        }
-    }
-
-    GraphicsTweaks::BloomData::bloomPrePassEffectContainerSO = self->_bloomPrePassEffectContainer;
+    GrabObjects();
 
     GraphicsTweaks::BloomData::ApplySettings();
 
