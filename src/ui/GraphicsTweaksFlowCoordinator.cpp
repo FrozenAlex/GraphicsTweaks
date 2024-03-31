@@ -39,7 +39,7 @@ void GraphicsTweaks::UI::GraphicsTweaksFlowCoordinator::BackButtonWasPressed(HMU
 void GraphicsTweaks::UI::GraphicsTweaksFlowCoordinator::Close(bool immediately){
     // Do nothing if there's no parent flow coordinator (in multiplayer if you never called it it crashed)
     
-    BSML::MainThreadScheduler::ScheduleAfterTime(4.0f,[this]() {
+    BSML::MainThreadScheduler::ScheduleAfterTime(1.0f,[this]() {
         INFO("Saving GraphicsTweaks config...");
         getGraphicsTweaksConfig().Save();
     });
