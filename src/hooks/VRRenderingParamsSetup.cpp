@@ -54,10 +54,12 @@ void GraphicsTweaks::VRRenderingParamsSetup::Reload(std::optional<float> vrResol
     }
 
     // Anti-aliasing (hides some ui elements, not recommended to use, very buggy)
-    // auto aaValue = getGraphicsTweaksConfig().AntiAliasing.GetValue()*2;
-    // if (QualitySettings::get_antiAliasing() != aaValue) {
-    //     UnityEngine::QualitySettings::set_antiAliasing(aaValue);
-    // }
+    // TODO: Check if it hides the UI elements 
+    bool distortionsUsed = getGraphicsTweaksConfig().WallQuality.GetValue() == 2 || getGraphicsTweaksConfig().MenuShockwaves.GetValue() || getGraphicsTweaksConfig().GameShockwaves.GetValue();
+    auto aaValue = distortionsUsed ? 0 : getGraphicsTweaksConfig().AntiAliasing.GetValue()*2;
+    if (QualitySettings::get_antiAliasing() != aaValue) {
+        UnityEngine::QualitySettings::set_antiAliasing(aaValue);
+    }
 
     // Next ftame is needed because the game sets the resolution scale after this function is called too.
     BSML::MainThreadScheduler::ScheduleNextFrame([]() {

@@ -49,8 +49,8 @@
 			</vertical>
 			<vertical child-control-height='false' bg='panel-top' pad='4' pad-bottom='1' pad-top='1' preferred-width='64'>
 				<text text='&lt;color=#FDD>Performance levels' align='Center' bold='true' font-size='3.5' color='#69B' size-delta-y='5'/>
-				<increment-setting text='GPU Level' bind-value="true"  apply-on-change="true" value="gpuLevelValue" min="1" increment="1.0" max="8" on-change="UpdateGraphicsSettings" />
-				<increment-setting text='CPU Level' bind-value="true" apply-on-change="true" value="cpuLevelValue" min="1" increment="1.0" max="8"  on-change="UpdateGraphicsSettings" />
+				<increment-setting text='GPU Level' bind-value="true"  apply-on-change="true" value="gpuLevelValue" min="1" increment="1.0" max="4" on-change="UpdateGraphicsSettings" />
+				<increment-setting text='CPU Level' bind-value="true" apply-on-change="true" value="cpuLevelValue" min="1" increment="1.0" max="4"  on-change="UpdateGraphicsSettings" />
 			</vertical>
 			<vertical>
 				<text text="Distortion walls or shockwaves enabled, anti-aliasing will be forced to off" align="Center" bold="true" font-size="3" font-color="red" rich-text="true"/>

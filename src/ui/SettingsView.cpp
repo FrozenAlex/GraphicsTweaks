@@ -208,6 +208,8 @@ void GraphicsTweaks::UI::SettingsView::set_antiAliasingValue(StringW value) {
         intValue = 2;
     }
     getGraphicsTweaksConfig().AntiAliasing.SetValue(intValue, instantlySave);
+    // Apply to set anti-aliasing
+    GraphicsTweaks::VRRenderingParamsSetup::Reload();
 }
 
 // bloomQualityValue
@@ -363,6 +365,8 @@ void GraphicsTweaks::UI::SettingsView::set_menuScreenDistortionValue(bool value)
     for (auto & conditionalActivation : conditionalActivations) {
         conditionalActivation->Awake();
     }
+    // Apply to disable anti-aliasing
+    GraphicsTweaks::VRRenderingParamsSetup::Reload();
 }
 
 // gameScreenDistortionValue
@@ -371,6 +375,9 @@ bool GraphicsTweaks::UI::SettingsView::get_gameScreenDistortionValue() {
 }
 void GraphicsTweaks::UI::SettingsView::set_gameScreenDistortionValue(bool value) {
     getGraphicsTweaksConfig().GameShockwaves.SetValue(value, instantlySave);
+
+    // Apply to disable anti-aliasing
+    GraphicsTweaks::VRRenderingParamsSetup::Reload();
 }
 
 // burnMarksValue
