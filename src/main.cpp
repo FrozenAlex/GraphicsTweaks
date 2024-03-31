@@ -33,6 +33,7 @@
 #include "GlobalNamespace/ShockwaveEffect.hpp"
 #include "GlobalNamespace/VisualEffectsController.hpp"
 #include "bsml/shared/BSML/MainThreadScheduler.hpp"
+#include "bsml/shared/BSML/SharedCoroutineStarter.hpp"
 #include "bsml/shared/BSML.hpp"
 #include "UI/GraphicsTweaksFlowCoordinator.hpp"
 #include "logging.hpp"
@@ -40,6 +41,12 @@
 #include "GlobalNamespace/FPSCounterUIController.hpp"
 #include "GlobalNamespace/GameplayCoreInstaller.hpp"
 #include "GlobalNamespace/PerformanceVisualizer.hpp"
+#include "Tayx/Graphy/GraphyManager.hpp"
+#include "Tayx/Graphy/Fps/G_FpsMonitor.hpp"
+#include "Tayx/Graphy/Ram/G_RamMonitor.hpp"
+#include "Tayx/Graphy/Audio/G_AudioMonitor.hpp"
+
+#include "FPSCounter.hpp"
 inline modloader::ModInfo modInfo = {MOD_ID, VERSION, GIT_COMMIT}; // Stores the ID and version of our mod, and is sent to the modloader upon startup
 
 // Called at the early stages of game loading
@@ -107,8 +114,14 @@ MAKE_HOOK_MATCH(ConditionalActivation_Awake, &GlobalNamespace::ConditionalActiva
     }
 
     //Disable fake glow    
-    if(std::u16string_view(name).find(u"Fake") != std::string::npos) {
+    if((name == "FakeGlow0" || name == "FakeGlow1" || name == "ObstacleFakeGlow") && getGraphicsTweaksConfig().Bloom.GetValue()) {
         self->get_gameObject()->SetActive(false);
+    }
+
+    //MOVE THIS LATER
+    if(!GraphicsTweaks::FPSCounter::counter) {
+        // Load the FPS counter
+        BSML::SharedCoroutineStarter::get_instance()->StartCoroutine(custom_types::Helpers::CoroutineHelper::New(GraphicsTweaks::FPSCounter::LoadBund()));
     }
 }
 
@@ -179,6 +192,19 @@ MAKE_HOOK_MATCH(VisualEffectsController_HandleDepthTextureEnabledDidChange, &Glo
     }
 }
 
+MAKE_HOOK_MATCH(GraphyManager_Init, &Tayx::Graphy::GraphyManager::Init, void, Tayx::Graphy::GraphyManager* self) {
+    if (self->m_keepAlive)
+	{
+		UnityEngine::Object::DontDestroyOnLoad(self->transform->root->gameObject);
+	}
+    self->m_fpsMonitor = self->GetComponentInChildren<Tayx::Graphy::Fps::G_FpsMonitor*>(true);
+	self->m_fpsMonitor->Init();
+	self->m_ramMonitor = self->GetComponentInChildren<Tayx::Graphy::Ram::G_RamMonitor*>(true);
+	self->m_ramMonitor->Init();
+    self->m_audioMonitor = self->GetComponentInChildren<Tayx::Graphy::Audio::G_AudioMonitor*>(true);
+	self->m_audioMonitor->Init();
+}
+
 
 MAKE_HOOK_MATCH(
     GameplayCoreInstaller_InstallBindings,
@@ -220,6 +246,7 @@ GT_EXPORT_FUNC void load() {
     INSTALL_HOOK(logger, VisualEffectsController_OnPreRender);
     INSTALL_HOOK(logger, VisualEffectsController_HandleDepthTextureEnabledDidChange);
     INSTALL_HOOK(logger, GameplayCoreInstaller_InstallBindings);
+    //INSTALL_HOOK(logger, GraphyManager_Init);
 
     INFO("Installed all hooks!");
 
