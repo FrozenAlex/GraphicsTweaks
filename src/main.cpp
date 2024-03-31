@@ -49,6 +49,7 @@
 #include "GlobalNamespace/MirroredSliderController.hpp"
 #include "GlobalNamespace/MirroredBeatmapObjectManager.hpp"
 #include "GlobalNamespace/MirrorRendererGraphicsSettingsPresets.hpp"
+#include "GlobalNamespace/MainFlowCoordinator.hpp"
 #include "Zenject/DiContainer.hpp"
 #include "Zenject/ScopeConcreteIdArgConditionCopyNonLazyBinder.hpp"
 #include "Zenject/FromBinderGeneric_1.hpp"
@@ -97,18 +98,28 @@ void GraphicsTweaks::MirrorsData::ApplySettings(){
     // Set the mirror renderer settings to the ones we want
     auto currentPreset = getGraphicsTweaksConfig().Mirror.GetValue();
 
-    // Loop through presets and print them
-    auto presets = GraphicsTweaks::MirrorsData::mirrorRendererGraphicsSettingsPresets->get_namedPresets();
-    for (const auto& item : presets) {
-        DEBUG("Preset: {}", item->get_presetNameLocalizationKey());
-        //  item->ToString();
-    }
-
     // Init the mirror renderer with the settings from the preset
     if (currentPreset >= GraphicsTweaks::MirrorsData::mirrorRendererGraphicsSettingsPresets->get_presets().size()) {
         currentPreset = 3;
     }
-    auto presetObj = GraphicsTweaks::MirrorsData::mirrorRendererGraphicsSettingsPresets->get_presets()[currentPreset];
+    
+    auto presetsObj = GraphicsTweaks::MirrorsData::mirrorRendererGraphicsSettingsPresets->get_presets();
+    if (!presetsObj) {
+        ERROR("Failed to get mirror renderer presets!");
+        return;
+    }
+
+    auto presetObj = presetsObj[currentPreset];
+    if (!presetObj) {
+        ERROR("Failed to get mirror renderer preset!");
+        return;
+    }
+
+    if (!GraphicsTweaks::MirrorsData::mirrorRenderer) {
+        ERROR("MirrorRendererSO is null!");
+        return;
+    }
+
     GraphicsTweaks::MirrorsData::mirrorRenderer->Init(
         presetObj->___reflectLayers,
         presetObj->___stereoTextureWidth,
@@ -218,11 +229,6 @@ MAKE_HOOK_MATCH(ConditionalActivation_Awake, &GlobalNamespace::ConditionalActiva
     if(name == "BigSmokePS") {
         self->get_gameObject()->SetActive(getGraphicsTweaksConfig().SmokeQuality.GetValue() > 0);
     }
-
-    if(!GraphicsTweaks::FPSCounter::counter) {
-        // Load the FPS counter
-        BSML::SharedCoroutineStarter::get_instance()->StartCoroutine(custom_types::Helpers::CoroutineHelper::New(GraphicsTweaks::FPSCounter::LoadBund()));
-    }
 }
 
 MAKE_HOOK_MATCH(ShockwaveEffect_Start, &GlobalNamespace::ShockwaveEffect::Start, void, GlobalNamespace::ShockwaveEffect* self) {
@@ -329,6 +335,17 @@ MAKE_HOOK_MATCH(
     }
 }
 
+MAKE_HOOK_MATCH(MainFlowCoordinator_DidActivate, &GlobalNamespace::MainFlowCoordinator::DidActivate, void, GlobalNamespace::MainFlowCoordinator* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
+    MainFlowCoordinator_DidActivate(self, firstActivation, addedToHierarchy, screenSystemEnabling);
+    DEBUG("MainFlowCoordinator_DidActivate");
+
+    if(!GraphicsTweaks::FPSCounter::counter) {
+        // Load the FPS counter
+        self->StartCoroutine(custom_types::Helpers::CoroutineHelper::New(GraphicsTweaks::FPSCounter::LoadBund()));
+    }
+
+}
+
 
 
 // Called later on in the game loading - a good time to install function hooks
@@ -354,6 +371,7 @@ GT_EXPORT_FUNC void load() {
     INSTALL_HOOK(Logger, VisualEffectsController_HandleDepthTextureEnabledDidChange);
     INSTALL_HOOK(Logger, GameplayCoreInstaller_InstallBindings);
     INSTALL_HOOK(Logger, FakeMirrorObjectsInstaller_InstallBindings);
+    INSTALL_HOOK(Logger, MainFlowCoordinator_DidActivate);
 
     GraphicsTweaks::Hooks::VRRenderingParamsSetup();
 

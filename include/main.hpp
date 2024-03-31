@@ -31,18 +31,18 @@ namespace GraphicsTweaks {
     class MirrorsData {
         public:
             static void ApplySettings();
-            inline static SafePtr<GlobalNamespace::MirrorRendererSO> mirrorRenderer;
-            inline static SafePtr<GlobalNamespace::MirrorRendererGraphicsSettingsPresets> mirrorRendererGraphicsSettingsPresets;
+            inline static SafePtrUnity<GlobalNamespace::MirrorRendererSO> mirrorRenderer;
+            inline static SafePtrUnity<GlobalNamespace::MirrorRendererGraphicsSettingsPresets> mirrorRendererGraphicsSettingsPresets;
     };
 
     class BloomData {
         public:
             static void ApplySettings();
-            inline static SafePtr<GlobalNamespace::MainEffectContainerSO> mainEffectContainer;
-            inline static SafePtr<GlobalNamespace::MainEffectSO> noEffect;
-            inline static SafePtr<GlobalNamespace::MainEffectSO> bloomEffect; //Should we support both pyramid and kawase bloom?
-            inline static SafePtr<GlobalNamespace::BloomPrePassEffectSO> hdffect;
-            inline static SafePtr<GlobalNamespace::BloomPrePassEffectSO> ldffect;
-            inline static SafePtr<GlobalNamespace::BloomPrePassEffectContainerSO> bloomPrePassEffectContainerSO;
+            inline static SafePtrUnity<GlobalNamespace::MainEffectContainerSO> mainEffectContainer;
+            inline static SafePtrUnity<GlobalNamespace::MainEffectSO> noEffect;
+            inline static SafePtrUnity<GlobalNamespace::MainEffectSO> bloomEffect; //Should we support both pyramid and kawase bloom?
+            inline static SafePtrUnity<GlobalNamespace::BloomPrePassEffectSO> hdffect;
+            inline static SafePtrUnity<GlobalNamespace::BloomPrePassEffectSO> ldffect;
+            inline static SafePtrUnity<GlobalNamespace::BloomPrePassEffectContainerSO> bloomPrePassEffectContainerSO;
     };
 }
