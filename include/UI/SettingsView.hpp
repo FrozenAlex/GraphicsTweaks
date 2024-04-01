@@ -36,6 +36,7 @@ DECLARE_CLASS_CODEGEN(GraphicsTweaks::UI, SettingsView, HMUI::ViewController,
     BSML_OPTIONS_LIST_OBJECT(foveationLevelOptions, "Off", "Low", "Medium", "High", "HighTop");
     BSML_OPTIONS_LIST_OBJECT(mirrorOptions, "Off", "Low", "Medium", "High");
     BSML_OPTIONS_LIST_OBJECT(antiAliasingOptions, "Off", "2x", "4x");
+    BSML_OPTIONS_LIST_OBJECT(bloomQualityOptions, "Off", "Low", "High");
     BSML_OPTIONS_LIST_OBJECT(smokeQualityOptions, "Off", "Low", "High");
     BSML_OPTIONS_LIST_OBJECT(booleanOptions, "Off", "On");
     BSML_OPTIONS_LIST_OBJECT(wallQualityOptions, "Transparent", "Textured", "Distorted");
@@ -43,7 +44,7 @@ DECLARE_CLASS_CODEGEN(GraphicsTweaks::UI, SettingsView, HMUI::ViewController,
     // Fields
     DECLARE_BSML_PROPERTY(StringW, mirrorValue);
     DECLARE_BSML_PROPERTY(StringW, antiAliasingValue);
-    DECLARE_BSML_PROPERTY(StringW, bloomValue);
+    DECLARE_BSML_PROPERTY(StringW, bloomQualityValue);
     DECLARE_BSML_PROPERTY(StringW, smokeQualityValue);
     DECLARE_BSML_PROPERTY(StringW, wallQualityValue);
 

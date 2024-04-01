@@ -16,6 +16,8 @@
 #include "main.hpp"
 #include "FPSCounter.hpp"
 #include "bsml/shared/BSML/SharedCoroutineStarter.hpp"
+#include "bsml/shared/BSML-Lite/Creation/Text.hpp"
+#include "TMPro/TextMeshProUGUI.hpp"
 DEFINE_TYPE(GraphicsTweaks::UI, SettingsView);
 
 using namespace UnityEngine;
@@ -52,6 +54,14 @@ void GraphicsTweaks::UI::SettingsView::DidActivate(bool firstActivation, bool ad
 
     BSML::parse_and_construct(Assets::SettingsView_bsml, this->get_transform(), this);
 
+    auto txt = BSML::Lite::CreateText(this, "<br><color=#D1ACFF>Inspired by Anytweaks (Abandoned) by Kaitlyn", {0, 0}, {50, 10});
+    auto trans = txt->get_transform();
+    trans->set_position({0, 0.01f, 2.5});
+    trans->set_rotation(UnityEngine::Quaternion::Euler(90, 0, 0));
+    txt->set_overflowMode(TMPro::TextOverflowModes::Overflow);
+    txt->set_enableWordWrapping(false);
+    txt->set_richText(true);
+
     #ifdef HotReload
         fileWatcher->checkInterval = 0.5f;
         fileWatcher->filePath = "/sdcard/bsml/GraphicsTweaks/SettingsView.bsml";
@@ -74,7 +84,7 @@ void GraphicsTweaks::UI::SettingsView::PostParse() {
         imageView->____skew = 0.0f;
         imageView->set_overrideSprite(nullptr);
         imageView->set_sprite(getBgSprite);
-        imageView->set_color(UnityEngine::Color(0.0f, 0.7f, 1.0f, 0.4f));
+        imageView->set_color(UnityEngine::Color(0.8f, 0.67f, 1.0f, 0.4f));
     }
 }
 

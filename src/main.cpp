@@ -271,6 +271,7 @@ MAKE_HOOK_MATCH(ObstacleMaterialSetter_SetCoreMaterial, &GlobalNamespace::Obstac
 
 // Not sure what this does, but it's a hook
 MAKE_HOOK_MATCH(ConditionalMaterialSwitcher_Awake, &GlobalNamespace::ConditionalMaterialSwitcher::Awake, void, GlobalNamespace::ConditionalMaterialSwitcher* self) {
+    DEBUG("ConditionalMaterialSwitcher_Awake hook called! {}", self->get_gameObject()->get_name());
     auto renderer = self->____renderer;
     auto material1 = self->____material1;
     renderer->set_sharedMaterial(material1);
@@ -351,8 +352,6 @@ GT_EXPORT_FUNC void load() {
     INFO("Installing hooks...");
     // Phase Sync (latency reduction)
     INSTALL_HOOK(Logger, OculusLoader_Initialize);
-    // Bloom (expensive, not sure if it's worth it?)
-
     INSTALL_HOOK(Logger, MainSystemInit_Init);
     INSTALL_HOOK(Logger, ConditionalActivation_Awake);
     INSTALL_HOOK(Logger, ConditionalMaterialSwitcher_Awake);
@@ -368,7 +367,7 @@ GT_EXPORT_FUNC void load() {
 
     INFO("Installed all hooks!");
 
-    BSML::Register::RegisterMainMenu<GraphicsTweaks::UI::GraphicsTweaksFlowCoordinator*>("<color=#f0cdff>Graphics Tweaks", "Tweak your graphics");
+    BSML::Register::RegisterMainMenu<GraphicsTweaks::UI::GraphicsTweaksFlowCoordinator*>("<color=#D1ACFF>Graphics Tweaks", "Tweak your graphics");
     INFO("Registered settings menu!");
     INFO("GraphicsTweaks loaded!");
 }

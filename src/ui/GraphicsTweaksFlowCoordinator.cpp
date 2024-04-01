@@ -27,7 +27,7 @@ void GraphicsTweaks::UI::GraphicsTweaksFlowCoordinator::Awake() {
 void GraphicsTweaks::UI::GraphicsTweaksFlowCoordinator::DidActivate(bool firstActivation, bool addedToHeirarchy, bool screenSystemEnabling) {
     if (!firstActivation) return;
 
-    SetTitle("<color=#f0cdff>Graphics Tweaks", HMUI::ViewController::AnimationType::In);
+    SetTitle("Graphics Tweaks", HMUI::ViewController::AnimationType::In);
     this->____showBackButton = true;
     ProvideInitialViewControllers(settingsView, presetsView,  advancedSettingsView, nullptr, nullptr);
 }
