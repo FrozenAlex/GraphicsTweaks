@@ -5,6 +5,7 @@
   "id": "${mod_id}",
   "author": "FrozenAlex, Futuremappermydud",
   "version": "${version}",
+  "coverImage": "image.png",
   "packageId": "com.beatgames.beatsaber",
   "packageVersion": "1.35.0_8016709773",
   "description": "Mod to unlock pc graphics settings on quest beat saber",

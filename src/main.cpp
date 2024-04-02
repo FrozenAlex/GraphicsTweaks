@@ -93,7 +93,7 @@ void GrabObjects() {
     for (int i = 0; i < scriptableObjects->get_Length(); i++) {
         auto scriptableObject = scriptableObjects[i];
         auto name = scriptableObject->get_name();
-        DEBUG("Scriptable Object Name: {}", name);
+        //DEBUG("Scriptable Object Name: {}", name);
         if(name == "NoPostProcessMainEffect") {
             auto noPostProcessMainEffect = reinterpret_cast<GlobalNamespace::MainEffectSO*>(scriptableObject);
             GraphicsTweaks::BloomData::noEffect = noPostProcessMainEffect;
@@ -220,6 +220,10 @@ MAKE_HOOK_MATCH(ConditionalActivation_Awake, &GlobalNamespace::ConditionalActiva
     if(name == "BigSmokePS") {
         self->get_gameObject()->SetActive(getGraphicsTweaksConfig().SmokeQuality.GetValue() > 0);
     }
+
+    if(name == "SaberBurnMarksArea") {
+        self->get_gameObject()->SetActive(getGraphicsTweaksConfig().Burnmarks.GetValue());
+    }
 }
 
 MAKE_HOOK_MATCH(ShockwaveEffect_Start, &GlobalNamespace::ShockwaveEffect::Start, void, GlobalNamespace::ShockwaveEffect* self) {
@@ -233,7 +237,7 @@ MAKE_HOOK_MATCH(ObstacleMaterialSetter_SetCoreMaterial, &GlobalNamespace::Obstac
 
     BeatSaber::PerformancePresets::ObstaclesQuality quality;
 
-    DEBUG("config quaality {} :3", getGraphicsTweaksConfig().WallQuality.GetValue());
+    //DEBUG("config quaality {} :3", getGraphicsTweaksConfig().WallQuality.GetValue());
 
     switch(getGraphicsTweaksConfig().WallQuality.GetValue()) {
         case 0:
@@ -252,19 +256,19 @@ MAKE_HOOK_MATCH(ObstacleMaterialSetter_SetCoreMaterial, &GlobalNamespace::Obstac
     case 0:
     case 1:
         renderer->set_sharedMaterial(self->____texturedCoreMaterial);
-        DEBUG("TEXTUREDDDDD");
+        //DEBUG("TEXTUREDDDDD");
         break;
     case 2:
         renderer->set_sharedMaterial(self->____lwCoreMaterial);
-        DEBUG("TRANSPARENTTTTTT");
+        //DEBUG("TRANSPARENTTTTTT");
         break;
     case 3:
         renderer->set_sharedMaterial(self->____hwCoreMaterial);
-        DEBUG("DISTORTEDDDDD");
+        //DEBUG("DISTORTEDDDDD");
         break;
     default:
         renderer->set_sharedMaterial(self->____lwCoreMaterial);
-        DEBUG("TRANSPARENTTTTTT");
+        //DEBUG("TRANSPARENTTTTTT");
         break;
     }
 }
@@ -292,6 +296,7 @@ MAKE_HOOK_MATCH(VisualEffectsController_HandleDepthTextureEnabledDidChange, &Glo
 
 MAKE_HOOK_MATCH(FakeMirrorObjectsInstaller_InstallBindings, &GlobalNamespace::FakeMirrorObjectsInstaller::InstallBindings, void, GlobalNamespace::FakeMirrorObjectsInstaller* self) {
     auto mirrorQuality = getGraphicsTweaksConfig().Mirror.GetValue();
+    auto ogPresets = self->____mirrorRendererGraphicsSettingsPresets->get_presets();
     auto fakePreset = self->____mirrorRendererGraphicsSettingsPresets->get_presets()[0];
     switch (mirrorQuality)
     {
@@ -306,6 +311,7 @@ MAKE_HOOK_MATCH(FakeMirrorObjectsInstaller_InstallBindings, &GlobalNamespace::Fa
     }
     self->____mirrorRendererGraphicsSettingsPresets->____presets = {fakePreset};
     FakeMirrorObjectsInstaller_InstallBindings(self);
+    self->____mirrorRendererGraphicsSettingsPresets->____presets = ogPresets;
 }
 
 MAKE_HOOK_MATCH(
