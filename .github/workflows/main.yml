@@ -3,7 +3,7 @@ name: NDK build
 env:
   module_id: graphicstweaks
   qmodName: GraphicsTweaks 
-  cache-name: BSS_cache
+  cache-name: GT_cache
 
 on:
   push:
@@ -79,4 +79,3 @@ jobs:
         name: debug_${{ steps.libname.outputs.NAME }}
         path: ./build/debug/${{ steps.libname.outputs.NAME }}
         if-no-files-found: error
-    # TODO: Add auto-populating releases, auto update versions, auto publish package on release
