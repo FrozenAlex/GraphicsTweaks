@@ -81,7 +81,7 @@ GT_EXPORT_FUNC void setup(CModInfo& info) {
 
 // Enable Phase Sync (latency reduction) by default
 MAKE_HOOK_MATCH(OculusLoader_Initialize, &Unity::XR::Oculus::OculusLoader::Initialize, bool, Unity::XR::Oculus::OculusLoader* self) {
-    INFO("OculusLoader_Initialize hook called!");
+    // INFO("OculusLoader_Initialize hook called!");
     auto settings = self->GetSettings();
     settings->___PhaseSync = true;
     return OculusLoader_Initialize(self);
@@ -179,7 +179,7 @@ void GraphicsTweaks::BloomData::ApplySettings() {
 
 // Sabers burn marks
 MAKE_HOOK_MATCH(MainSystemInit_Init, &GlobalNamespace::MainSystemInit::Init, void, GlobalNamespace::MainSystemInit* self) {
-    INFO("MainSystemInit_Init hook called!");
+    // INFO("MainSystemInit_Init hook called!");
     MainSystemInit_Init(self);
 
     GrabObjects();
@@ -202,7 +202,7 @@ MAKE_HOOK_MATCH(MainSystemInit_Init, &GlobalNamespace::MainSystemInit::Init, voi
 
 // Enable or disable shockwaves
 MAKE_HOOK_MATCH(ConditionalActivation_Awake, &GlobalNamespace::ConditionalActivation::Awake, void, GlobalNamespace::ConditionalActivation* self) {
-    DEBUG("ConditionalActivation_Awake hook called! {}", self->get_gameObject()->get_name());
+    // DEBUG("ConditionalActivation_Awake hook called! {}", self->get_gameObject()->get_name());
     auto name = self->get_gameObject()->get_name();
     if(name == "ShockwaveEffect") {
         self->get_gameObject()->SetActive(getGraphicsTweaksConfig().GameShockwaves.GetValue());
@@ -227,13 +227,13 @@ MAKE_HOOK_MATCH(ConditionalActivation_Awake, &GlobalNamespace::ConditionalActiva
 }
 
 MAKE_HOOK_MATCH(ShockwaveEffect_Start, &GlobalNamespace::ShockwaveEffect::Start, void, GlobalNamespace::ShockwaveEffect* self) {
-    DEBUG("ShockwaveEffect_Start hook called!");
+    // DEBUG("ShockwaveEffect_Start hook called!");
     ShockwaveEffect_Start(self);
     self->____shockwavePS->get_main().set_maxParticles(getGraphicsTweaksConfig().NumShockwaves.GetValue());
 }
 
 MAKE_HOOK_MATCH(ObstacleMaterialSetter_SetCoreMaterial, &GlobalNamespace::ObstacleMaterialSetter::SetCoreMaterial, void, GlobalNamespace::ObstacleMaterialSetter* self, UnityEngine::Renderer* renderer, BeatSaber::PerformancePresets::ObstaclesQuality obstaclesQuality) {
-    DEBUG("ObstacleMaterialSetter_SetCoreMaterial hook called! >_<");
+    // DEBUG("ObstacleMaterialSetter_SetCoreMaterial hook called! >_<");
 
     BeatSaber::PerformancePresets::ObstaclesQuality quality;
 
@@ -275,7 +275,7 @@ MAKE_HOOK_MATCH(ObstacleMaterialSetter_SetCoreMaterial, &GlobalNamespace::Obstac
 
 // Not sure what this does, but it's a hook
 MAKE_HOOK_MATCH(ConditionalMaterialSwitcher_Awake, &GlobalNamespace::ConditionalMaterialSwitcher::Awake, void, GlobalNamespace::ConditionalMaterialSwitcher* self) {
-    DEBUG("ConditionalMaterialSwitcher_Awake hook called! {}", self->get_gameObject()->get_name());
+    // DEBUG("ConditionalMaterialSwitcher_Awake hook called! {}", self->get_gameObject()->get_name());
     auto renderer = self->____renderer;
     auto material1 = self->____material1;
     renderer->set_sharedMaterial(material1);
@@ -335,7 +335,7 @@ MAKE_HOOK_MATCH(
 
 MAKE_HOOK_MATCH(MainFlowCoordinator_DidActivate, &GlobalNamespace::MainFlowCoordinator::DidActivate, void, GlobalNamespace::MainFlowCoordinator* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
     MainFlowCoordinator_DidActivate(self, firstActivation, addedToHierarchy, screenSystemEnabling);
-    DEBUG("MainFlowCoordinator_DidActivate");
+    // DEBUG("MainFlowCoordinator_DidActivate");
 
     if(!GraphicsTweaks::FPSCounter::counter) {
         // Load the FPS counter
@@ -372,8 +372,6 @@ GT_EXPORT_FUNC void load() {
     GraphicsTweaks::Hooks::VRRenderingParamsSetup();
 
     INFO("Installed all hooks!");
-
     BSML::Register::RegisterMainMenu<GraphicsTweaks::UI::GraphicsTweaksFlowCoordinator*>("<color=#D1ACFF>Graphics Tweaks", "Tweak your graphics");
-    INFO("Registered settings menu!");
     INFO("GraphicsTweaks loaded!");
 }
