@@ -10,26 +10,28 @@
 	</horizontal> -->
 	<horizontal horizontal-fit='PreferredSize' pad='4' spacing='2' preferred-height='79' child-control-height='false'>
 		<vertical spacing='2'>
-			<vertical child-control-height='false' bg='panel-top' pad='2' pad-bottom='1' pad-top='1' preferred-width='64'>
-				<text text='&lt;color=#DDD>Graphics' align='Center' bold='true' font-size='3.5' color='#69B' size-delta-y='5'/>
-				<list-setting id="bloomSetting" text='Bloom' options="bloomQualityOptions" value="bloomQualityValue" bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
+			<vertical spacing="0" child-control-height='false' bg='panel-top' pad='2' pad-bottom='1' pad-top='1' preferred-width='64'>
+				<text text='&lt;color=#9ff8ba>Graphics' align='Center' bold='true' font-size='3.5' color='#69B' size-delta-y='5' />
+				<list-setting id="bloomSetting" text='Bloom' options="bloomQualityOptions" value="bloomQualityValue" bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings"  hover-hint="Makes everything appear brighter. &lt;br>Currently is way too overblown compared to PC, not really recommended to use" />
 				<list-setting id="mirrorsSetting" text='Mirrors' options="mirrorOptions" value="mirrorValue" bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
 				<list-setting id="smokeSetting" text='Smoke' options="smokeQualityOptions" value="smokeQualityValue" bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
 				<list-setting id="antiAliasingSetting" text='Anti-Aliasing' options="antiAliasingOptions" value="antiAliasingValue" bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
 				<list-setting id="wallsSetting" text='Walls' options="wallQualityOptions" value="wallQualityValue" bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
-				<increment-setting id="shockwaveParticlesSetting" text='Shockwave particles' value="shockwaveParticlesValue" bind-value="true" apply-on-change="true" increment="1" min="0" max="3" hover-hint="Max Shockwave Particles (distortions on impact)" on-change="UpdateGraphicsSettings" />
+				<increment-setting id="shockwaveParticlesSetting" text='Shockwave particles' value="shockwaveParticlesValue" bind-value="true" apply-on-change="true" increment="1" min="0" max="3" hover-hint="Max Shockwave Particles &lt;br> (distortions on impact)" on-change="UpdateGraphicsSettings" />
 				<bool-setting id="burnMarksSetting" text='Burn marks' value="burnMarksValue"  bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" hover-hint="Allows you to see cuts in the platform you stand on" />
 				<bool-setting text='FPS Counter' value="FPSCounterValue"  bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" hover-hint="Minimal FPS counter pinned next to the standing platform" />
-				<bool-setting text='Advanced FPS Counter' value="FPSCounterAdvancedValue"  bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" hover-hint="FPS counter with more information, not recommended for use during playing the game, as it appears in front of you" />
+				<bool-setting text='Advanced FPS Counter' value="FPSCounterAdvancedValue" bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" hover-hint="FPS counter with more information for debugging frame times. &lt;br> Not recommended to keep it on, as it can cause more crashes and could reduce your overall performance" />
 				<list-setting value="colorSpaceValue" bind-value="true" apply-on-change="true" text='Color Space' choices="colorSpaceOptions" on-change="UpdateGraphicsSettings" />
-				<!--<bool-setting id="screenDistortionSetting" text='Passthrough' value="screenDistortionValue"  active="false" bind-value="true" apply-on-change="true" hover-hint="This feature requires patching BeatSaber with passthrough support" on-change="UpdateGraphicsSettings" />-->
+				<!-- <bool-setting id="screenDistortionSetting" text='Passthrough' value="screenDistortionValue"  active="false" bind-value="true" apply-on-change="true" hover-hint="This feature requires patching BeatSaber with passthrough support" on-change="UpdateGraphicsSettings" /> -->
 			</vertical>
 		</vertical>
-		<vertical spacing='1'>
-			<vertical child-control-height='false' bg='panel-top' pad='4' pad-bottom='1' pad-top='1' preferred-width='64'>
-				<text text='&lt;color=#DDD>Settings based on environment' align='Center' bold='true' font-size='3.5' color='#69B' size-delta-y='5'/>
+		<vertical spacing='2'>
+			<vertical child-control-height='false' bg='panel-top' pad='2' pad-bottom='1' pad-top='1' preferred-width='64'>
+				<text text='&lt;color=#ffffff>Settings based on &lt;color=#2b99f4>environment' align='Center' bold='true' font-size='3.5'  size-delta-y='5'/>
 				<tab-selector tab-tag="main" anchor-pos-y='0' size-delta-y='6' size-delta-x='-60' 
 					child-expand-width='true' child-control-width='true'  />
+				<!-- Funny spacer cause unity ui is a mystery to me -->
+					<horizontal preferred-height="1"></horizontal>
 				<tab tags="main" tab-name="menu" size-delta-y="31">
 					<vertical child-control-height='false' horizontal-fit="Unconstrained">
 						<increment-setting id="performanceLevelGPU" text='Resolution' min="0.2" max="2" increment="0.1" value="resolutionLevelValueMenu"  bind-value="true" apply-on-change="true"  on-change="UpdateGraphicsSettings" />
@@ -47,12 +49,19 @@
 					</vertical>
 				</tab>
 			</vertical>
-			<vertical child-control-height='false' bg='panel-top' pad='4' pad-bottom='1' pad-top='1' preferred-width='64'>
-				<text text='&lt;color=#FDD>Performance levels' align='Center' bold='true' font-size='3.5' color='#69B' size-delta-y='5'/>
-				<increment-setting text='GPU Level' bind-value="true"  apply-on-change="true" value="gpuLevelValue" min="1" increment="1.0" max="4" on-change="UpdateGraphicsSettings" />
-				<increment-setting text='CPU Level' bind-value="true" apply-on-change="true" value="cpuLevelValue" min="1" increment="1.0" max="4"  on-change="UpdateGraphicsSettings" />
+			<vertical child-control-height='false' bg='panel-top' pad='2' pad-bottom='1' pad-top='1' preferred-width='64'>
+				<text text='&lt;color=#fe7da6ff>Performance&lt;color=#e6eaffff> levels' align='Center' bold='true' font-size='3.5' size-delta-y='5'/>
+				<increment-setting text='Min. GPU Level' bind-value="true"  apply-on-change="true" value="gpuLevelValue" min="1" increment="1.0" max="4" on-change="UpdateGraphicsSettings" />
+				<increment-setting text='Min. CPU Level' bind-value="true" apply-on-change="true" value="cpuLevelValue" min="1" increment="1.0" max="4"  on-change="UpdateGraphicsSettings" />
 			</vertical>
-			<text text="if distortion walls or shockwaves are enabled, anti-aliasing will be forced to off!" align="Center" bold="true" font-size="3" font-color="red" rich-text="true"/>
+			<horizontal
+				preferred-width='50'
+				pad-top="3"
+				child-align="MiddleCenter"
+				horizontal-fit="PreferredSize"
+			>
+				<text overflow-mode="Overflow"  text="If distortion walls or shockwaves are enabled, &lt;br> anti-aliasing will be forced to off!" align="Center" bold="false" font-size="3.2" font-color="#fdaa60" rich-text="true"/>
+			</horizontal>
 		</vertical>
 	</horizontal>
 </vertical>

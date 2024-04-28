@@ -37,8 +37,6 @@ void GraphicsTweaks::UI::SettingsView::DidActivate(bool firstActivation, bool ad
     if (!firstActivation)
         return;
 
-    INFO("SettingsView activated");
-
     // Get possible FPS values
     auto frequencies = GlobalNamespace::OVRPlugin::get_systemDisplayFrequenciesAvailable();
     // Create lists
@@ -48,19 +46,8 @@ void GraphicsTweaks::UI::SettingsView::DidActivate(bool firstActivation, bool ad
         systemDisplayFrequenciesAvailableValues->Add(item);
         systemDisplayFrequenciesAvailableLabels->Add(fmt::format("{}", item));
     }
-  
-
-    DEBUG("Got FPS values");
 
     BSML::parse_and_construct(Assets::SettingsView_bsml, this->get_transform(), this);
-
-    auto txt = BSML::Lite::CreateText(this, "<br><color=#D1ACFF>Inspired by Anytweaks (Abandoned) by Kaitlyn", {0, 0}, {50, 10});
-    auto trans = txt->get_transform();
-    trans->set_position({0, 0.01f, 2.5});
-    trans->set_rotation(UnityEngine::Quaternion::Euler(90, 0, 0));
-    txt->set_overflowMode(TMPro::TextOverflowModes::Overflow);
-    txt->set_enableWordWrapping(false);
-    txt->set_richText(true);
 
     #ifdef HotReload
         fileWatcher->checkInterval = 0.5f;
@@ -71,10 +58,17 @@ void GraphicsTweaks::UI::SettingsView::DidActivate(bool firstActivation, bool ad
 void GraphicsTweaks::UI::SettingsView::PostParse() {
     DEBUG("SettingsView PostParse");
 
-    auto getBgSprite = GetBGSprite("RoundRect10BorderFade");
+    auto txt = BSML::Lite::CreateText(this, "<br><color=#D1ACFF>Inspired by Anytweaks (Abandoned) by Kaitlyn", {0, 0}, {50, 10});
+    auto trans = txt->get_transform();
+    trans->set_position({0, 0.01f, 2.5});
+    trans->set_rotation(UnityEngine::Quaternion::Euler(90, 0, 0));
+    txt->set_overflowMode(TMPro::TextOverflowModes::Overflow);
+    txt->set_enableWordWrapping(false);
+    txt->set_richText(true);
 
-
+    
     // Remove skew from all backgroundable elements
+    auto getBgSprite = GetBGSprite("RoundRect10BorderFade");
     auto backgroundables = GetComponentsInChildren<BSML::Backgroundable*>();
     for (auto & backgroundable : backgroundables) {
         auto imageView = backgroundable->GetComponent<HMUI::ImageView*>();
