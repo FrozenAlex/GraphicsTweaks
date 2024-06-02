@@ -45,7 +45,7 @@ void GraphicsTweaks::VRRenderingParamsSetup::Reload(std::optional<float> vrResol
     }
 
     // Set resolution scale based on scene type.
-    auto resolutionMultiplier = vrRenderingParamsSetup->_sceneType == GlobalNamespace::VRRenderingParamsSetup::SceneType::Game ? getGraphicsTweaksConfig().GameResolution.GetValue() : getGraphicsTweaksConfig().MenuResolution.GetValue();
+    auto resolutionMultiplier = vrRenderingParamsSetup->____sceneType == GlobalNamespace::SceneType::Game ? getGraphicsTweaksConfig().GameResolution.GetValue() : getGraphicsTweaksConfig().MenuResolution.GetValue();
     auto currentEyeTextureResolutionScale = XRSettings::get_eyeTextureResolutionScale();
 
     if (currentEyeTextureResolutionScale != resolutionMultiplier) {
@@ -62,14 +62,14 @@ void GraphicsTweaks::VRRenderingParamsSetup::Reload(std::optional<float> vrResol
     // Next frame is needed because the game sets the resolution scale after this function is called too.
     BSML::MainThreadScheduler::ScheduleNextFrame([]() {
         // If not Oculus, return.
-        if (vrRenderingParamsSetup->_vrPlatformHelper->get_vrPlatformSDK() != VRPlatformSDK::Oculus) {
-            WARNING("Not Oculus, returning");
-            return;
-        }
+        // if (vrRenderingParamsSetup->_vrPlatformHelper->get_vrPlatformSDK() != VRPlatformSDK::Oculus) {
+        //     WARNING("Not Oculus, returning");
+        //     return;
+        // }
 
         // Fixed foveated rendering
         if (OVRManager::get_fixedFoveatedRenderingSupported()) {
-            auto foveationLevel = vrRenderingParamsSetup->_sceneType != GlobalNamespace::VRRenderingParamsSetup::SceneType::Game ? getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.GetValue() : getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.GetValue();
+            auto foveationLevel = vrRenderingParamsSetup->____sceneType != GlobalNamespace::SceneType::Game ? getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.GetValue() : getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.GetValue();
             OVRManager::set_fixedFoveatedRenderingLevel(foveationLevel);
         }
 
@@ -90,7 +90,7 @@ void GraphicsTweaks::VRRenderingParamsSetup::Reload(std::optional<float> vrResol
             getGraphicsTweaksConfig().GameRefreshRate.SetValue(maxRefreshRate);
         }
 
-        float refreshRate = vrRenderingParamsSetup->_sceneType == GlobalNamespace::VRRenderingParamsSetup::SceneType::Game ? getGraphicsTweaksConfig().GameRefreshRate.GetValue() : getGraphicsTweaksConfig().MenuRefreshRate.GetValue();
+        float refreshRate = vrRenderingParamsSetup->____sceneType == GlobalNamespace::SceneType::Game ? getGraphicsTweaksConfig().GameRefreshRate.GetValue() : getGraphicsTweaksConfig().MenuRefreshRate.GetValue();
         auto currentRefreshRate = OVRPlugin::get_systemDisplayFrequency();
         if (currentRefreshRate != refreshRate) {
             DEBUG("Setting refresh rate to {}", refreshRate);

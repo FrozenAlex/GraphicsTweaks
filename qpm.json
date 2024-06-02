@@ -46,7 +46,7 @@
 		},
 		{
 			"id": "bs-cordl",
-			"versionRange": "^3500.*",
+			"versionRange": "^3602.*",
 			"additionalData": {}
 		},
 		{
@@ -71,14 +71,14 @@
 		},
 		{
 			"id": "bsml",
-			"versionRange": "^0.4.16",
+			"versionRange": "^0.4.33",
 			"additionalData": {
 				"includeQmod": false
 			}
 		},
 		{
 			"id": "custom-types",
-			"versionRange": "^0.17.3",
+			"versionRange": "^0.17.7",
 			"additionalData": {}
 		},
 		{

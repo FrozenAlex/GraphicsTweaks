@@ -3,6 +3,7 @@
 #include "Unity/XR/Oculus/OculusLoader.hpp"
 #include "GlobalNamespace/MainSystemInit.hpp"
 #include "GlobalNamespace/ConditionalActivation.hpp"
+#include "BeatSaber/PerformancePresets/ObstaclesQuality.hpp"
 #include "UnityEngine/Resources.hpp"
 #include "UnityEngine/Renderer.hpp"
 #include "UnityEngine/Object.hpp"
@@ -18,7 +19,6 @@
 #include "UnityEngine/RenderTextureReadWrite.hpp"
 #include "UnityEngine/VRTextureUsage.hpp"
 #include "UnityEngine/ParticleSystem.hpp"
-#include "GlobalNamespace/MainSettingsModelSO.hpp"
 #include "GlobalNamespace/ObservableVariableSO_1.hpp"
 #include "GlobalNamespace/MainCamera.hpp"
 #include "GlobalNamespace/IFileStorage.hpp"
@@ -28,10 +28,10 @@
 #include "GlobalNamespace/OVRPassthroughLayer.hpp"
 #include "GlobalNamespace/OVROverlay.hpp"
 #include "GlobalNamespace/BloomPrePass.hpp"
+#include "GlobalNamespace/BoolSO.hpp"
 #include "GlobalNamespace/OVRPlugin.hpp"
 #include "GlobalNamespace/ObstacleMaterialSetter.hpp"
 #include "GlobalNamespace/ShockwaveEffect.hpp"
-#include "GlobalNamespace/VisualEffectsController.hpp"
 #include "GlobalNamespace/MainSystemInit.hpp"
 #include "GlobalNamespace/MirrorRendererSO.hpp"
 #include "GlobalNamespace/MirrorRendererGraphicsSettingsPresets.hpp"
@@ -39,6 +39,7 @@
 #include "GlobalNamespace/BloomPrePassEffectSO.hpp"
 #include "GlobalNamespace/FakeReflectionDynamicObjectsState.hpp"
 #include "GlobalNamespace/FPSCounter.hpp"
+#include "GlobalNamespace/VRRenderingParamsSetup.hpp"
 #include "GlobalNamespace/FPSCounterUIController.hpp"
 #include "GlobalNamespace/GameplayCoreInstaller.hpp"
 #include "GlobalNamespace/PerformanceVisualizer.hpp"
@@ -58,6 +59,9 @@
 #include "bsml/shared/BSML/SharedCoroutineStarter.hpp"
 #include "bsml/shared/BSML.hpp"
 #include "UI/GraphicsTweaksFlowCoordinator.hpp"
+#include "GlobalNamespace/BloomPrePass.hpp"
+#include "UnityEngine/Camera.hpp"
+#include "UnityEngine/GameObject.hpp"
 #include "logging.hpp"
 
 #include "FPSCounter.hpp"
@@ -178,9 +182,9 @@ void GraphicsTweaks::BloomData::ApplySettings() {
 };
 
 // Sabers burn marks
-MAKE_HOOK_MATCH(MainSystemInit_Init, &GlobalNamespace::MainSystemInit::Init, void, GlobalNamespace::MainSystemInit* self) {
-    // INFO("MainSystemInit_Init hook called!");
-    MainSystemInit_Init(self);
+MAKE_HOOK_MATCH(MainSystemInit_Init, &GlobalNamespace::MainSystemInit::Init, void, GlobalNamespace::MainSystemInit* self, ::GlobalNamespace::SettingsApplicatorSO* settingsApplicator) {
+    INFO("MainSystemInit_Init hook called!");
+    MainSystemInit_Init(self, settingsApplicator);
 
     GrabObjects();
 
@@ -192,17 +196,16 @@ MAKE_HOOK_MATCH(MainSystemInit_Init, &GlobalNamespace::MainSystemInit::Init, voi
 
     // MirrorRendererSO
     // Save the MirrorRendererSO instance for later use (get graphics settings presets, etc.)
-    GraphicsTweaks::MirrorsData::mirrorRenderer = self->____mirrorRenderer;
-    GraphicsTweaks::MirrorsData::mirrorRendererGraphicsSettingsPresets = self->____mirrorRendererGraphicsSettingsPresets;
+    GraphicsTweaks::MirrorsData::mirrorRenderer = settingsApplicator->____mirrorRenderer;
+    GraphicsTweaks::MirrorsData::mirrorRendererGraphicsSettingsPresets = settingsApplicator->____mirrorRendererGraphicsSettingsPresets;
 
     // Apply the settings
     GraphicsTweaks::MirrorsData::ApplySettings();
-   
 }
 
 // Enable or disable shockwaves
 MAKE_HOOK_MATCH(ConditionalActivation_Awake, &GlobalNamespace::ConditionalActivation::Awake, void, GlobalNamespace::ConditionalActivation* self) {
-    // DEBUG("ConditionalActivation_Awake hook called! {}", self->get_gameObject()->get_name());
+    DEBUG("ConditionalActivation_Awake hook called! {}", self->get_gameObject()->get_name());
     auto name = self->get_gameObject()->get_name();
     if(name == "ShockwaveEffect") {
         self->get_gameObject()->SetActive(getGraphicsTweaksConfig().GameShockwaves.GetValue());
@@ -217,6 +220,10 @@ MAKE_HOOK_MATCH(ConditionalActivation_Awake, &GlobalNamespace::ConditionalActiva
         self->get_gameObject()->SetActive(!getGraphicsTweaksConfig().Bloom.GetValue());
     }
 
+    DEBUG("ConditionalActivation_Awake hook called! {}", self->get_gameObject()->get_name());
+
+
+
     if(name == "BigSmokePS") {
         self->get_gameObject()->SetActive(getGraphicsTweaksConfig().SmokeQuality.GetValue() > 0);
     }
@@ -227,27 +234,27 @@ MAKE_HOOK_MATCH(ConditionalActivation_Awake, &GlobalNamespace::ConditionalActiva
 }
 
 MAKE_HOOK_MATCH(ShockwaveEffect_Start, &GlobalNamespace::ShockwaveEffect::Start, void, GlobalNamespace::ShockwaveEffect* self) {
-    // DEBUG("ShockwaveEffect_Start hook called!");
+    DEBUG("ShockwaveEffect_Start hook called!");
     ShockwaveEffect_Start(self);
     self->____shockwavePS->get_main().set_maxParticles(getGraphicsTweaksConfig().NumShockwaves.GetValue());
 }
 
-MAKE_HOOK_MATCH(ObstacleMaterialSetter_SetCoreMaterial, &GlobalNamespace::ObstacleMaterialSetter::SetCoreMaterial, void, GlobalNamespace::ObstacleMaterialSetter* self, UnityEngine::Renderer* renderer, BeatSaber::PerformancePresets::ObstaclesQuality obstaclesQuality) {
-    // DEBUG("ObstacleMaterialSetter_SetCoreMaterial hook called! >_<");
+MAKE_HOOK_MATCH(ObstacleMaterialSetter_SetCoreMaterial, &GlobalNamespace::ObstacleMaterialSetter::SetCoreMaterial, void, GlobalNamespace::ObstacleMaterialSetter* self, UnityEngine::Renderer* renderer) {
+    DEBUG("ObstacleMaterialSetter_SetCoreMaterial hook called! >_<");
 
     BeatSaber::PerformancePresets::ObstaclesQuality quality;
 
-    //DEBUG("config quaality {} :3", getGraphicsTweaksConfig().WallQuality.GetValue());
+    DEBUG("config quaality {} :3", getGraphicsTweaksConfig().WallQuality.GetValue());
 
     switch(getGraphicsTweaksConfig().WallQuality.GetValue()) {
         case 0:
-            quality = ::BeatSaber::PerformancePresets::ObstaclesQuality::ObstacleLW;
+            quality = BeatSaber::PerformancePresets::ObstaclesQuality::ObstacleLW;
             break;
         case 1:
-            quality = ::BeatSaber::PerformancePresets::ObstaclesQuality::TexturedObstacle;
+            quality = BeatSaber::PerformancePresets::ObstaclesQuality::TexturedObstacle;
             break;
         case 2:
-            quality = ::BeatSaber::PerformancePresets::ObstaclesQuality::ObstacleHW;
+            quality = BeatSaber::PerformancePresets::ObstaclesQuality::ObstacleHW;
             break;
     }
 
@@ -256,45 +263,46 @@ MAKE_HOOK_MATCH(ObstacleMaterialSetter_SetCoreMaterial, &GlobalNamespace::Obstac
     case 0:
     case 1:
         renderer->set_sharedMaterial(self->____texturedCoreMaterial);
-        //DEBUG("TEXTUREDDDDD");
+        DEBUG("TEXTUREDDDDD");
         break;
     case 2:
         renderer->set_sharedMaterial(self->____lwCoreMaterial);
-        //DEBUG("TRANSPARENTTTTTT");
+        DEBUG("TRANSPARENTTTTTT");
         break;
     case 3:
         renderer->set_sharedMaterial(self->____hwCoreMaterial);
-        //DEBUG("DISTORTEDDDDD");
+        DEBUG("DISTORTEDDDDD");
         break;
     default:
         renderer->set_sharedMaterial(self->____lwCoreMaterial);
-        //DEBUG("TRANSPARENTTTTTT");
+        DEBUG("TRANSPARENTTTTTT");
         break;
     }
 }
 
 // Not sure what this does, but it's a hook
 MAKE_HOOK_MATCH(ConditionalMaterialSwitcher_Awake, &GlobalNamespace::ConditionalMaterialSwitcher::Awake, void, GlobalNamespace::ConditionalMaterialSwitcher* self) {
-    // DEBUG("ConditionalMaterialSwitcher_Awake hook called! {}", self->get_gameObject()->get_name());
+    DEBUG("ConditionalMaterialSwitcher_Awake hook called! {}", self->get_gameObject()->get_name());
     auto renderer = self->____renderer;
     auto material1 = self->____material1;
     renderer->set_sharedMaterial(material1);
 }
 
 //Force depth to on if using high quality smoke.
-MAKE_HOOK_MATCH(VisualEffectsController_OnPreRender, &GlobalNamespace::VisualEffectsController::OnPreRender, void, GlobalNamespace::VisualEffectsController* self) {
-    self->SetShaderKeyword("DEPTH_TEXTURE_ENABLED", getGraphicsTweaksConfig().SmokeQuality.GetValue() > 1);
-}
+// MAKE_HOOK_MATCH(VisualEffectsController_OnPreRender, &GlobalNamespace::VisualEffectsController::OnPreRender, void, GlobalNamespace::VisualEffectsController* self) {
+//     self->SetShaderKeyword("DEPTH_TEXTURE_ENABLED", getGraphicsTweaksConfig().SmokeQuality.GetValue() > 1);
+// }
 
-MAKE_HOOK_MATCH(VisualEffectsController_HandleDepthTextureEnabledDidChange, &GlobalNamespace::VisualEffectsController::HandleDepthTextureEnabledDidChange, void, GlobalNamespace::VisualEffectsController* self) {
-    if(getGraphicsTweaksConfig().SmokeQuality.GetValue() > 1) {
-        self->____camera->set_depthTextureMode(UnityEngine::DepthTextureMode::Depth);
-    } else {
-        self->____camera->set_depthTextureMode(UnityEngine::DepthTextureMode::None);
-    }
-}
+// MAKE_HOOK_MATCH(VisualEffectsController_HandleDepthTextureEnabledDidChange, &GlobalNamespace::VisualEffectsController::HandleDepthTextureEnabledDidChange, void, GlobalNamespace::VisualEffectsController* self) {
+//     if(getGraphicsTweaksConfig().SmokeQuality.GetValue() > 1) {
+//         self->____camera->set_depthTextureMode(UnityEngine::DepthTextureMode::Depth);
+//     } else {
+//         self->____camera->set_depthTextureMode(UnityEngine::DepthTextureMode::None);
+//     }
+// }
 
 MAKE_HOOK_MATCH(FakeMirrorObjectsInstaller_InstallBindings, &GlobalNamespace::FakeMirrorObjectsInstaller::InstallBindings, void, GlobalNamespace::FakeMirrorObjectsInstaller* self) {
+    DEBUG("FakeMirrorObjectsInstaller_InstallBindings hook called!");
     auto mirrorQuality = getGraphicsTweaksConfig().Mirror.GetValue();
     auto ogPresets = self->____mirrorRendererGraphicsSettingsPresets->get_presets();
     auto fakePreset = self->____mirrorRendererGraphicsSettingsPresets->get_presets()[0];
@@ -320,6 +328,7 @@ MAKE_HOOK_MATCH(
     void,
     GlobalNamespace::GameplayCoreInstaller* self
 ) {
+    DEBUG("GameplayCoreInstaller_InstallBindings hook called!");
     using namespace GlobalNamespace;
     using namespace UnityEngine;
 
@@ -335,7 +344,7 @@ MAKE_HOOK_MATCH(
 
 MAKE_HOOK_MATCH(MainFlowCoordinator_DidActivate, &GlobalNamespace::MainFlowCoordinator::DidActivate, void, GlobalNamespace::MainFlowCoordinator* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
     MainFlowCoordinator_DidActivate(self, firstActivation, addedToHierarchy, screenSystemEnabling);
-    // DEBUG("MainFlowCoordinator_DidActivate");
+    DEBUG("MainFlowCoordinator_DidActivate");
 
     if(!GraphicsTweaks::FPSCounter::counter) {
         // Load the FPS counter
@@ -363,8 +372,8 @@ GT_EXPORT_FUNC void load() {
     INSTALL_HOOK(Logger, ConditionalMaterialSwitcher_Awake);
     INSTALL_HOOK(Logger, ObstacleMaterialSetter_SetCoreMaterial);
     INSTALL_HOOK(Logger, ShockwaveEffect_Start);
-    INSTALL_HOOK(Logger, VisualEffectsController_OnPreRender);
-    INSTALL_HOOK(Logger, VisualEffectsController_HandleDepthTextureEnabledDidChange);
+    // INSTALL_HOOK(Logger, VisualEffectsController_OnPreRender);
+    // INSTALL_HOOK(Logger, VisualEffectsController_HandleDepthTextureEnabledDidChange);
     INSTALL_HOOK(Logger, GameplayCoreInstaller_InstallBindings);
     INSTALL_HOOK(Logger, FakeMirrorObjectsInstaller_InstallBindings);
     INSTALL_HOOK(Logger, MainFlowCoordinator_DidActivate);
