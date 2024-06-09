@@ -99,10 +99,12 @@ void GrabObjects() {
         auto name = scriptableObject->get_name();
         //DEBUG("Scriptable Object Name: {}", name);
         if(name == "NoPostProcessMainEffect") {
+            INFO("Found NoPostProcessMainEffect!");
             auto noPostProcessMainEffect = reinterpret_cast<GlobalNamespace::MainEffectSO*>(scriptableObject);
             GraphicsTweaks::BloomData::noEffect = noPostProcessMainEffect;
         }
         if(name == "PyramidBloomMainEffect") {
+            INFO("Found PyramidBloomMainEffect!");
             auto pyramidBloomMainEffect = reinterpret_cast<GlobalNamespace::MainEffectSO*>(scriptableObject);
             GraphicsTweaks::BloomData::hdBloomEffect = pyramidBloomMainEffect;
             GraphicsTweaks::BloomData::ldBloomEffect = UnityEngine::Object::Instantiate(pyramidBloomMainEffect);
@@ -110,6 +112,7 @@ void GrabObjects() {
             effect->____bloomTextureWidth /= 2.0f;
         }
         if(name == "MainCameraMainEffectContainer") {
+            INFO("Found MainCameraMainEffectContainer!");
             auto mainEffectContainer = reinterpret_cast<GlobalNamespace::MainEffectContainerSO*>(scriptableObject);
             GraphicsTweaks::BloomData::mainEffectContainer = mainEffectContainer;
         }
@@ -303,23 +306,23 @@ MAKE_HOOK_MATCH(ConditionalMaterialSwitcher_Awake, &GlobalNamespace::Conditional
 
 MAKE_HOOK_MATCH(FakeMirrorObjectsInstaller_InstallBindings, &GlobalNamespace::FakeMirrorObjectsInstaller::InstallBindings, void, GlobalNamespace::FakeMirrorObjectsInstaller* self) {
     DEBUG("FakeMirrorObjectsInstaller_InstallBindings hook called!");
-    auto mirrorQuality = getGraphicsTweaksConfig().Mirror.GetValue();
-    auto ogPresets = self->____mirrorRendererGraphicsSettingsPresets->get_presets();
-    auto fakePreset = self->____mirrorRendererGraphicsSettingsPresets->get_presets()[0];
-    switch (mirrorQuality)
-    {
-        case 0:
-            fakePreset->___mirrorType = GlobalNamespace::MirrorRendererGraphicsSettingsPresets::Preset::MirrorType::None;
-            break;
-        case 1:
-            fakePreset->___mirrorType = GlobalNamespace::MirrorRendererGraphicsSettingsPresets::Preset::MirrorType::FakeMirror;
-            break;
-        default:
-            fakePreset->___mirrorType = GlobalNamespace::MirrorRendererGraphicsSettingsPresets::Preset::MirrorType::RenderedMirror;
-    }
-    self->____mirrorRendererGraphicsSettingsPresets->____presets = {fakePreset};
-    FakeMirrorObjectsInstaller_InstallBindings(self);
-    self->____mirrorRendererGraphicsSettingsPresets->____presets = ogPresets;
+    // auto mirrorQuality = getGraphicsTweaksConfig().Mirror.GetValue();
+    // auto ogPresets = self->____mirrorRendererGraphicsSettingsPresets->get_presets();
+    // auto fakePreset = self->____mirrorRendererGraphicsSettingsPresets->get_presets()[0];
+    // switch (mirrorQuality)
+    // {
+    //     case 0:
+    //         fakePreset->___mirrorType = GlobalNamespace::MirrorRendererGraphicsSettingsPresets::Preset::MirrorType::None;
+    //         break;
+    //     case 1:
+    //         fakePreset->___mirrorType = GlobalNamespace::MirrorRendererGraphicsSettingsPresets::Preset::MirrorType::FakeMirror;
+    //         break;
+    //     default:
+    //         fakePreset->___mirrorType = GlobalNamespace::MirrorRendererGraphicsSettingsPresets::Preset::MirrorType::RenderedMirror;
+    // }
+    // self->____mirrorRendererGraphicsSettingsPresets->____presets = {fakePreset};
+    // FakeMirrorObjectsInstaller_InstallBindings(self);
+    // self->____mirrorRendererGraphicsSettingsPresets->____presets = ogPresets;
 }
 
 MAKE_HOOK_MATCH(

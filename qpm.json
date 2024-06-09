@@ -41,12 +41,12 @@
 	"dependencies": [
 		{
 			"id": "beatsaber-hook",
-			"versionRange": "^5.1.6",
+			"versionRange": "^5.1.7",
 			"additionalData": {}
 		},
 		{
 			"id": "bs-cordl",
-			"versionRange": "^3602.*",
+			"versionRange": "^3700.*",
 			"additionalData": {}
 		},
 		{
@@ -66,19 +66,19 @@
 		},
 		{
 			"id": "config-utils",
-			"versionRange": "^1.4.0",
+			"versionRange": "^1.4.2",
 			"additionalData": {}
 		},
 		{
 			"id": "bsml",
-			"versionRange": "^0.4.33",
+			"versionRange": "^0.4.34",
 			"additionalData": {
 				"includeQmod": false
 			}
 		},
 		{
 			"id": "custom-types",
-			"versionRange": "^0.17.7",
+			"versionRange": "^0.17.6",
 			"additionalData": {}
 		},
 		{
@@ -90,7 +90,7 @@
 		},
 		{
 			"id": "sombrero",
-			"versionRange": "^0.1.37",
+			"versionRange": "^0.1.42",
 			"additionalData": {}
 		}
 	],
