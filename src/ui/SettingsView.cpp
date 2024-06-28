@@ -18,10 +18,12 @@
 #include "bsml/shared/BSML/SharedCoroutineStarter.hpp"
 #include "bsml/shared/BSML-Lite/Creation/Text.hpp"
 #include "TMPro/TextMeshProUGUI.hpp"
+#include "UI/Formatters.hpp"
 DEFINE_TYPE(GraphicsTweaks::UI, SettingsView);
 
 using namespace UnityEngine;
 using namespace GlobalNamespace;
+using namespace GraphicsTweaks;
 
 const bool instantlySave = true;
 
@@ -80,6 +82,20 @@ void GraphicsTweaks::UI::SettingsView::PostParse() {
         imageView->set_sprite(getBgSprite);
         imageView->set_color(UnityEngine::Color(0.8f, 0.67f, 1.0f, 0.4f));
     }
+
+    // Apply formatter to minGpuLevelElement
+    if (minGpuLevelElement) minGpuLevelElement->formatter = &GraphicsTweaks::Formatters::FormatIncrementAsIntegers;
+    if (minCpuLevelElement) minCpuLevelElement->formatter = &GraphicsTweaks::Formatters::FormatIncrementAsIntegers;
+    if (shockwaveParticlesCountElement) shockwaveParticlesCountElement->formatter = &GraphicsTweaks::Formatters::FormatIncrementAsIntegers;
+    if (resolutionLevelElementGame) resolutionLevelElementGame->formatter = &GraphicsTweaks::Formatters::FormatTextureResolution;
+    if (resolutionLevelElementMenu) resolutionLevelElementMenu->formatter = &GraphicsTweaks::Formatters::FormatTextureResolution;
+    
+    // Refresh all values to run formatters
+    Formatters::FormatSetting(minGpuLevelElement);
+    Formatters::FormatSetting(minCpuLevelElement);
+    Formatters::FormatSetting(shockwaveParticlesCountElement);
+    Formatters::FormatSetting(resolutionLevelElementGame);
+    Formatters::FormatSetting(resolutionLevelElementMenu);
 }
 
 void GraphicsTweaks::UI::SettingsView::UpdateGraphicsSettings() {
