@@ -26,11 +26,17 @@ DECLARE_CLASS_CODEGEN(GraphicsTweaks::UI, SettingsView, HMUI::ViewController,
     DECLARE_OVERRIDE_METHOD_MATCH(void, DidActivate, &HMUI::ViewController::DidActivate, bool firstActivation, bool addedToHeirarchy, bool screenSystemDisabling);
 
     DECLARE_INSTANCE_METHOD(void, PostParse);
-
     DECLARE_INSTANCE_METHOD(void, UpdateGraphicsSettings);
 
     DECLARE_INSTANCE_FIELD(ListW<float>, systemDisplayFrequenciesAvailableValues);
     DECLARE_INSTANCE_FIELD(ListW<StringW>, systemDisplayFrequenciesAvailableLabels);
+
+    // UI Elements
+    DECLARE_INSTANCE_FIELD(UnityW<BSML::IncrementSetting>, minGpuLevelElement);
+    DECLARE_INSTANCE_FIELD(UnityW<BSML::IncrementSetting>, minCpuLevelElement);
+    DECLARE_INSTANCE_FIELD(UnityW<BSML::IncrementSetting>, shockwaveParticlesCountElement);
+    DECLARE_INSTANCE_FIELD(UnityW<BSML::IncrementSetting>, resolutionLevelElementGame);
+    DECLARE_INSTANCE_FIELD(UnityW<BSML::IncrementSetting>, resolutionLevelElementMenu);
 
     // Field values
     BSML_OPTIONS_LIST_OBJECT(foveationLevelOptions, "Off", "Low", "Medium", "High", "HighTop");
@@ -41,6 +47,7 @@ DECLARE_CLASS_CODEGEN(GraphicsTweaks::UI, SettingsView, HMUI::ViewController,
     BSML_OPTIONS_LIST_OBJECT(booleanOptions, "Off", "On");
     BSML_OPTIONS_LIST_OBJECT(wallQualityOptions, "Transparent", "Textured", "Distorted");
     BSML_OPTIONS_LIST_OBJECT(colorSpaceOptions, "Unknown", "Unmanaged", "Rec_2020", "Rec_709", "Rift_CV1", "Rift_S", "Quest", "P3", "Adobe_RGB" );
+
     // Fields
     DECLARE_BSML_PROPERTY(StringW, mirrorValue);
     DECLARE_BSML_PROPERTY(StringW, antiAliasingValue);
