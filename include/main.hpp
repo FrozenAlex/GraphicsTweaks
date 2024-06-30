@@ -13,9 +13,9 @@
 #include "GlobalNamespace/MirrorRendererSO.hpp"
 #include "GlobalNamespace/MirrorRendererGraphicsSettingsPresets.hpp"
 #include "GlobalNamespace/MainEffectContainerSO.hpp"
-#include "GlobalNamespace/MirrorRendererSO.hpp"
+#include "GlobalNamespace/SettingsApplicatorSO.hpp"
 #include "GlobalNamespace/MirrorRendererGraphicsSettingsPresets.hpp"
-
+#include "BeatSaber/PerformancePresets/PerformancePreset.hpp"
 #include "GraphicsTweaksConfig.hpp"
 
 namespace GraphicsTweaks {
@@ -28,11 +28,12 @@ namespace GraphicsTweaks {
         void Reload(std::optional<float> vrResolutionScale = std::nullopt);
     }
 
-    class MirrorsData {
+    class PerformancePreset {
         public:
             static void ApplySettings();
-            inline static SafePtrUnity<GlobalNamespace::MirrorRendererSO> mirrorRenderer;
-            inline static SafePtrUnity<GlobalNamespace::MirrorRendererGraphicsSettingsPresets> mirrorRendererGraphicsSettingsPresets;
+            static UnityW<BeatSaber::PerformancePresets::PerformancePreset> GetCustomPreset();
+            inline static SafePtrUnity<GlobalNamespace::SettingsApplicatorSO> settingsApplicatorSO;
+            inline static SafePtr<BeatSaber::PerformancePresets::PerformancePreset> customPreset;
     };
 
     class BloomData {
@@ -44,4 +45,5 @@ namespace GraphicsTweaks {
             inline static SafePtrUnity<GlobalNamespace::MainEffectSO> ldBloomEffect;
             inline static SafePtrUnity<GlobalNamespace::MainEffectSO> hdBloomEffect;
     };
+
 }

@@ -202,7 +202,8 @@ void GraphicsTweaks::UI::SettingsView::set_mirrorValue(StringW value) {
     }
     getGraphicsTweaksConfig().Mirror.SetValue(numberValue, false);
 
-    GraphicsTweaks::MirrorsData::ApplySettings();
+    GraphicsTweaks::PerformancePreset::ApplySettings();
+    GraphicsTweaks::VRRenderingParamsSetup::Reload();
 }
 
 // antiAliasingValue
@@ -255,7 +256,9 @@ void GraphicsTweaks::UI::SettingsView::set_bloomQualityValue(StringW value) {
         getGraphicsTweaksConfig().BloomQuality.SetValue(2, instantlySave);
     }
 
+    GraphicsTweaks::PerformancePreset::ApplySettings();
     GraphicsTweaks::BloomData::ApplySettings();
+    GraphicsTweaks::VRRenderingParamsSetup::Reload();
 
     auto conditionalActivations = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::ConditionalActivation*>();
     for (auto & conditionalActivation : conditionalActivations) {
@@ -283,6 +286,9 @@ void GraphicsTweaks::UI::SettingsView::set_smokeQualityValue(StringW value) {
         getGraphicsTweaksConfig().SmokeQuality.SetValue(2, instantlySave);
     }
 
+    GraphicsTweaks::PerformancePreset::ApplySettings();
+    GraphicsTweaks::VRRenderingParamsSetup::Reload();
+    
     auto conditionalActivations = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::ConditionalActivation*>();
     for (auto & conditionalActivation : conditionalActivations) {
         conditionalActivation->Awake();
@@ -308,6 +314,9 @@ void GraphicsTweaks::UI::SettingsView::set_wallQualityValue(StringW value) {
     } else if(value == "Distorted") {
         getGraphicsTweaksConfig().WallQuality.SetValue(2, instantlySave);
     }
+
+    GraphicsTweaks::PerformancePreset::ApplySettings();
+    GraphicsTweaks::VRRenderingParamsSetup::Reload();
 }
 
 
@@ -386,6 +395,7 @@ void GraphicsTweaks::UI::SettingsView::set_menuScreenDistortionValue(bool value)
         conditionalActivation->Awake();
     }
     // Apply to disable anti-aliasing
+    GraphicsTweaks::PerformancePreset::ApplySettings();
     GraphicsTweaks::VRRenderingParamsSetup::Reload();
 }
 
@@ -406,6 +416,8 @@ bool GraphicsTweaks::UI::SettingsView::get_burnMarksValue() {
 }
 void GraphicsTweaks::UI::SettingsView::set_burnMarksValue(bool value) {
     getGraphicsTweaksConfig().Burnmarks.SetValue(value, instantlySave);
+    GraphicsTweaks::PerformancePreset::ApplySettings();
+    GraphicsTweaks::VRRenderingParamsSetup::Reload();
 }
 
 // gpuLevelValue
