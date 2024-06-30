@@ -38,6 +38,7 @@
 #include "GlobalNamespace/BloomPrePassEffectContainerSO.hpp"
 #include "GlobalNamespace/BloomPrePassEffectSO.hpp"
 #include "GlobalNamespace/FakeReflectionDynamicObjectsState.hpp"
+#include "GlobalNamespace/PyramidBloomRendererSO.hpp"
 #include "GlobalNamespace/FPSCounter.hpp"
 #include "GlobalNamespace/VRRenderingParamsSetup.hpp"
 #include "GlobalNamespace/FPSCounterUIController.hpp"
@@ -48,6 +49,7 @@
 #include "GlobalNamespace/MirroredBombNoteController.hpp"
 #include "GlobalNamespace/MirroredObstacleController.hpp"
 #include "GlobalNamespace/MirroredSliderController.hpp"
+#include "GlobalNamespace/DepthTextureController.hpp"
 #include "GlobalNamespace/MirroredBeatmapObjectManager.hpp"
 #include "GlobalNamespace/MirrorRendererGraphicsSettingsPresets.hpp"
 #include "GlobalNamespace/MainFlowCoordinator.hpp"
@@ -62,7 +64,11 @@
 #include "GlobalNamespace/BloomPrePass.hpp"
 #include "UnityEngine/Camera.hpp"
 #include "UnityEngine/GameObject.hpp"
+#include "BeatSaber/PerformancePresets/PerformancePreset.hpp"
+#include "BeatSaber/PerformancePresets/QuestPerformanceSettings.hpp"
+#include "BeatSaber/GameSettings/GraphicSettingsHandler.hpp"
 #include "logging.hpp"
+
 
 #include "FPSCounter.hpp"
 
@@ -119,69 +125,132 @@ void GrabObjects() {
     }
 }
 
-
-void GraphicsTweaks::MirrorsData::ApplySettings() {
-    if (!GraphicsTweaks::MirrorsData::mirrorRenderer || !GraphicsTweaks::MirrorsData::mirrorRendererGraphicsSettingsPresets) {
-        GrabObjects();
+void GraphicsTweaks::PerformancePreset::ApplySettings() {
+    bool isMainThread = BSML::MainThreadScheduler::CurrentThreadIsMainThread();
+    if (!isMainThread) {
+        INFO("Not on main thread, skipping PerformancePreset::ApplySettings");
+        return;
     }
 
-    // Set the mirror renderer settings to the ones we want
-    auto currentPreset = getGraphicsTweaksConfig().Mirror.GetValue();
-
-    // Init the mirror renderer with the settings from the preset
-    if (currentPreset >= GraphicsTweaks::MirrorsData::mirrorRendererGraphicsSettingsPresets->get_presets().size()) {
-        currentPreset = 3;
+    auto preset = GraphicsTweaks::PerformancePreset::GetCustomPreset();
+    if (!GraphicsTweaks::PerformancePreset::settingsApplicatorSO) {
+      return ERROR("Failed to get settingsApplicatorSO!");
     }
+
+    GraphicsTweaks::PerformancePreset::settingsApplicatorSO->ApplyPerformancePreset(preset, GlobalNamespace::SceneType::Undefined);
+}
+
+
+UnityW<BeatSaber::PerformancePresets::PerformancePreset> GraphicsTweaks::PerformancePreset::GetCustomPreset() {
+    if (!GraphicsTweaks::PerformancePreset::customPreset) {
+        auto preset = BeatSaber::PerformancePresets::PerformancePreset::New_ctor();
+        preset->____presetName = "GraphicsTweaks Custom Preset";
+        GraphicsTweaks::PerformancePreset::customPreset = preset;
+
+        auto questSettings = BeatSaber::PerformancePresets::QuestPerformanceSettings::New_ctor();
+        preset->____questSettings = questSettings;
+    }
+
+    // Update the preset with the current settings
+    auto preset = GraphicsTweaks::PerformancePreset::customPreset.ptr();
+
+    // Set the foveated rendering level based on the current settings
+    preset->____questSettings->____foveatedRenderingLevelGameplay = getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.GetValue();
+    preset->____questSettings->____foveatedRenderingLevelMenu = getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.GetValue();
+
+    preset->____smokeGraphics = getGraphicsTweaksConfig().SmokeQuality.GetValue() > 0;
+    // Enable depth texture if smoke quality is high
+    preset->____depthTexture = getGraphicsTweaksConfig().SmokeQuality.GetValue() > 1;
+
+    preset->____maxShockwaveParticles = getGraphicsTweaksConfig().NumShockwaves.GetValue();
+    preset->____burnMarkTrails = getGraphicsTweaksConfig().Burnmarks.GetValue();
+
+    // Handle bloom quality
+    int bloomQuality = getGraphicsTweaksConfig().BloomQuality.GetValue();
+    switch (bloomQuality)
+    {
+        case 0:
+            preset->____mainEffectGraphics = ::BeatSaber::PerformancePresets::MainEffectPreset::Off;
+            preset->____bloomPrePassTextureEffect = ::BeatSaber::PerformancePresets::BloomPrepassTextureEffectPreset::HDWithoutToneMapping;
+            break;
+        case 1:
+            preset->____mainEffectGraphics = ::BeatSaber::PerformancePresets::MainEffectPreset::Pyramid;
+            preset->____bloomPrePassTextureEffect = ::BeatSaber::PerformancePresets::BloomPrepassTextureEffectPreset::HDWithoutToneMapping;
+            break;
+        case 2:
+            preset->____mainEffectGraphics = ::BeatSaber::PerformancePresets::MainEffectPreset::Pyramid;
+            preset->____bloomPrePassTextureEffect = ::BeatSaber::PerformancePresets::BloomPrepassTextureEffectPreset::HD;
+            break;
+        default:
+            preset->____mainEffectGraphics = ::BeatSaber::PerformancePresets::MainEffectPreset::Off;
+            preset->____bloomPrePassTextureEffect = ::BeatSaber::PerformancePresets::BloomPrepassTextureEffectPreset::HDWithoutToneMapping;
+    }
+
+
+    auto mirrorQuality = getGraphicsTweaksConfig().Mirror.GetValue();
+    switch (mirrorQuality)
+    {
+        case 0:
+            preset->____mirrorGraphics = ::BeatSaber::PerformancePresets::MirrorQualityPreset::Off;
+            break;
+        case 1:
+            preset->____mirrorGraphics = ::BeatSaber::PerformancePresets::MirrorQualityPreset::Fake;
+            break;
+        case 2:
+            preset->____mirrorGraphics = ::BeatSaber::PerformancePresets::MirrorQualityPreset::RenderedLQ;
+            break;
+        case 3:
+            preset->____mirrorGraphics = ::BeatSaber::PerformancePresets::MirrorQualityPreset::RenderedHQ;
+            break;
+        default:
+            preset->____mirrorGraphics = ::BeatSaber::PerformancePresets::MirrorQualityPreset::Fake;
+    }
+
+    auto wallQuality = getGraphicsTweaksConfig().WallQuality.GetValue();
+    switch (wallQuality)
+    {
+        case 0:
+            preset->____obstaclesQuality = ::BeatSaber::PerformancePresets::ObstaclesQuality::ObstacleLW;
+            break;
+        case 1:
+            preset->____obstaclesQuality = ::BeatSaber::PerformancePresets::ObstaclesQuality::TexturedObstacle;
+            break;
+        case 2:
+            preset->____obstaclesQuality = ::BeatSaber::PerformancePresets::ObstaclesQuality::ObstacleHW;
+            break;
+        default:
+            preset->____obstaclesQuality = ::BeatSaber::PerformancePresets::ObstaclesQuality::ObstacleLW;
+    }
+
+    // If the wall quality is ObstacleHW, enable screen displacement effects
+    preset->____screenDisplacementEffects = wallQuality >= 2;
     
-    auto presetsObj = GraphicsTweaks::MirrorsData::mirrorRendererGraphicsSettingsPresets->get_presets();
-    if (!presetsObj) {
-        ERROR("Failed to get mirror renderer presets!");
-        return;
-    }
 
-    auto presetObj = presetsObj[currentPreset];
-    if (!presetObj) {
-        ERROR("Failed to get mirror renderer preset!");
-        return;
-    }
+    return GraphicsTweaks::PerformancePreset::customPreset.ptr();
+}
 
-    if (!GraphicsTweaks::MirrorsData::mirrorRenderer) {
-        ERROR("MirrorRendererSO is null!");
-        return;
-    }
-
-    GraphicsTweaks::MirrorsData::mirrorRenderer->Init(
-        presetObj->___reflectLayers,
-        presetObj->___stereoTextureWidth,
-        presetObj->___stereoTextureHeight,
-        presetObj->___monoTextureWidth,
-        presetObj->___monoTextureHeight,
-        presetObj->___maxAntiAliasing,
-        presetObj->___enableBloomPrePassFog
-    );
-};
 
 void GraphicsTweaks::BloomData::ApplySettings() {
-    if (!GraphicsTweaks::BloomData::noEffect || !GraphicsTweaks::BloomData::hdBloomEffect || !GraphicsTweaks::BloomData::ldBloomEffect) {
-        GrabObjects();
-        if (!GraphicsTweaks::BloomData::noEffect || !GraphicsTweaks::BloomData::hdBloomEffect || !GraphicsTweaks::BloomData::ldBloomEffect) {
-            ERROR("Failed to get bloom effects!");
-            return;
-        }
-    }
+    // if (!GraphicsTweaks::BloomData::noEffect || !GraphicsTweaks::BloomData::hdBloomEffect || !GraphicsTweaks::BloomData::ldBloomEffect) {
+    //     GrabObjects();
+    //     if (!GraphicsTweaks::BloomData::noEffect || !GraphicsTweaks::BloomData::hdBloomEffect || !GraphicsTweaks::BloomData::ldBloomEffect) {
+    //         ERROR("Failed to get bloom effects!");
+    //         return;
+    //     }
+    // }
 
-    GlobalNamespace::MainEffectSO* mainEffect = nullptr;
+    // GlobalNamespace::MainEffectSO* mainEffect = nullptr;
 
-    // Set the bloom settings to the ones we want
-    auto bloom = getGraphicsTweaksConfig().Bloom.GetValue();
-    bool hd = getGraphicsTweaksConfig().BloomQuality.GetValue() == 2;
-    if (bloom) {
-        mainEffect = hd ? GraphicsTweaks::BloomData::hdBloomEffect.ptr() : GraphicsTweaks::BloomData::ldBloomEffect.ptr();
-    } else {
-        mainEffect = GraphicsTweaks::BloomData::noEffect.ptr();
-    }
+    // // Set the bloom settings to the ones we want
+    // auto bloom = getGraphicsTweaksConfig().Bloom.GetValue();
+    // bool hd = getGraphicsTweaksConfig().BloomQuality.GetValue() == 2;
+    // if (bloom) {
+    //     mainEffect = hd ? GraphicsTweaks::BloomData::hdBloomEffect.ptr() : GraphicsTweaks::BloomData::ldBloomEffect.ptr();
+    // } else {
+    //     mainEffect = GraphicsTweaks::BloomData::noEffect.ptr();
+    // }
 
-    GraphicsTweaks::BloomData::mainEffectContainer->Init(mainEffect);
+    // GraphicsTweaks::BloomData::mainEffectContainer->Init(mainEffect);
 };
 
 // Sabers burn marks
@@ -191,19 +260,15 @@ MAKE_HOOK_MATCH(MainSystemInit_Init, &GlobalNamespace::MainSystemInit::Init, voi
 
     GrabObjects();
 
+    // Save the settings applicator
+    GraphicsTweaks::PerformancePreset::settingsApplicatorSO = settingsApplicator;
+
+    GraphicsTweaks::PerformancePreset::ApplySettings();
     GraphicsTweaks::BloomData::ApplySettings();
 
     bool distortionsUsed = getGraphicsTweaksConfig().WallQuality.GetValue() == 2 || getGraphicsTweaksConfig().MenuShockwaves.GetValue() || getGraphicsTweaksConfig().GameShockwaves.GetValue();
-
+    
     UnityEngine::QualitySettings::set_antiAliasing(distortionsUsed ? 0 : getGraphicsTweaksConfig().AntiAliasing.GetValue());
-
-    // MirrorRendererSO
-    // Save the MirrorRendererSO instance for later use (get graphics settings presets, etc.)
-    GraphicsTweaks::MirrorsData::mirrorRenderer = settingsApplicator->____mirrorRenderer;
-    GraphicsTweaks::MirrorsData::mirrorRendererGraphicsSettingsPresets = settingsApplicator->____mirrorRendererGraphicsSettingsPresets;
-
-    // Apply the settings
-    GraphicsTweaks::MirrorsData::ApplySettings();
 }
 
 // Enable or disable shockwaves
@@ -218,7 +283,7 @@ MAKE_HOOK_MATCH(ConditionalActivation_Awake, &GlobalNamespace::ConditionalActiva
         self->get_gameObject()->SetActive(getGraphicsTweaksConfig().MenuShockwaves.GetValue());
     }
 
-    //Disable fake glow    
+    // Disable fake glow    
     if((name == "FakeGlow0" || name == "FakeGlow1" || name == "ObstacleFakeGlow")) {
         self->get_gameObject()->SetActive(!getGraphicsTweaksConfig().Bloom.GetValue());
     }
@@ -242,45 +307,9 @@ MAKE_HOOK_MATCH(ShockwaveEffect_Start, &GlobalNamespace::ShockwaveEffect::Start,
     self->____shockwavePS->get_main().set_maxParticles(getGraphicsTweaksConfig().NumShockwaves.GetValue());
 }
 
-MAKE_HOOK_MATCH(ObstacleMaterialSetter_SetCoreMaterial, &GlobalNamespace::ObstacleMaterialSetter::SetCoreMaterial, void, GlobalNamespace::ObstacleMaterialSetter* self, UnityEngine::Renderer* renderer) {
-    DEBUG("ObstacleMaterialSetter_SetCoreMaterial hook called! >_<");
-
-    BeatSaber::PerformancePresets::ObstaclesQuality quality;
-
-    DEBUG("config quaality {} :3", getGraphicsTweaksConfig().WallQuality.GetValue());
-
-    switch(getGraphicsTweaksConfig().WallQuality.GetValue()) {
-        case 0:
-            quality = BeatSaber::PerformancePresets::ObstaclesQuality::ObstacleLW;
-            break;
-        case 1:
-            quality = BeatSaber::PerformancePresets::ObstaclesQuality::TexturedObstacle;
-            break;
-        case 2:
-            quality = BeatSaber::PerformancePresets::ObstaclesQuality::ObstacleHW;
-            break;
-    }
-
-    switch (quality.value__)
-    {
-    case 0:
-    case 1:
-        renderer->set_sharedMaterial(self->____texturedCoreMaterial);
-        DEBUG("TEXTUREDDDDD");
-        break;
-    case 2:
-        renderer->set_sharedMaterial(self->____lwCoreMaterial);
-        DEBUG("TRANSPARENTTTTTT");
-        break;
-    case 3:
-        renderer->set_sharedMaterial(self->____hwCoreMaterial);
-        DEBUG("DISTORTEDDDDD");
-        break;
-    default:
-        renderer->set_sharedMaterial(self->____lwCoreMaterial);
-        DEBUG("TRANSPARENTTTTTT");
-        break;
-    }
+MAKE_HOOK_MATCH(GraphicsSettingsHandler_TryGetCurrentPerformancePreset, static_cast<bool (BeatSaber::GameSettings::GraphicSettingsHandler::*)(ByRef<::BeatSaber::PerformancePresets::PerformancePreset*>)>(&BeatSaber::GameSettings::GraphicSettingsHandler::TryGetCurrentPerformancePreset), bool, BeatSaber::GameSettings::GraphicSettingsHandler* self, ByRef<::BeatSaber::PerformancePresets::PerformancePreset*> currentPreset) {
+    currentPreset = GraphicsTweaks::PerformancePreset::GetCustomPreset();
+    return true;
 }
 
 // Not sure what this does, but it's a hook
@@ -292,9 +321,61 @@ MAKE_HOOK_MATCH(ConditionalMaterialSwitcher_Awake, &GlobalNamespace::Conditional
 }
 
 //Force depth to on if using high quality smoke.
-// MAKE_HOOK_MATCH(VisualEffectsController_OnPreRender, &GlobalNamespace::VisualEffectsController::OnPreRender, void, GlobalNamespace::VisualEffectsController* self) {
-//     self->SetShaderKeyword("DEPTH_TEXTURE_ENABLED", getGraphicsTweaksConfig().SmokeQuality.GetValue() > 1);
-// }
+MAKE_HOOK_MATCH(DepthTextureController_OnPreRender, &GlobalNamespace::DepthTextureController::OnPreRender, void, GlobalNamespace::DepthTextureController* self) {
+    self->SetShaderKeyword("DEPTH_TEXTURE_ENABLED", getGraphicsTweaksConfig().SmokeQuality.GetValue() > 1);
+}
+
+// MAKE_HOOK_MATCH(PyramidBloom_PreRender, &GlobalNamespace::PyramidBloomMainEffectSO::PreRender, void, GlobalNamespace::PyramidBloomMainEffectSO* self) {
+//     // self->____bloomIntensity = 0.1f;
+//     // self->____baseColorBoost = 1.0f;
+//     // self->____baseColorBoostThreshold = 0.0f;
+//     PyramidBloom_PreRender(self);
+// };
+
+
+// MAKE_HOOK_MATCH(
+//     PyramidBloomRendererSO_RenderBloom, 
+//     static_cast<void (GlobalNamespace::PyramidBloomRendererSO::*)(
+//         ::UnityEngine::RenderTexture*, ::UnityEngine::RenderTexture*, float_t, float_t, float_t,
+//         float_t, bool , bool, float_t, float_t,
+//         float_t, float_t , ::GlobalNamespace::__PyramidBloomRendererSO__Pass ,
+//         ::GlobalNamespace::__PyramidBloomRendererSO__Pass , ::GlobalNamespace::__PyramidBloomRendererSO__Pass ,
+//         ::GlobalNamespace::__PyramidBloomRendererSO__Pass , bool , bool 
+
+//     )>(&GlobalNamespace::PyramidBloomRendererSO::RenderBloom), 
+//     void, 
+//     GlobalNamespace::PyramidBloomRendererSO* self,
+//     ::UnityEngine::RenderTexture* src, ::UnityEngine::RenderTexture* dest, float_t radius, float_t intensity, float_t autoExposureLimit,
+//     float_t downIntensityOffset, bool uniformPyramidWeights, bool downsampleOnFirstPass, float_t pyramidWeightsParam, float_t alphaWeights,
+//     float_t firstUpsampleBrightness, float_t finalUpsampleBrightness, ::GlobalNamespace::__PyramidBloomRendererSO__Pass preFilterPass,
+//     ::GlobalNamespace::__PyramidBloomRendererSO__Pass downsamplePass, ::GlobalNamespace::__PyramidBloomRendererSO__Pass upsamplePass,
+//     ::GlobalNamespace::__PyramidBloomRendererSO__Pass finalUpsamplePass, bool legacyAutoExposure, bool isScreenspaceEffect
+// ) {
+//     // DEBUG("PyramidBloomRendererSO_RenderBloom hook called!");
+//     // DEBUG("radius: {}", radius);
+//     // DEBUG("intensity: {}", intensity);
+//     // DEBUG("autoExposureLimit: {}", autoExposureLimit);
+//     // DEBUG("downIntensityOffset: {}", downIntensityOffset);
+//     // DEBUG("uniformPyramidWeights: {}", uniformPyramidWeights);
+//     // DEBUG("downsampleOnFirstPass: {}", downsampleOnFirstPass);
+//     // DEBUG("pyramidWeightsParam: {}", pyramidWeightsParam);
+//     // DEBUG("alphaWeights: {}", alphaWeights);
+//     // DEBUG("firstUpsampleBrightness: {}", firstUpsampleBrightness);
+//     // DEBUG("finalUpsampleBrightness: {}", finalUpsampleBrightness);
+//     // DEBUG("legacyAutoExposure: {}", legacyAutoExposure);
+//     // DEBUG("isScreenspaceEffect: {}", isScreenspaceEffect);
+
+//     if (isScreenspaceEffect) {
+//         // firstUpsampleBrightness = 1.0f;
+//         // finalUpsampleBrightness = 1.0f;
+//         intensity = 0.00001f;
+//     }
+//     // ;
+//     self->____material->SetFloat(self->getStaticF__combineSrcID(), intensity);
+//     PyramidBloomRendererSO_RenderBloom(self, src, dest, radius, intensity, autoExposureLimit, downIntensityOffset, uniformPyramidWeights, downsampleOnFirstPass, pyramidWeightsParam, alphaWeights, firstUpsampleBrightness, finalUpsampleBrightness, preFilterPass, downsamplePass, upsamplePass, finalUpsamplePass, legacyAutoExposure, isScreenspaceEffect);
+// };
+
+
 
 // MAKE_HOOK_MATCH(VisualEffectsController_HandleDepthTextureEnabledDidChange, &GlobalNamespace::VisualEffectsController::HandleDepthTextureEnabledDidChange, void, GlobalNamespace::VisualEffectsController* self) {
 //     if(getGraphicsTweaksConfig().SmokeQuality.GetValue() > 1) {
@@ -303,27 +384,6 @@ MAKE_HOOK_MATCH(ConditionalMaterialSwitcher_Awake, &GlobalNamespace::Conditional
 //         self->____camera->set_depthTextureMode(UnityEngine::DepthTextureMode::None);
 //     }
 // }
-
-MAKE_HOOK_MATCH(FakeMirrorObjectsInstaller_InstallBindings, &GlobalNamespace::FakeMirrorObjectsInstaller::InstallBindings, void, GlobalNamespace::FakeMirrorObjectsInstaller* self) {
-    DEBUG("FakeMirrorObjectsInstaller_InstallBindings hook called!");
-    // auto mirrorQuality = getGraphicsTweaksConfig().Mirror.GetValue();
-    // auto ogPresets = self->____mirrorRendererGraphicsSettingsPresets->get_presets();
-    // auto fakePreset = self->____mirrorRendererGraphicsSettingsPresets->get_presets()[0];
-    // switch (mirrorQuality)
-    // {
-    //     case 0:
-    //         fakePreset->___mirrorType = GlobalNamespace::MirrorRendererGraphicsSettingsPresets::Preset::MirrorType::None;
-    //         break;
-    //     case 1:
-    //         fakePreset->___mirrorType = GlobalNamespace::MirrorRendererGraphicsSettingsPresets::Preset::MirrorType::FakeMirror;
-    //         break;
-    //     default:
-    //         fakePreset->___mirrorType = GlobalNamespace::MirrorRendererGraphicsSettingsPresets::Preset::MirrorType::RenderedMirror;
-    // }
-    // self->____mirrorRendererGraphicsSettingsPresets->____presets = {fakePreset};
-    // FakeMirrorObjectsInstaller_InstallBindings(self);
-    // self->____mirrorRendererGraphicsSettingsPresets->____presets = ogPresets;
-}
 
 MAKE_HOOK_MATCH(
     GameplayCoreInstaller_InstallBindings,
@@ -373,13 +433,16 @@ GT_EXPORT_FUNC void load() {
     INSTALL_HOOK(Logger, MainSystemInit_Init);
     INSTALL_HOOK(Logger, ConditionalActivation_Awake);
     INSTALL_HOOK(Logger, ConditionalMaterialSwitcher_Awake);
-    INSTALL_HOOK(Logger, ObstacleMaterialSetter_SetCoreMaterial);
     INSTALL_HOOK(Logger, ShockwaveEffect_Start);
-    // INSTALL_HOOK(Logger, VisualEffectsController_OnPreRender);
+    INSTALL_HOOK(Logger, DepthTextureController_OnPreRender);
+    INSTALL_HOOK(Logger, GraphicsSettingsHandler_TryGetCurrentPerformancePreset);
     // INSTALL_HOOK(Logger, VisualEffectsController_HandleDepthTextureEnabledDidChange);
     INSTALL_HOOK(Logger, GameplayCoreInstaller_InstallBindings);
-    INSTALL_HOOK(Logger, FakeMirrorObjectsInstaller_InstallBindings);
     INSTALL_HOOK(Logger, MainFlowCoordinator_DidActivate);
+
+    // Debugging hooks
+    // INSTALL_HOOK(Logger, PyramidBloom_PreRender);
+    // INSTALL_HOOK(Logger, PyramidBloomRendererSO_RenderBloom);
 
     GraphicsTweaks::Hooks::VRRenderingParamsSetup();
 

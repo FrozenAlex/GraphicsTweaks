@@ -42,7 +42,7 @@
     "dependencies": [
       {
         "id": "beatsaber-hook",
-        "versionRange": "^5.1.7",
+        "versionRange": "^5.1.8",
         "additionalData": {}
       },
       {
@@ -72,7 +72,7 @@
       },
       {
         "id": "bsml",
-        "versionRange": "^0.4.34",
+        "versionRange": "^0.4.42",
         "additionalData": {
           "includeQmod": false
         }
@@ -100,17 +100,17 @@
     {
       "dependency": {
         "id": "bsml",
-        "versionRange": "=0.4.34",
+        "versionRange": "=0.4.42",
         "additionalData": {
-          "soLink": "https://github.com/RedBrumbler/Quest-BSML/releases/download/v0.4.34/libbsml.so",
-          "debugSoLink": "https://github.com/RedBrumbler/Quest-BSML/releases/download/v0.4.34/debug_libbsml.so",
+          "soLink": "https://github.com/RedBrumbler/Quest-BSML/releases/download/v0.4.42/libbsml.so",
+          "debugSoLink": "https://github.com/RedBrumbler/Quest-BSML/releases/download/v0.4.42/debug_libbsml.so",
           "overrideSoName": "libbsml.so",
-          "modLink": "https://github.com/RedBrumbler/Quest-BSML/releases/download/v0.4.34/BSML.qmod",
-          "branchName": "version/v0_4_34",
+          "modLink": "https://github.com/RedBrumbler/Quest-BSML/releases/download/v0.4.42/BSML.qmod",
+          "branchName": "version/v0_4_42",
           "cmake": true
         }
       },
-      "version": "0.4.34"
+      "version": "0.4.42"
     },
     {
       "dependency": {
@@ -243,15 +243,15 @@
     {
       "dependency": {
         "id": "beatsaber-hook",
-        "versionRange": "=5.1.7",
+        "versionRange": "=5.1.8",
         "additionalData": {
-          "soLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v5.1.7/libbeatsaber-hook_5_1_7.so",
-          "debugSoLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v5.1.7/debug_libbeatsaber-hook_5_1_7.so",
-          "branchName": "version/v5_1_7",
+          "soLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v5.1.8/libbeatsaber-hook_5_1_8.so",
+          "debugSoLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v5.1.8/debug_libbeatsaber-hook_5_1_8.so",
+          "branchName": "version/v5_1_8",
           "cmake": true
         }
       },
-      "version": "5.1.7"
+      "version": "5.1.8"
     },
     {
       "dependency": {
