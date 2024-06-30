@@ -146,6 +146,7 @@ UnityW<BeatSaber::PerformancePresets::PerformancePreset> GraphicsTweaks::Perform
         auto preset = BeatSaber::PerformancePresets::PerformancePreset::New_ctor();
         preset->____presetName = "GraphicsTweaks Custom Preset";
         GraphicsTweaks::PerformancePreset::customPreset = preset;
+        GraphicsTweaks::PerformancePreset::customPreset->____bloomPrePassTextureEffect = ::BeatSaber::PerformancePresets::BloomPrepassTextureEffectPreset::HD;
 
         auto questSettings = BeatSaber::PerformancePresets::QuestPerformanceSettings::New_ctor();
         preset->____questSettings = questSettings;
@@ -171,19 +172,15 @@ UnityW<BeatSaber::PerformancePresets::PerformancePreset> GraphicsTweaks::Perform
     {
         case 0:
             preset->____mainEffectGraphics = ::BeatSaber::PerformancePresets::MainEffectPreset::Off;
-            preset->____bloomPrePassTextureEffect = ::BeatSaber::PerformancePresets::BloomPrepassTextureEffectPreset::HDWithoutToneMapping;
             break;
         case 1:
             preset->____mainEffectGraphics = ::BeatSaber::PerformancePresets::MainEffectPreset::Pyramid;
-            preset->____bloomPrePassTextureEffect = ::BeatSaber::PerformancePresets::BloomPrepassTextureEffectPreset::HDWithoutToneMapping;
             break;
         case 2:
             preset->____mainEffectGraphics = ::BeatSaber::PerformancePresets::MainEffectPreset::Pyramid;
-            preset->____bloomPrePassTextureEffect = ::BeatSaber::PerformancePresets::BloomPrepassTextureEffectPreset::HD;
             break;
         default:
             preset->____mainEffectGraphics = ::BeatSaber::PerformancePresets::MainEffectPreset::Off;
-            preset->____bloomPrePassTextureEffect = ::BeatSaber::PerformancePresets::BloomPrepassTextureEffectPreset::HDWithoutToneMapping;
     }
 
 
