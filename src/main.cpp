@@ -163,7 +163,13 @@ UnityW<BeatSaber::PerformancePresets::PerformancePreset> GraphicsTweaks::Perform
     // Enable depth texture if smoke quality is high
     preset->____depthTexture = getGraphicsTweaksConfig().SmokeQuality.GetValue() > 1;
 
-    preset->____maxShockwaveParticles = getGraphicsTweaksConfig().NumShockwaves.GetValue();
+    // Enable or disable shockwaves based on the settings
+    if (getGraphicsTweaksConfig().GameShockwaves.GetValue() || getGraphicsTweaksConfig().MenuShockwaves.GetValue()) {
+        preset->____maxShockwaveParticles = getGraphicsTweaksConfig().NumShockwaves.GetValue();
+    } else {
+        preset->____maxShockwaveParticles = 0;
+    }
+
     preset->____burnMarkTrails = getGraphicsTweaksConfig().Burnmarks.GetValue();
 
     // Handle bloom quality
@@ -259,8 +265,6 @@ MAKE_HOOK_MATCH(MainSystemInit_Init, &GlobalNamespace::MainSystemInit::Init, voi
 
     // Save the settings applicator
     GraphicsTweaks::PerformancePreset::settingsApplicatorSO = settingsApplicator;
-
-    GraphicsTweaks::PerformancePreset::ApplySettings();
     GraphicsTweaks::BloomData::ApplySettings();
 
     bool distortionsUsed = getGraphicsTweaksConfig().WallQuality.GetValue() == 2 || getGraphicsTweaksConfig().MenuShockwaves.GetValue() || getGraphicsTweaksConfig().GameShockwaves.GetValue();
@@ -281,13 +285,11 @@ MAKE_HOOK_MATCH(ConditionalActivation_Awake, &GlobalNamespace::ConditionalActiva
     }
 
     // Disable fake glow    
-    if((name == "FakeGlow0" || name == "FakeGlow1" || name == "ObstacleFakeGlow")) {
-        self->get_gameObject()->SetActive(!getGraphicsTweaksConfig().Bloom.GetValue());
-    }
+    // if((name == "FakeGlow0" || name == "FakeGlow1" || name == "ObstacleFakeGlow")) {
+    //     self->get_gameObject()->SetActive(!getGraphicsTweaksConfig().Bloom.GetValue());
+    // }
 
     DEBUG("ConditionalActivation_Awake hook called! {}", self->get_gameObject()->get_name());
-
-
 
     if(name == "BigSmokePS") {
         self->get_gameObject()->SetActive(getGraphicsTweaksConfig().SmokeQuality.GetValue() > 0);
@@ -310,12 +312,12 @@ MAKE_HOOK_MATCH(GraphicsSettingsHandler_TryGetCurrentPerformancePreset, static_c
 }
 
 // Not sure what this does, but it's a hook
-MAKE_HOOK_MATCH(ConditionalMaterialSwitcher_Awake, &GlobalNamespace::ConditionalMaterialSwitcher::Awake, void, GlobalNamespace::ConditionalMaterialSwitcher* self) {
-    DEBUG("ConditionalMaterialSwitcher_Awake hook called! {}", self->get_gameObject()->get_name());
-    auto renderer = self->____renderer;
-    auto material1 = self->____material1;
-    renderer->set_sharedMaterial(material1);
-}
+// MAKE_HOOK_MATCH(ConditionalMaterialSwitcher_Awake, &GlobalNamespace::ConditionalMaterialSwitcher::Awake, void, GlobalNamespace::ConditionalMaterialSwitcher* self) {
+//     DEBUG("ConditionalMaterialSwitcher_Awake hook called! {}", self->get_gameObject()->get_name());
+//     auto renderer = self->____renderer;
+//     auto material1 = self->____material1;
+//     renderer->set_sharedMaterial(material1);
+// }
 
 //Force depth to on if using high quality smoke.
 MAKE_HOOK_MATCH(DepthTextureController_OnPreRender, &GlobalNamespace::DepthTextureController::OnPreRender, void, GlobalNamespace::DepthTextureController* self) {
@@ -406,11 +408,11 @@ MAKE_HOOK_MATCH(MainFlowCoordinator_DidActivate, &GlobalNamespace::MainFlowCoord
     MainFlowCoordinator_DidActivate(self, firstActivation, addedToHierarchy, screenSystemEnabling);
     DEBUG("MainFlowCoordinator_DidActivate");
 
-    if(!GraphicsTweaks::FPSCounter::counter) {
+    // Do not load the FPS counter if it's not needed
+    if (getGraphicsTweaksConfig().FpsCounterAdvanced.GetValue() && !GraphicsTweaks::FPSCounter::counter) {
         // Load the FPS counter
         self->StartCoroutine(custom_types::Helpers::CoroutineHelper::New(GraphicsTweaks::FPSCounter::LoadBund()));
     }
-
 }
 
 
@@ -429,7 +431,7 @@ GT_EXPORT_FUNC void load() {
     INSTALL_HOOK(Logger, OculusLoader_Initialize);
     INSTALL_HOOK(Logger, MainSystemInit_Init);
     INSTALL_HOOK(Logger, ConditionalActivation_Awake);
-    INSTALL_HOOK(Logger, ConditionalMaterialSwitcher_Awake);
+    // INSTALL_HOOK(Logger, ConditionalMaterialSwitcher_Awake);
     INSTALL_HOOK(Logger, ShockwaveEffect_Start);
     INSTALL_HOOK(Logger, DepthTextureController_OnPreRender);
     INSTALL_HOOK(Logger, GraphicsSettingsHandler_TryGetCurrentPerformancePreset);

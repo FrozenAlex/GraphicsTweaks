@@ -462,7 +462,13 @@ bool GraphicsTweaks::UI::SettingsView::get_FPSCounterAdvancedValue() {
 void GraphicsTweaks::UI::SettingsView::set_FPSCounterAdvancedValue(bool value) {
     DEBUG("Setting Advanced FPS Counter {}", value);
     getGraphicsTweaksConfig().FpsCounterAdvanced.SetValue(value, instantlySave);
-
+    
+    // Load the FPS counter if it's not loaded 
+    if (value && !FPSCounter::counter) {
+        BSML::SharedCoroutineStarter::get_instance()->StartCoroutine(custom_types::Helpers::CoroutineHelper::New(FPSCounter::LoadBund()));
+    }
+    
+    // If the counter is not loaded, it will set the active state when it's loaded, otherwise set it now
     if (FPSCounter::counter) {
         FPSCounter::counter->SetActive(value);
     }
