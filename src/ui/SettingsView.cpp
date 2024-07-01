@@ -9,6 +9,8 @@
 #include "sombrero/shared/FastColor.hpp"
 #include "GlobalNamespace/OVRPlugin.hpp"
 #include "GlobalNamespace/ConditionalActivation.hpp"
+#include "GlobalNamespace/ShockwaveEffect.hpp"
+#include "GlobalNamespace/MenuShockwave.hpp"
 #include "bsml/shared/BSML/MainThreadScheduler.hpp"
 #include "GlobalNamespace/OVRPlugin.hpp"
 #include "Unity/XR/Oculus/NativeMethods.hpp"
@@ -257,7 +259,6 @@ void GraphicsTweaks::UI::SettingsView::set_bloomQualityValue(StringW value) {
     }
 
     GraphicsTweaks::PerformancePreset::ApplySettings();
-    GraphicsTweaks::BloomData::ApplySettings();
     GraphicsTweaks::VRRenderingParamsSetup::Reload();
 
     auto conditionalActivations = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::ConditionalActivation*>();
@@ -390,10 +391,6 @@ bool GraphicsTweaks::UI::SettingsView::get_menuScreenDistortionValue() {
 void GraphicsTweaks::UI::SettingsView::set_menuScreenDistortionValue(bool value) {
     getGraphicsTweaksConfig().MenuShockwaves.SetValue(value, instantlySave);
 
-    auto conditionalActivations = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::ConditionalActivation*>();
-    for (auto & conditionalActivation : conditionalActivations) {
-        conditionalActivation->Awake();
-    }
     // Apply to disable anti-aliasing
     GraphicsTweaks::PerformancePreset::ApplySettings();
     GraphicsTweaks::VRRenderingParamsSetup::Reload();
@@ -467,7 +464,7 @@ void GraphicsTweaks::UI::SettingsView::set_FPSCounterAdvancedValue(bool value) {
     if (value && !FPSCounter::counter) {
         BSML::SharedCoroutineStarter::get_instance()->StartCoroutine(custom_types::Helpers::CoroutineHelper::New(FPSCounter::LoadBund()));
     }
-    
+
     // If the counter is not loaded, it will set the active state when it's loaded, otherwise set it now
     if (FPSCounter::counter) {
         FPSCounter::counter->SetActive(value);
