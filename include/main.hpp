@@ -35,15 +35,4 @@ namespace GraphicsTweaks {
             inline static SafePtrUnity<GlobalNamespace::SettingsApplicatorSO> settingsApplicatorSO;
             inline static SafePtr<BeatSaber::PerformancePresets::PerformancePreset> customPreset;
     };
-
-    class BloomData {
-        public:
-            static void ApplySettings();
-            inline static SafePtrUnity<GlobalNamespace::MainEffectContainerSO> mainEffectContainer;
-            inline static SafePtrUnity<GlobalNamespace::MainEffectSO> noEffect;
-            //Should we support both pyramid and kawase bloom?
-            inline static SafePtrUnity<GlobalNamespace::MainEffectSO> ldBloomEffect;
-            inline static SafePtrUnity<GlobalNamespace::MainEffectSO> hdBloomEffect;
-    };
-
 }

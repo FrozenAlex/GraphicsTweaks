@@ -8,7 +8,10 @@
 #include "GlobalNamespace/OVRPlugin.hpp"
 #include "GlobalNamespace/VRPlatformSDK.hpp"
 #include "GlobalNamespace/VRRenderingParamsSetup.hpp"
+#include "GlobalNamespace/MenuShockwave.hpp"
 #include "UnityEngine/Mathf.hpp"
+#include "UnityEngine/Resources.hpp"
+#include "GlobalNamespace/ShockwaveEffect.hpp"
 #include "UnityEngine/XR/XRSettings.hpp"
 #include "Unity/XR/Oculus/NativeMethods.hpp"
 #include "logging.hpp"
@@ -95,6 +98,33 @@ void GraphicsTweaks::VRRenderingParamsSetup::Reload(std::optional<float> vrResol
         if (currentRefreshRate != refreshRate) {
             DEBUG("Setting refresh rate to {}", refreshRate);
             OVRPlugin::set_systemDisplayFrequency(refreshRate);
+        }
+
+        // Handle shockwaves.
+        auto shockwaveValue = vrRenderingParamsSetup->____sceneType == GlobalNamespace::SceneType::Game ? getGraphicsTweaksConfig().GameShockwaves.GetValue() : getGraphicsTweaksConfig().MenuShockwaves.GetValue();
+        auto shockwaveEffectElements = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::ShockwaveEffect*>();
+        for (UnityW<GlobalNamespace::ShockwaveEffect> shockwaveElement : shockwaveEffectElements) {
+            if (shockwaveElement) shockwaveElement->set_enabled(shockwaveValue);
+        }
+
+        // Game specific shockwaves.
+        if (vrRenderingParamsSetup->____sceneType == GlobalNamespace::SceneType::Game) {
+            auto shockwaveEffectElements = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::ShockwaveEffect*>();
+            for (UnityW<GlobalNamespace::ShockwaveEffect> shockwaveElement : shockwaveEffectElements) {
+                if (shockwaveElement) {
+                    shockwaveElement->set_enabled(shockwaveValue);
+                }
+            }
+        }
+
+        // Menu specific shockwaves.
+        if (vrRenderingParamsSetup->____sceneType == GlobalNamespace::SceneType::Menu) {
+            auto shockwaveEffectElements = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::MenuShockwave*>();
+            for (UnityW<GlobalNamespace::MenuShockwave> shockwaveElement : shockwaveEffectElements) {
+                if (shockwaveElement) {
+                    shockwaveElement->set_enabled(shockwaveValue);
+                }
+            }
         }
     });
 }
