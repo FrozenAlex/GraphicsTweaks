@@ -240,9 +240,9 @@ StringW GraphicsTweaks::UI::SettingsView::get_bloomQualityValue() {
     if (getGraphicsTweaksConfig().Bloom.GetValue() == false) {
         return "Off";
     } else if (getGraphicsTweaksConfig().BloomQuality.GetValue() == 1) {
-        return "Low";
-    } else if (getGraphicsTweaksConfig().BloomQuality.GetValue() == 2) {
-        return "High";
+        return "On";
+    } else if (getGraphicsTweaksConfig().BloomQuality.GetValue() >= 2) {
+        return "On";
     }
     return "Off";
 }
@@ -250,12 +250,9 @@ void GraphicsTweaks::UI::SettingsView::set_bloomQualityValue(StringW value) {
     if(value == "Off") {
         getGraphicsTweaksConfig().Bloom.SetValue(false, instantlySave);
         getGraphicsTweaksConfig().BloomQuality.SetValue(0, instantlySave);
-    } else if(value == "Low") {
+    } else if(value == "On") {
         getGraphicsTweaksConfig().Bloom.SetValue(true, instantlySave);
         getGraphicsTweaksConfig().BloomQuality.SetValue(1, instantlySave);
-    } else if(value == "High") {
-        getGraphicsTweaksConfig().Bloom.SetValue(true, instantlySave);
-        getGraphicsTweaksConfig().BloomQuality.SetValue(2, instantlySave);
     }
 
     GraphicsTweaks::PerformancePreset::ApplySettings();

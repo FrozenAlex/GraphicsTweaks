@@ -42,7 +42,7 @@ DECLARE_CLASS_CODEGEN(GraphicsTweaks::UI, SettingsView, HMUI::ViewController,
     BSML_OPTIONS_LIST_OBJECT(foveationLevelOptions, "Off", "Low", "Medium", "High", "HighTop");
     BSML_OPTIONS_LIST_OBJECT(mirrorOptions, "Off", "Low", "Medium", "High");
     BSML_OPTIONS_LIST_OBJECT(antiAliasingOptions, "Off", "2x", "4x");
-    BSML_OPTIONS_LIST_OBJECT(bloomQualityOptions, "Off", "Low", "High");
+    BSML_OPTIONS_LIST_OBJECT(bloomQualityOptions, "Off", "On");
     BSML_OPTIONS_LIST_OBJECT(smokeQualityOptions, "Off", "Low", "High");
     BSML_OPTIONS_LIST_OBJECT(booleanOptions, "Off", "On");
     BSML_OPTIONS_LIST_OBJECT(wallQualityOptions, "Transparent", "Textured", "Distorted");
