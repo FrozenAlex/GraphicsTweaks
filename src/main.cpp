@@ -137,7 +137,8 @@ UnityW<BeatSaber::PerformancePresets::PerformancePreset> GraphicsTweaks::Perform
 
     preset->____maxShockwaveParticles = getGraphicsTweaksConfig().NumShockwaves.GetValue();
 
-    preset->____burnMarkTrails = getGraphicsTweaksConfig().Burnmarks.GetValue();
+    // Burn marks are broken in Quest, so disable them
+    preset->____burnMarkTrails = false;
 
     // Handle bloom quality
     int bloomQuality = getGraphicsTweaksConfig().BloomQuality.GetValue();
@@ -193,7 +194,7 @@ UnityW<BeatSaber::PerformancePresets::PerformancePreset> GraphicsTweaks::Perform
     }
 
     // If the wall quality is ObstacleHW, enable screen displacement effects
-    preset->____screenDisplacementEffects = wallQuality >= 2;
+    preset->____screenDisplacementEffects = wallQuality >= 2 || getGraphicsTweaksConfig().MenuShockwaves.GetValue() || getGraphicsTweaksConfig().GameShockwaves.GetValue();
     
 
     return GraphicsTweaks::PerformancePreset::customPreset.ptr();
