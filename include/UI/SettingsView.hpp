@@ -17,9 +17,9 @@
 
 
 #ifdef HotReload
-DECLARE_CLASS_CUSTOM(GraphicsTweaks::UI, SettingsView, BSML::HotReloadViewController,
+DECLARE_CLASS_CUSTOM(GraphicsTweaks::UI, SettingsView, BSML::HotReloadViewController) {
 #else
-DECLARE_CLASS_CODEGEN(GraphicsTweaks::UI, SettingsView, HMUI::ViewController,
+DECLARE_CLASS_CODEGEN(GraphicsTweaks::UI, SettingsView, HMUI::ViewController) {
 #endif
 
     DECLARE_SIMPLE_DTOR();
@@ -82,4 +82,4 @@ DECLARE_CLASS_CODEGEN(GraphicsTweaks::UI, SettingsView, HMUI::ViewController,
 
     // Color space
     DECLARE_BSML_PROPERTY(StringW, colorSpaceValue);
-)
+};

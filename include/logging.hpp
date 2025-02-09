@@ -1,7 +1,7 @@
 #pragma once
 
 #include "beatsaber-hook/shared/utils/utils.h"
-#include "paper/shared/logger.hpp"
+#include "beatsaber-hook/shared/utils/logging.hpp"
 
 //#define LOG_INFO(value...)
 #define INFO(str, ...) Paper::Logger::fmtLogTag<Paper::LogLevel::INF>(str, "GraphicsTweaks" __VA_OPT__(, __VA_ARGS__))
