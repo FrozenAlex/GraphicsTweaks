@@ -79,7 +79,7 @@ target_include_directories(${COMPILE_ID} PRIVATE ${SOURCE_DIR})
 target_include_directories(${COMPILE_ID} PRIVATE ${INCLUDE_DIR})
 # add shared dir as include dir
 target_include_directories(${COMPILE_ID} PUBLIC ${SHARED_DIR})
-# codegen includes 
+# codegen includes
 target_include_directories(${COMPILE_ID} PRIVATE ${EXTERN_DIR}/includes/${CODEGEN_ID}/include)
 
 # add assets
@@ -111,21 +111,27 @@ add_custom_command(TARGET ${COMPILE_ID} POST_BUILD
         )
         foreach(so_file ${so_list})
         cmake_path(GET so_file FILENAME file)
-        
+
         add_custom_command(TARGET ${COMPILE_ID} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy ${so_file} debug/${file}
                 COMMENT "Copy so files for ndk stack"
         )
-        
+
         add_custom_command(TARGET ${COMPILE_ID} POST_BUILD
                 COMMAND ${CMAKE_STRIP} -g -S -d --strip-all ${so_file} -o ${file}
                 COMMENT "Strip debug symbols from the dependencies")
         endforeach()
-        
+
         foreach(a_file ${a_list})
         cmake_path(GET a_file FILENAME file)
-        
+
         add_custom_command(TARGET ${COMPILE_ID} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy ${a_file} debug/${file}
         COMMENT "Copy a files for ndk stack")
         endforeach()
+
+RECURSE_FILES(src_inline_hook_beatsaber_hook_local_extra_c ${EXTERN_DIR}/includes/beatsaber-hook/shared/inline-hook/*.c)
+RECURSE_FILES(src_inline_hook_beatsaber_hook_local_extra_cpp ${EXTERN_DIR}/includes/beatsaber-hook/shared/inline-hook/*.cpp)
+
+target_sources(${COMPILE_ID} PRIVATE ${src_inline_hook_beatsaber_hook_local_extra_c})
+target_sources(${COMPILE_ID} PRIVATE ${src_inline_hook_beatsaber_hook_local_extra_cpp})

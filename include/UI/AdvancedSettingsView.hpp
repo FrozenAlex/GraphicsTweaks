@@ -13,12 +13,12 @@
 #include "custom-types/shared/coroutine.hpp"
 
 #ifdef HotReload
-DECLARE_CLASS_CUSTOM(GraphicsTweaks::UI, AdvancedSettingsView, BSML::HotReloadViewController,
+DECLARE_CLASS_CUSTOM(GraphicsTweaks::UI, AdvancedSettingsView, BSML::HotReloadViewController) {
 #else
-DECLARE_CLASS_CODEGEN(GraphicsTweaks::UI, AdvancedSettingsView, HMUI::ViewController,
+DECLARE_CLASS_CODEGEN(GraphicsTweaks::UI, AdvancedSettingsView, HMUI::ViewController) {
 #endif
 
     DECLARE_SIMPLE_DTOR();
     DECLARE_OVERRIDE_METHOD_MATCH(void, DidActivate, &HMUI::ViewController::DidActivate, bool firstActivation, bool addedToHeirarchy, bool screenSystemDisabling);
 
-)
+};

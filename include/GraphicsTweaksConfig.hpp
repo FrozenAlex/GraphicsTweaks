@@ -2,7 +2,7 @@
 
 #include "config-utils/shared/config-utils.hpp"
 
-DECLARE_CONFIG(GraphicsTweaksConfig,
+DECLARE_CONFIG(GraphicsTweaksConfig) {
     CONFIG_VALUE(MenuResolution, float, "Menu Resolution", 1);
     CONFIG_VALUE(GameResolution, float, "Game Resolution", 1);
     CONFIG_VALUE(AntiAliasing, int, "Anti Aliasing", 2);
@@ -27,4 +27,4 @@ DECLARE_CONFIG(GraphicsTweaksConfig,
     CONFIG_VALUE(MenuShockwaves, bool, "MenuShockwaves", true);
     CONFIG_VALUE(GameShockwaves, bool, "GameShockwaves", true);
     CONFIG_VALUE(UsedGraphicsPresetBefore, bool, "UsedGraphicsPresetBefore", false);
-)
+};

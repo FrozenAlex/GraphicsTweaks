@@ -10,12 +10,14 @@
 #include "beatsaber-hook/shared/utils/il2cpp-functions.hpp"
 #include "beatsaber-hook/shared/utils/hooking.hpp"
 #include "GlobalNamespace/MainSystemInit.hpp"
+#include "GlobalNamespace/SettingsManager.hpp"
 #include "GlobalNamespace/MirrorRendererSO.hpp"
 #include "GlobalNamespace/MirrorRendererGraphicsSettingsPresets.hpp"
 #include "GlobalNamespace/MainEffectContainerSO.hpp"
 #include "GlobalNamespace/SettingsApplicatorSO.hpp"
 #include "GlobalNamespace/MirrorRendererGraphicsSettingsPresets.hpp"
-#include "BeatSaber/PerformancePresets/PerformancePreset.hpp"
+#include "BeatSaber/Settings/QualitySettings.hpp"
+#include "BeatSaber/Settings/Settings.hpp"
 #include "GraphicsTweaksConfig.hpp"
 
 namespace GraphicsTweaks {
@@ -31,8 +33,8 @@ namespace GraphicsTweaks {
     class PerformancePreset {
         public:
             static void ApplySettings();
-            static UnityW<BeatSaber::PerformancePresets::PerformancePreset> GetCustomPreset();
+            static BeatSaber::Settings::Settings* GetCustomPreset();
             inline static SafePtrUnity<GlobalNamespace::SettingsApplicatorSO> settingsApplicatorSO;
-            inline static SafePtr<BeatSaber::PerformancePresets::PerformancePreset> customPreset;
+            inline static BeatSaber::Settings::Settings* customPreset;
     };
 }
