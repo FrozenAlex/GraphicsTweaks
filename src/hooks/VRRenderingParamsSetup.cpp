@@ -78,9 +78,9 @@ void GraphicsTweaks::VRRenderingParamsSetup::Reload(std::optional<float> vrResol
 
         OVRPlugin::SetClientColorDesc(getGraphicsTweaksConfig().ColorSpace.GetValue());
 
-        // Set our CPU/GPU levels.
-        OVRPlugin::set_cpuLevel(getGraphicsTweaksConfig().CpuLevel.GetValue());
-        OVRPlugin::set_gpuLevel(getGraphicsTweaksConfig().GpuLevel.GetValue());
+        // Set our CPU/GPU levels. (we subtract 1 because the game uses 0-indexed values)
+        OVRPlugin::set_cpuLevel(getGraphicsTweaksConfig().CpuLevel.GetValue() - 1);
+        OVRPlugin::set_gpuLevel(getGraphicsTweaksConfig().GpuLevel.GetValue() - 1);
 
         // Check if our (default) refresh rate has been set.
         auto maxRefreshRate = Mathf::Max(OVRPlugin::get_systemDisplayFrequenciesAvailable());
