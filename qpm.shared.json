@@ -37,7 +37,11 @@
         "tomb": [
           "pwsh ./scripts/pull-tombstone.ps1"
         ]
-      }
+      },
+      "ndk": "^27.2.12479018",
+      "qmodIncludeDirs": [],
+      "qmodIncludeFiles": [],
+      "qmodOutput": null
     },
     "dependencies": [
       {

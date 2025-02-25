@@ -1,98 +1,101 @@
 {
-	"version": "0.2.0",
-	"sharedDir": "shared",
-	"dependenciesDir": "extern",
-	"workspace": {
-		"scripts": {
-			"build": [
-				"pwsh ./scripts/build.ps1"
-			],
-			"copy": [
-				"pwsh ./scripts/copy.ps1"
-			],
-			"qmod": [
-				"pwsh ./scripts/build.ps1",
-				"pwsh ./scripts/createqmod.ps1"
-			],
-			"stack": [
-				"pwsh ./scripts/ndk-stack.ps1"
-			],
-			"tomb": [
-				"pwsh ./scripts/pull-tombstone.ps1"
-			],
-			"restart": [
-				"pwsh ./scripts/restart-game.ps1"
-			],
-			"logcat": [
-				"pwsh ./scripts/start-logging.ps1"
-			]
-		}
-	},
-	"info": {
-		"name": "GraphicsTweaks",
-		"id": "graphicstweaks",
-		"version": "0.1.0",
-		"url": "https://github.com/FrozenAlex/GraphicsTweaks",
-		"additionalData": {
-			"overrideSoName": "libgraphicstweaks.so",
-			"cmake": true
-		}
-	},
-	"dependencies": [
-		{
-			"id": "beatsaber-hook",
-			"versionRange": "^5.1.9",
-			"additionalData": {}
-		},
-		{
-			"id": "bs-cordl",
-			"versionRange": "^3700.*",
-			"additionalData": {}
-		},
-		{
-			"id": "scotland2",
-			"versionRange": "^0.1.4",
-			"additionalData": {
-				"includeQmod": false,
-				"private": true
-			}
-		},
-		{
-			"id": "paper",
-			"versionRange": "^3.6.3",
-			"additionalData": {
-				"private": true
-			}
-		},
-		{
-			"id": "config-utils",
-			"versionRange": "^1.4.2",
-			"additionalData": {}
-		},
-		{
-			"id": "bsml",
-			"versionRange": "^0.4.43",
-			"additionalData": {
-				"includeQmod": false
-			}
-		},
-		{
-			"id": "custom-types",
-			"versionRange": "^0.17.10",
-			"additionalData": {}
-		},
-		{
-			"id": "kaleb",
-			"versionRange": "^0.1.9",
-			"additionalData": {
-				"private": true
-			}
-		},
-		{
-			"id": "sombrero",
-			"versionRange": "^0.1.42",
-			"additionalData": {}
-		}
-	],
-	"additionalData": {}
+  "version": "0.2.0",
+  "sharedDir": "shared",
+  "dependenciesDir": "extern",
+  "info": {
+    "name": "GraphicsTweaks",
+    "id": "graphicstweaks",
+    "version": "0.1.0",
+    "url": "https://github.com/FrozenAlex/GraphicsTweaks",
+    "additionalData": {
+      "overrideSoName": "libgraphicstweaks.so",
+      "cmake": true
+    }
+  },
+  "workspace": {
+    "scripts": {
+      "build": [
+        "pwsh ./scripts/build.ps1"
+      ],
+      "copy": [
+        "pwsh ./scripts/copy.ps1"
+      ],
+      "logcat": [
+        "pwsh ./scripts/start-logging.ps1"
+      ],
+      "qmod": [
+        "pwsh ./scripts/build.ps1",
+        "pwsh ./scripts/createqmod.ps1"
+      ],
+      "restart": [
+        "pwsh ./scripts/restart-game.ps1"
+      ],
+      "stack": [
+        "pwsh ./scripts/ndk-stack.ps1"
+      ],
+      "tomb": [
+        "pwsh ./scripts/pull-tombstone.ps1"
+      ]
+    },
+    "ndk": "^27.2.12479018",
+    "qmodIncludeDirs": [],
+    "qmodIncludeFiles": [],
+    "qmodOutput": null
+  },
+  "dependencies": [
+    {
+      "id": "beatsaber-hook",
+      "versionRange": "^5.1.9",
+      "additionalData": {}
+    },
+    {
+      "id": "bs-cordl",
+      "versionRange": "3700.*",
+      "additionalData": {}
+    },
+    {
+      "id": "scotland2",
+      "versionRange": "^0.1.4",
+      "additionalData": {
+        "includeQmod": false,
+        "private": true
+      }
+    },
+    {
+      "id": "paper",
+      "versionRange": "^3.6.3",
+      "additionalData": {
+        "private": true
+      }
+    },
+    {
+      "id": "config-utils",
+      "versionRange": "^1.4.2",
+      "additionalData": {}
+    },
+    {
+      "id": "bsml",
+      "versionRange": "^0.4.43",
+      "additionalData": {
+        "includeQmod": false
+      }
+    },
+    {
+      "id": "custom-types",
+      "versionRange": "^0.17.10",
+      "additionalData": {}
+    },
+    {
+      "id": "kaleb",
+      "versionRange": "^0.1.9",
+      "additionalData": {
+        "private": true
+      }
+    },
+    {
+      "id": "sombrero",
+      "versionRange": "^0.1.42",
+      "additionalData": {}
+    }
+  ]
 }
