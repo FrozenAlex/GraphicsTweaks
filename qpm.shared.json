@@ -1,4 +1,5 @@
 {
+  "$schema": "https://raw.githubusercontent.com/QuestPackageManager/QPM.Package/refs/heads/main/qpm.shared.schema.json",
   "config": {
     "version": "0.2.0",
     "sharedDir": "shared",
@@ -39,7 +40,10 @@
         ]
       },
       "ndk": "^27.2.12479018",
-      "qmodIncludeDirs": [],
+      "qmodIncludeDirs": [
+        "build",
+        "extern/libs"
+      ],
       "qmodIncludeFiles": [],
       "qmodOutput": null
     },
@@ -51,15 +55,13 @@
       },
       {
         "id": "bs-cordl",
-        "versionRange": "4020.*",
+        "versionRange": "4030.*",
         "additionalData": {}
       },
       {
         "id": "bsml",
-        "versionRange": "^0.4.49",
-        "additionalData": {
-          "includeQmod": false
-        }
+        "versionRange": "^0.4.50",
+        "additionalData": {}
       },
       {
         "id": "config-utils",
@@ -80,7 +82,7 @@
       },
       {
         "id": "paper2_scotland2",
-        "versionRange": "^4.5.0",
+        "versionRange": "^4.6.1",
         "additionalData": {
           "private": true
         }
@@ -95,7 +97,7 @@
       },
       {
         "id": "sombrero",
-        "versionRange": "^0.1.42",
+        "versionRange": "^0.1.43",
         "additionalData": {}
       }
     ]
@@ -104,27 +106,27 @@
     {
       "dependency": {
         "id": "bsml",
-        "versionRange": "=0.4.49",
+        "versionRange": "=0.4.50",
         "additionalData": {
-          "soLink": "https://github.com/bsq-ports/Quest-BSML/releases/download/v0.4.49/libbsml.so",
-          "debugSoLink": "https://github.com/bsq-ports/Quest-BSML/releases/download/v0.4.49/debug_libbsml.so",
+          "soLink": "https://github.com/bsq-ports/Quest-BSML/releases/download/v0.4.50/libbsml.so",
+          "debugSoLink": "https://github.com/bsq-ports/Quest-BSML/releases/download/v0.4.50/debug_libbsml.so",
           "overrideSoName": "libbsml.so",
-          "modLink": "https://github.com/bsq-ports/Quest-BSML/releases/download/v0.4.49/BSML.qmod",
-          "branchName": "version/v0_4_49",
+          "modLink": "https://github.com/bsq-ports/Quest-BSML/releases/download/v0.4.50/BSML.qmod",
+          "branchName": "version/v0_4_50",
           "cmake": true
         }
       },
-      "version": "0.4.49"
+      "version": "0.4.50"
     },
     {
       "dependency": {
         "id": "paper2_scotland2",
-        "versionRange": "=4.5.0",
+        "versionRange": "=4.6.1",
         "additionalData": {
-          "soLink": "https://github.com/Fernthedev/paperlog/releases/download/v4.5.0/libpaper2_scotland2.so",
+          "soLink": "https://github.com/Fernthedev/paperlog/releases/download/v4.6.1/libpaper2_scotland2.so",
           "overrideSoName": "libpaper2_scotland2.so",
-          "modLink": "https://github.com/Fernthedev/paperlog/releases/download/v4.5.0/paper2_scotland2.qmod",
-          "branchName": "version/v4_5_0",
+          "modLink": "https://github.com/Fernthedev/paperlog/releases/download/v4.6.1/paper2_scotland2.qmod",
+          "branchName": "version/v4_6_1",
           "compileOptions": {
             "systemIncludes": [
               "shared/utfcpp/source"
@@ -133,7 +135,7 @@
           "cmake": false
         }
       },
-      "version": "4.5.0"
+      "version": "4.6.1"
     },
     {
       "dependency": {
@@ -211,10 +213,10 @@
     {
       "dependency": {
         "id": "bs-cordl",
-        "versionRange": "=4020.0.0",
+        "versionRange": "=4030.0.0",
         "additionalData": {
           "headersOnly": true,
-          "branchName": "version/v4020_0_0",
+          "branchName": "version/v4030_0_0",
           "compileOptions": {
             "includePaths": [
               "include"
@@ -230,7 +232,7 @@
           }
         }
       },
-      "version": "4020.0.0"
+      "version": "4030.0.0"
     },
     {
       "dependency": {
