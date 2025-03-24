@@ -75,6 +75,7 @@ DECLARE_CLASS_CODEGEN(GraphicsTweaks::UI, SettingsView, HMUI::ViewController) {
     DECLARE_BSML_PROPERTY(bool, burnMarksValue);
     DECLARE_BSML_PROPERTY(bool, FPSCounterValue);
     DECLARE_BSML_PROPERTY(bool, FPSCounterAdvancedValue);
+    // DECLARE_BSML_PROPERTY(bool, dynamicResolutionValue);
 
     // Levels
     DECLARE_BSML_PROPERTY(float, gpuLevelValue);

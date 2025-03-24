@@ -3,6 +3,7 @@
 #include "config-utils/shared/config-utils.hpp"
 
 DECLARE_CONFIG(GraphicsTweaksConfig) {
+    CONFIG_VALUE(DynamicResolution, bool, "Dynamic Resolution", false);
     CONFIG_VALUE(MenuResolution, float, "Menu Resolution", 1);
     CONFIG_VALUE(GameResolution, float, "Game Resolution", 1);
     CONFIG_VALUE(AntiAliasing, int, "Anti Aliasing", 2);

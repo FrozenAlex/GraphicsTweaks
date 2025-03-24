@@ -20,7 +20,7 @@
 				<increment-setting id="shockwaveParticlesCountElement" text='Shockwave particles' value="shockwaveParticlesValue" bind-value="true" apply-on-change="true" increment="1" min="0" max="3" hover-hint="Max Shockwave Particles &lt;br> (distortions on impact)" on-change="UpdateGraphicsSettings" />
 				<bool-setting id="burnMarksSetting" text='Burn marks' value="burnMarksValue"  bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" hover-hint="Allows you to see cuts in the platform you stand on" />
 				<bool-setting text='FPS Counter' value="FPSCounterValue"  bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" hover-hint="Minimal FPS counter pinned next to the standing platform" />
-				<bool-setting text='Advanced FPS Counter' value="FPSCounterAdvancedValue" bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" hover-hint="FPS counter with more information for debugging frame times. &lt;br> Not recommended to keep it on, as it can cause more crashes and could reduce your overall performance" />
+				<!-- <bool-setting text='Advanced FPS Counter' value="FPSCounterAdvancedValue" bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" hover-hint="FPS counter with more information for debugging frame times. &lt;br> Not recommended to keep it on, as it can cause more crashes and could reduce your overall performance" /> -->
 				<list-setting value="colorSpaceValue" bind-value="true" apply-on-change="true" text='Color Space' choices="colorSpaceOptions" on-change="UpdateGraphicsSettings" />
 				<!-- <bool-setting id="screenDistortionSetting" text='Passthrough' value="screenDistortionValue"  active="false" bind-value="true" apply-on-change="true" hover-hint="This feature requires patching BeatSaber with passthrough support" on-change="UpdateGraphicsSettings" /> -->
 			</vertical>
@@ -55,6 +55,7 @@
 				<text text='&lt;color=#fe7da6ff>Performance&lt;color=#e6eaffff> levels' align='Center' bold='true' font-size='3.5' size-delta-y='5'/>
 				<increment-setting id="minGpuLevelElement" text='Min. GPU Level' bind-value="true"  apply-on-change="true" value="gpuLevelValue" min="1" increment="1.0" max="4" on-change="UpdateGraphicsSettings" />
 				<increment-setting id="minCpuLevelElement" text='Min. CPU Level' bind-value="true" apply-on-change="true" value="cpuLevelValue" min="1" increment="1.0" max="4"  on-change="UpdateGraphicsSettings" />
+				<!-- <bool-setting text='Dynamic resolution' value="dynamicResolutionValue"  bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" hover-hint="Decreases resolution in heavy scenes to mantain fps" /> -->
 			</vertical>
 
 			<horizontal

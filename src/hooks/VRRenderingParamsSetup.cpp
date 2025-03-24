@@ -51,6 +51,36 @@ void GraphicsTweaks::VRRenderingParamsSetup::Reload(std::optional<float> vrResol
     auto resolutionMultiplier = vrRenderingParamsSetup->____sceneType == GlobalNamespace::SceneType::Game ? getGraphicsTweaksConfig().GameResolution.GetValue() : getGraphicsTweaksConfig().MenuResolution.GetValue();
     auto currentEyeTextureResolutionScale = XRSettings::get_eyeTextureResolutionScale();
 
+    // Enable dynamic resolution.
+    // Seems to introduce screen distortion, so it's disabled for now.
+    // {
+    //     auto instance = OVRManager::get_instance();
+    //     if (!instance)
+    //     {
+    //         DEBUG("OVRManager instance is null, creating new one...");
+    //         auto ovrManagerGO = UnityEngine::GameObject::New_ctor("OVRManager");
+    //         UnityEngine::Object::DontDestroyOnLoad(ovrManagerGO);
+    //         ovrManagerGO->SetActive(false);
+    //         auto instance = ovrManagerGO->AddComponent<GlobalNamespace::OVRManager*>();
+
+        
+    //         instance->set_trackingOriginType(GlobalNamespace::OVRManager_TrackingOrigin::FloorLevel);
+    
+    //         ovrManagerGO->SetActive(true);
+    //         DEBUG("Initialized OVRManager!");
+    //     }
+        
+
+    //     if (instance) {
+    //         // instance->enableDynamicResolution = getGraphicsTweaksConfig().DynamicResolution.GetValue();
+    //         // instance->__cordl_internal_set_maxDynamicResolutionScale(1.0f);
+    //         // instance->__cordl_internal_set_minDynamicResolutionScale(0.6f);
+    //     } else {
+    //         WARNING("OVRManager instance is null!");
+    //     }
+    // }
+   
+
     if (currentEyeTextureResolutionScale != resolutionMultiplier) {
         DEBUG("Setting resolution scale to {}", resolutionMultiplier);
         XRSettings::set_eyeTextureResolutionScale(resolutionMultiplier);

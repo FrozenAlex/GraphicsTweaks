@@ -556,12 +556,12 @@ MAKE_HOOK_MATCH(MainFlowCoordinator_DidActivate,
   DEBUG("MainFlowCoordinator_DidActivate");
 
   // Do not load the FPS counter if it's not needed
-  if (getGraphicsTweaksConfig().FpsCounterAdvanced.GetValue() &&
-      !GraphicsTweaks::FPSCounter::counter) {
-    // Load the FPS counter
-    self->StartCoroutine(custom_types::Helpers::CoroutineHelper::New(
-        GraphicsTweaks::FPSCounter::LoadBund()));
-  }
+  // if (getGraphicsTweaksConfig().FpsCounterAdvanced.GetValue() &&
+  //     !GraphicsTweaks::FPSCounter::counter) {
+  //   // Load the FPS counter
+  //   self->StartCoroutine(custom_types::Helpers::CoroutineHelper::New(
+  //       GraphicsTweaks::FPSCounter::LoadBund()));
+  // }
 }
 
 // Called later on in the game loading - a good time to install function hooks

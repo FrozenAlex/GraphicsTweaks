@@ -21,6 +21,7 @@
 #include "bsml/shared/BSML-Lite/Creation/Text.hpp"
 #include "TMPro/TextMeshProUGUI.hpp"
 #include "UI/Formatters.hpp"
+#include "GlobalNamespace/OVRManager.hpp"
 DEFINE_TYPE(GraphicsTweaks::UI, SettingsView);
 
 using namespace UnityEngine;
@@ -393,6 +394,14 @@ void GraphicsTweaks::UI::SettingsView::set_menuScreenDistortionValue(bool value)
     GraphicsTweaks::VRRenderingParamsSetup::Reload();
 }
 
+// bool GraphicsTweaks::UI::SettingsView::get_dynamicResolutionValue() {
+//     return getGraphicsTweaksConfig().DynamicResolution.GetValue();
+// }
+// void GraphicsTweaks::UI::SettingsView::set_dynamicResolutionValue(bool value) {
+//     getGraphicsTweaksConfig().DynamicResolution.SetValue(value, instantlySave);
+//     OVRManager::get_instance()->enableDynamicResolution = value;
+// }
+
 // gameScreenDistortionValue
 bool GraphicsTweaks::UI::SettingsView::get_gameScreenDistortionValue() {
     return getGraphicsTweaksConfig().GameShockwaves.GetValue();
@@ -458,14 +467,14 @@ void GraphicsTweaks::UI::SettingsView::set_FPSCounterAdvancedValue(bool value) {
     getGraphicsTweaksConfig().FpsCounterAdvanced.SetValue(value, instantlySave);
     
     // Load the FPS counter if it's not loaded 
-    if (value && !FPSCounter::counter) {
-        BSML::SharedCoroutineStarter::get_instance()->StartCoroutine(custom_types::Helpers::CoroutineHelper::New(FPSCounter::LoadBund()));
-    }
+    // if (value && !FPSCounter::counter) {
+    //     BSML::SharedCoroutineStarter::get_instance()->StartCoroutine(custom_types::Helpers::CoroutineHelper::New(FPSCounter::LoadBund()));
+    // }
 
-    // If the counter is not loaded, it will set the active state when it's loaded, otherwise set it now
-    if (FPSCounter::counter) {
-        FPSCounter::counter->SetActive(value);
-    }
+    // // If the counter is not loaded, it will set the active state when it's loaded, otherwise set it now
+    // if (FPSCounter::counter) {
+    //     FPSCounter::counter->SetActive(value);
+    // }
 }
 
 // colorSpaceValue
