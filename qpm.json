@@ -38,7 +38,10 @@
       ]
     },
     "ndk": "^27.2.12479018",
-    "qmodIncludeDirs": [],
+    "qmodIncludeDirs": [
+      "./extern/libs",
+      "./build"
+    ],
     "qmodIncludeFiles": [],
     "qmodOutput": null
   },
@@ -50,15 +53,13 @@
     },
     {
       "id": "bs-cordl",
-      "versionRange": "4030.*",
+      "versionRange": "4004.*",
       "additionalData": {}
     },
     {
       "id": "bsml",
-      "versionRange": "^0.4.50",
-      "additionalData": {
-        "includeQmod": false
-      }
+      "versionRange": "^0.4.51",
+      "additionalData": {}
     },
     {
       "id": "config-utils",
@@ -94,7 +95,7 @@
     },
     {
       "id": "sombrero",
-      "versionRange": "^0.1.42",
+      "versionRange": "^0.1.43",
       "additionalData": {}
     }
   ]
