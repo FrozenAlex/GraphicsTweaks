@@ -13,6 +13,7 @@
 #include "bsml/shared/BSML/MainThreadScheduler.hpp"
 #include "UnityEngine/QualitySettings.hpp"
 #include "beatsaber-hook/shared/utils/hooking.hpp"
+#include "PlatformDetector.hpp"
 using namespace GlobalNamespace;
 
 SafePtrUnity<GlobalNamespace::VRRenderingParamsSetup> vrRenderingParamsSetup;
@@ -56,8 +57,14 @@ void GraphicsTweaks::VRRenderingParamsSetup::Reload(std::optional<float> vrResol
         getGraphicsTweaksConfig().GameResolution.SetValue(1);
     }
 
+    GlobalNamespace::SceneType sceneType = vrRenderingParamsSetup->____sceneType;
+    // Quest 1 is really bad at switching stuff depending on the scene type, forcing it to be in-game
+    if (GraphicsTweaks::isQuest1) {
+        sceneType = GlobalNamespace::SceneType::Game;
+    }
+
     // Set resolution scale based on scene type.
-    auto resolutionMultiplier = vrRenderingParamsSetup->____sceneType == GlobalNamespace::SceneType::Game ? getGraphicsTweaksConfig().GameResolution.GetValue() : getGraphicsTweaksConfig().MenuResolution.GetValue();
+    auto resolutionMultiplier = sceneType == GlobalNamespace::SceneType::Game ? getGraphicsTweaksConfig().GameResolution.GetValue() : getGraphicsTweaksConfig().MenuResolution.GetValue();
     auto currentEyeTextureResolutionScale = XRSettings::get_eyeTextureResolutionScale();
 
     // Enable dynamic resolution.
@@ -103,16 +110,20 @@ void GraphicsTweaks::VRRenderingParamsSetup::Reload(std::optional<float> vrResol
 
     // Next frame is needed because the game sets the resolution scale after this function is called too.
     BSML::MainThreadScheduler::ScheduleNextFrame([]() {
-        // If not Oculus, return.
-        // if (vrRenderingParamsSetup->_vrPlatformHelper->get_vrPlatformSDK() != VRPlatformSDK::Oculus) {
-        //     WARNING("Not Oculus, returning");
-        //     return;
-        // }
+        GlobalNamespace::SceneType sceneType = vrRenderingParamsSetup->____sceneType;
+        // Quest 1 is really bad at switching stuff depending on the scene type, forcing it to be in-game
+        if (GraphicsTweaks::isQuest1) {
+            sceneType = GlobalNamespace::SceneType::Game;
+        }
 
         // Fixed foveated rendering
         if (OVRManager::get_fixedFoveatedRenderingSupported()) {
-            auto foveationLevel = vrRenderingParamsSetup->____sceneType != GlobalNamespace::SceneType::Game ? getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.GetValue() : getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.GetValue();
-            OVRManager::set_fixedFoveatedRenderingLevel(foveationLevel);
+            auto foveationLevel = sceneType != GlobalNamespace::SceneType::Game ? getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.GetValue() : getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.GetValue();
+            auto currentLevel = static_cast<int>(OVRManager::get_fixedFoveatedRenderingLevel());
+            if (currentLevel != foveationLevel) {
+                DEBUG("Setting fixed foveated rendering level to {}", foveationLevel);
+                OVRManager::set_fixedFoveatedRenderingLevel(foveationLevel);
+            }
         }
 
         OVRPlugin::SetClientColorDesc(getGraphicsTweaksConfig().ColorSpace.GetValue());
@@ -132,7 +143,7 @@ void GraphicsTweaks::VRRenderingParamsSetup::Reload(std::optional<float> vrResol
             getGraphicsTweaksConfig().GameRefreshRate.SetValue(maxRefreshRate);
         }
 
-        float refreshRate = vrRenderingParamsSetup->____sceneType == GlobalNamespace::SceneType::Game ? getGraphicsTweaksConfig().GameRefreshRate.GetValue() : getGraphicsTweaksConfig().MenuRefreshRate.GetValue();
+        float refreshRate = sceneType == GlobalNamespace::SceneType::Game ? getGraphicsTweaksConfig().GameRefreshRate.GetValue() : getGraphicsTweaksConfig().MenuRefreshRate.GetValue();
         auto currentRefreshRate = OVRPlugin::get_systemDisplayFrequency();
         if (currentRefreshRate != refreshRate) {
             DEBUG("Setting refresh rate to {}", refreshRate);
@@ -140,14 +151,14 @@ void GraphicsTweaks::VRRenderingParamsSetup::Reload(std::optional<float> vrResol
         }
 
         // Handle shockwaves.
-        auto shockwaveValue = vrRenderingParamsSetup->____sceneType == GlobalNamespace::SceneType::Game ? getGraphicsTweaksConfig().GameShockwaves.GetValue() : getGraphicsTweaksConfig().MenuShockwaves.GetValue();
+        auto shockwaveValue = sceneType == GlobalNamespace::SceneType::Game ? getGraphicsTweaksConfig().GameShockwaves.GetValue() : getGraphicsTweaksConfig().MenuShockwaves.GetValue();
         auto shockwaveEffectElements = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::ShockwaveEffect*>();
         for (UnityW<GlobalNamespace::ShockwaveEffect> shockwaveElement : shockwaveEffectElements) {
             if (shockwaveElement) shockwaveElement->set_enabled(shockwaveValue);
         }
 
         // Game specific shockwaves.
-        if (vrRenderingParamsSetup->____sceneType == GlobalNamespace::SceneType::Game) {
+        if (sceneType == GlobalNamespace::SceneType::Game || isQuest1) {
             auto shockwaveEffectElements = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::ShockwaveEffect*>();
             for (UnityW<GlobalNamespace::ShockwaveEffect> shockwaveElement : shockwaveEffectElements) {
                 if (shockwaveElement) {
@@ -157,7 +168,7 @@ void GraphicsTweaks::VRRenderingParamsSetup::Reload(std::optional<float> vrResol
         }
 
         // Menu specific shockwaves.
-        if (vrRenderingParamsSetup->____sceneType == GlobalNamespace::SceneType::Menu) {
+        if (sceneType == GlobalNamespace::SceneType::Menu || isQuest1) {
             auto shockwaveEffectElements = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::MenuShockwave*>();
             for (UnityW<GlobalNamespace::MenuShockwave> shockwaveElement : shockwaveEffectElements) {
                 if (shockwaveElement) {

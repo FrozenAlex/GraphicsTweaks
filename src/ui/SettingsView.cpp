@@ -22,6 +22,8 @@
 #include "TMPro/TextMeshProUGUI.hpp"
 #include "UI/Formatters.hpp"
 #include "GlobalNamespace/OVRManager.hpp"
+#include "PlatformDetector.hpp"
+
 DEFINE_TYPE(GraphicsTweaks::UI, SettingsView);
 
 using namespace UnityEngine;
@@ -94,6 +96,13 @@ void GraphicsTweaks::UI::SettingsView::PostParse() {
     Formatters::FormatSetting(shockwaveParticlesCountElement);
     Formatters::FormatSetting(resolutionLevelElementGame);
     Formatters::FormatSetting(resolutionLevelElementMenu);
+
+    // Quest 1 handles the resolution change badly so we hide the split ui
+    if (isQuest1) {
+        perfTabSelector->TabSelected(perfTabSelector->textSegmentedControl, 1); // Select the second tab
+        perfTabSelector->get_gameObject()->SetActive(false); // Hide the tab selector
+        perfTabSelectorTitle->set_text("<color=#ffffff>Settings");
+    }
 }
 
 void GraphicsTweaks::UI::SettingsView::UpdateGraphicsSettings() {

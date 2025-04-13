@@ -50,6 +50,7 @@
 #include "GraphicsTweaksConfig.hpp"
 
 #include "UnityEngine/Graphics.hpp"
+#include "PlatformDetector.hpp"
 
 inline modloader::ModInfo modInfo = {
     MOD_ID, VERSION, GIT_COMMIT}; // Stores the ID and version of our mod, and
@@ -559,6 +560,19 @@ GT_EXPORT_FUNC void load() {
   il2cpp_functions::Init();
   custom_types::Register::AutoRegister();
   BSML::Init();
+
+  DEBUG("Checking platform...");
+  GraphicsTweaks::DetectPlatform();
+
+  // Force Quest 1 for testing
+  // GraphicsTweaks::isQuest1 = true;
+
+  if (GraphicsTweaks::isQuest1) {
+    INFO("Detected Quest 1! Hi!!");
+  }
+
+  DEBUG("Model: {}", GraphicsTweaks::model);
+  DEBUG("Brand: {}", GraphicsTweaks::brand);
 
   INFO("Installing hooks...");
   // Phase Sync (latency reduction)

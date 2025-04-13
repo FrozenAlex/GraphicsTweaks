@@ -1,6 +1,9 @@
 # include some defines automatically made by qpm
 include(qpm_defines.cmake)
 
+# bump android sdk version to 29 (10)
+set(ANDROID_PLATFORM 29)
+
 # override mod id
 set(MOD_ID "graphicstweaks")
 
@@ -15,7 +18,6 @@ set(MOD_ID "graphicstweaks")
 
 cmake_minimum_required(VERSION 3.21)
 project(${COMPILE_ID})
-set(ANDROID_PLATFORM 29)
 include(${EXTERN_DIR}/includes/kaleb/shared/cmake/assets.cmake)
 
 # export compile commands for significantly better intellisense

@@ -12,7 +12,8 @@
 #include "HMUI/ViewController.hpp"
 #include "custom-types/shared/coroutine.hpp"
 #include "custom-types/shared/macros.hpp"
-
+#include "bsml/shared/BSML/Components/TabSelector.hpp"
+#include "HMUI/CurvedTextMeshPro.hpp"
 
 
 
@@ -35,6 +36,8 @@ DECLARE_CLASS_CODEGEN(GraphicsTweaks::UI, SettingsView, HMUI::ViewController) {
     DECLARE_INSTANCE_FIELD(UnityW<BSML::IncrementSetting>, shockwaveParticlesCountElement);
     DECLARE_INSTANCE_FIELD(UnityW<BSML::IncrementSetting>, resolutionLevelElementGame);
     DECLARE_INSTANCE_FIELD(UnityW<BSML::IncrementSetting>, resolutionLevelElementMenu);
+    DECLARE_INSTANCE_FIELD(UnityW<BSML::TabSelector>, perfTabSelector);
+    DECLARE_INSTANCE_FIELD(UnityW<HMUI::CurvedTextMeshPro>, perfTabSelectorTitle);
 
     // Field values
     BSML_OPTIONS_LIST_OBJECT(foveationLevelOptions, "Off", "Low", "Medium", "High", "HighTop");
