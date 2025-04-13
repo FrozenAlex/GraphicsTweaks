@@ -187,16 +187,18 @@ GraphicsTweaks::PerformancePreset::GetCustomPreset() {
         BeatSaber::Settings::QualitySettings::ObstacleQuality::Low;
   }
 
-  // If the wall quality is ObstacleHW, enable screen displacement effects
-  preset->quality.screenDisplacementEffects =
-      wallQuality >= 2 || getGraphicsTweaksConfig().MenuShockwaves.GetValue() ||
-      getGraphicsTweaksConfig().GameShockwaves.GetValue();
-
   bool distortionsUsed =
       getGraphicsTweaksConfig().WallQuality.GetValue() == 2 ||
       getGraphicsTweaksConfig().MenuShockwaves.GetValue() ||
       getGraphicsTweaksConfig().GameShockwaves.GetValue();
 
+  if (isQuest1) {
+    distortionsUsed = false;
+  }
+
+  // If the wall quality is ObstacleHW, enable screen displacement effects
+  preset->quality.screenDisplacementEffects = distortionsUsed;
+  
   preset->quality.antiAliasingLevel =
       distortionsUsed ? 0 : getGraphicsTweaksConfig().AntiAliasing.GetValue();
 
@@ -234,6 +236,11 @@ MAKE_HOOK_MATCH(SettingsApplicatorSO_ApplyGraphicSettings,
       getGraphicsTweaksConfig().WallQuality.GetValue() == 2 ||
       getGraphicsTweaksConfig().MenuShockwaves.GetValue() ||
       getGraphicsTweaksConfig().GameShockwaves.GetValue();
+
+  if (isQuest1) {
+    distortionsUsed = false;
+  }
+
   UnityEngine::QualitySettings::set_antiAliasing(
       distortionsUsed ? 0 : getGraphicsTweaksConfig().AntiAliasing.GetValue());
 }

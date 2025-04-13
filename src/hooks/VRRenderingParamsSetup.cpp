@@ -103,6 +103,11 @@ void GraphicsTweaks::VRRenderingParamsSetup::Reload(std::optional<float> vrResol
     }
 
     bool distortionsUsed = getGraphicsTweaksConfig().WallQuality.GetValue() == 2 || getGraphicsTweaksConfig().MenuShockwaves.GetValue() || getGraphicsTweaksConfig().GameShockwaves.GetValue();
+    // Quest 1 has bugged distortions, so we disable them.
+    if (isQuest1) {
+        distortionsUsed = false;
+    }
+
     auto aaValue = distortionsUsed ? 0 : getGraphicsTweaksConfig().AntiAliasing.GetValue()*2;
     if (QualitySettings::get_antiAliasing() != aaValue) {
         UnityEngine::QualitySettings::set_antiAliasing(aaValue);
@@ -157,25 +162,28 @@ void GraphicsTweaks::VRRenderingParamsSetup::Reload(std::optional<float> vrResol
             if (shockwaveElement) shockwaveElement->set_enabled(shockwaveValue);
         }
 
-        // Game specific shockwaves.
-        if (sceneType == GlobalNamespace::SceneType::Game || isQuest1) {
-            auto shockwaveEffectElements = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::ShockwaveEffect*>();
-            for (UnityW<GlobalNamespace::ShockwaveEffect> shockwaveElement : shockwaveEffectElements) {
-                if (shockwaveElement) {
-                    shockwaveElement->set_enabled(shockwaveValue);
+        if (!isQuest1) {
+            // Game specific shockwaves.
+            if (sceneType == GlobalNamespace::SceneType::Game) {
+                auto shockwaveEffectElements = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::ShockwaveEffect*>();
+                for (UnityW<GlobalNamespace::ShockwaveEffect> shockwaveElement : shockwaveEffectElements) {
+                    if (shockwaveElement) {
+                        shockwaveElement->set_enabled(shockwaveValue);
+                    }
                 }
             }
-        }
 
-        // Menu specific shockwaves.
-        if (sceneType == GlobalNamespace::SceneType::Menu || isQuest1) {
-            auto shockwaveEffectElements = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::MenuShockwave*>();
-            for (UnityW<GlobalNamespace::MenuShockwave> shockwaveElement : shockwaveEffectElements) {
-                if (shockwaveElement) {
-                    shockwaveElement->set_enabled(shockwaveValue);
+            // Menu specific shockwaves.
+            if (sceneType == GlobalNamespace::SceneType::Menu) {
+                auto shockwaveEffectElements = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::MenuShockwave*>();
+                for (UnityW<GlobalNamespace::MenuShockwave> shockwaveElement : shockwaveEffectElements) {
+                    if (shockwaveElement) {
+                        shockwaveElement->set_enabled(shockwaveValue);
+                    }
                 }
-            }
+            }    
         }
+        
     });
 }
 
