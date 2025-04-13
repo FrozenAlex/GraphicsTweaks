@@ -1,24 +1,18 @@
 #include "main.hpp"
 #include "GraphicsTweaksConfig.hpp"
 
-#include "GlobalNamespace/BoolSO.hpp"
-#include "GlobalNamespace/FloatSO.hpp"
-#include "GlobalNamespace/IVRPlatformHelper.hpp"
 #include "GlobalNamespace/OVRManager.hpp"
 #include "GlobalNamespace/OVRPlugin.hpp"
-#include "GlobalNamespace/VRPlatformSDK.hpp"
 #include "GlobalNamespace/VRRenderingParamsSetup.hpp"
 #include "GlobalNamespace/MenuShockwave.hpp"
 #include "UnityEngine/Mathf.hpp"
 #include "UnityEngine/Resources.hpp"
 #include "GlobalNamespace/ShockwaveEffect.hpp"
 #include "UnityEngine/XR/XRSettings.hpp"
-#include "Unity/XR/Oculus/NativeMethods.hpp"
 #include "logging.hpp"
 #include "bsml/shared/BSML/MainThreadScheduler.hpp"
-#include "bsml/shared/BSML/SharedCoroutineStarter.hpp"
 #include "UnityEngine/QualitySettings.hpp"
-#include "FPSCounter.hpp"
+#include "beatsaber-hook/shared/utils/hooking.hpp"
 using namespace GlobalNamespace;
 
 SafePtrUnity<GlobalNamespace::VRRenderingParamsSetup> vrRenderingParamsSetup;
@@ -32,6 +26,21 @@ MAKE_HOOK_MATCH(
     vrRenderingParamsSetup = self;
 
     GraphicsTweaks::VRRenderingParamsSetup::Reload();
+}
+
+::GlobalNamespace::OVRPlugin_ProcessorPerformanceLevel getPerfLevel(int level) {
+    switch (level) {
+        case 0:
+            return ::GlobalNamespace::OVRPlugin_ProcessorPerformanceLevel::PowerSavings;
+        case 1:
+            return ::GlobalNamespace::OVRPlugin_ProcessorPerformanceLevel::SustainedLow;
+        case 2:
+            return ::GlobalNamespace::OVRPlugin_ProcessorPerformanceLevel::SustainedHigh;
+        case 3:
+            return ::GlobalNamespace::OVRPlugin_ProcessorPerformanceLevel::Boost;
+        default:
+            return ::GlobalNamespace::OVRPlugin_ProcessorPerformanceLevel::SustainedHigh;
+    }
 }
 
 void GraphicsTweaks::VRRenderingParamsSetup::Reload(std::optional<float> vrResolutionScale) {
@@ -109,8 +118,8 @@ void GraphicsTweaks::VRRenderingParamsSetup::Reload(std::optional<float> vrResol
         OVRPlugin::SetClientColorDesc(getGraphicsTweaksConfig().ColorSpace.GetValue());
 
         // Set our CPU/GPU levels. (we subtract 1 because the game uses 0-indexed values)
-        OVRPlugin::set_cpuLevel(getGraphicsTweaksConfig().CpuLevel.GetValue() - 1);
-        OVRPlugin::set_gpuLevel(getGraphicsTweaksConfig().GpuLevel.GetValue() - 1);
+        OVRPlugin::set_suggestedCpuPerfLevel(getPerfLevel(getGraphicsTweaksConfig().CpuPerfLevel.GetValue()));
+        OVRPlugin::set_suggestedGpuPerfLevel(getPerfLevel(getGraphicsTweaksConfig().GpuPerfLevel.GetValue()));
 
         // Check if our (default) refresh rate has been set.
         auto maxRefreshRate = Mathf::Max(OVRPlugin::get_systemDisplayFrequenciesAvailable());

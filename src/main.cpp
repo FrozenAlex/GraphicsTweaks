@@ -1,36 +1,20 @@
 #include "main.hpp"
 #include "BeatSaber/Settings/QualitySettings.hpp"
 #include "BeatSaber/Settings/QuestSettings.hpp"
-#include "FPSCounter.hpp"
-#include "GlobalNamespace/AlwaysVisibleQuad.hpp"
-#include "GlobalNamespace/BloomPrePass.hpp"
-#include "GlobalNamespace/BloomPrePassEffectContainerSO.hpp"
-#include "GlobalNamespace/BloomPrePassEffectSO.hpp"
-#include "GlobalNamespace/BoolSO.hpp"
 #include "GlobalNamespace/ConditionalActivation.hpp"
 #include "GlobalNamespace/ConditionalMaterialSwitcher.hpp"
 #include "GlobalNamespace/DepthTextureController.hpp"
 #include "GlobalNamespace/FPSCounter.hpp"
 #include "GlobalNamespace/FPSCounterUIController.hpp"
 #include "GlobalNamespace/FakeMirrorObjectsInstaller.hpp"
-#include "GlobalNamespace/FakeReflectionDynamicObjectsState.hpp"
 #include "GlobalNamespace/GameplayCoreInstaller.hpp"
-#include "GlobalNamespace/IFileStorage.hpp"
 #include "GlobalNamespace/MainCamera.hpp"
 #include "GlobalNamespace/MainFlowCoordinator.hpp"
 #include "GlobalNamespace/MainSystemInit.hpp"
-#include "GlobalNamespace/MirrorRendererGraphicsSettingsPresets.hpp"
 #include "GlobalNamespace/MirrorRendererSO.hpp"
-#include "GlobalNamespace/MirroredBeatmapObjectManager.hpp"
-#include "GlobalNamespace/MirroredBombNoteController.hpp"
-#include "GlobalNamespace/MirroredGameNoteController.hpp"
-#include "GlobalNamespace/MirroredObstacleController.hpp"
-#include "GlobalNamespace/MirroredSliderController.hpp"
 #include "GlobalNamespace/OVRManager.hpp"
 #include "GlobalNamespace/OVROverlay.hpp"
 #include "GlobalNamespace/OVRPassthroughLayer.hpp"
-#include "GlobalNamespace/OVRPlugin.hpp"
-#include "GlobalNamespace/ObservableVariableSO_1.hpp"
 #include "GlobalNamespace/ObstacleMaterialSetter.hpp"
 #include "GlobalNamespace/PerformanceVisualizer.hpp"
 #include "GlobalNamespace/PyramidBloomMainEffectSO.hpp"
@@ -38,35 +22,32 @@
 #include "GlobalNamespace/SaberBurnMarkArea.hpp"
 #include "GlobalNamespace/SettingsApplicatorSO.hpp"
 #include "GlobalNamespace/ShockwaveEffect.hpp"
-#include "GlobalNamespace/VRRenderingParamsSetup.hpp"
 #include "UI/GraphicsTweaksFlowCoordinator.hpp"
 #include "Unity/XR/Oculus/OculusLoader.hpp"
 #include "UnityEngine/Camera.hpp"
-#include "UnityEngine/CameraClearFlags.hpp"
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/Object.hpp"
-#include "UnityEngine/ParticleSystem.hpp"
 #include "UnityEngine/QualitySettings.hpp"
-#include "UnityEngine/RenderTexture.hpp"
-#include "UnityEngine/RenderTextureFormat.hpp"
-#include "UnityEngine/RenderTextureReadWrite.hpp"
 #include "UnityEngine/Renderer.hpp"
 #include "UnityEngine/Rendering/CommandBuffer.hpp"
 #include "UnityEngine/Resources.hpp"
-#include "UnityEngine/ScriptableObject.hpp"
 #include "UnityEngine/Time.hpp"
-#include "UnityEngine/VRTextureUsage.hpp"
-#include "UnityEngine/XR/XRSettings.hpp"
 #include "Zenject/DiContainer.hpp"
-#include "Zenject/FromBinderGeneric_1.hpp"
-#include "Zenject/ScopeConcreteIdArgConditionCopyNonLazyBinder.hpp"
 #include "_config.hpp"
 #include "bsml/shared/BSML.hpp"
 #include "bsml/shared/BSML/MainThreadScheduler.hpp"
-#include "bsml/shared/BSML/SharedCoroutineStarter.hpp"
 #include "logging.hpp"
 #include <algorithm>
 #include <cstddef>
+#include "beatsaber-hook/shared/utils/il2cpp-functions.hpp"
+#include "beatsaber-hook/shared/utils/hooking.hpp"
+#include "GlobalNamespace/MainSystemInit.hpp"
+#include "GlobalNamespace/SettingsManager.hpp"
+#include "GlobalNamespace/MirrorRendererSO.hpp"
+
+#include "GlobalNamespace/SettingsApplicatorSO.hpp"
+#include "BeatSaber/Settings/QualitySettings.hpp"
+#include "GraphicsTweaksConfig.hpp"
 
 #include "UnityEngine/Graphics.hpp"
 
@@ -290,6 +271,10 @@ MAKE_HOOK_MATCH(SaberBurnmarkArea_Start,
   DEBUG("SaberBurnmarkArea_Start");
   SaberBurnmarkArea_Start(self);
 
+  // Prevent processing if burnmarks are disabled
+  bool isEnabled = getGraphicsTweaksConfig().Burnmarks.GetValue();
+  if (!isEnabled) {return;}
+
   // Print some debug info
   DEBUG("IsRendererEnabled: {}", self->_renderer->get_enabled());
 
@@ -392,6 +377,10 @@ MAKE_HOOK_MATCH(SaberBurnmarkArea_LateUpdate,
 
   //   DEBUG("SaberBurnmarkArea_LateUpdate");
   SaberBurnmarkArea_LateUpdate(self);
+
+  // Prevent processing if burnmarks are disabled
+  bool isEnabled = getGraphicsTweaksConfig().Burnmarks.GetValue();
+  if (!isEnabled) {return;}
 
   // This for some reason does not run on quest
   if (self->_camera) {
@@ -590,8 +579,8 @@ GT_EXPORT_FUNC void load() {
   // Burnmark hooks
   INSTALL_HOOK(Logger, SaberBurnmarkArea_Start);
   INSTALL_HOOK(Logger, SaberBurnmarkArea_OnDestroy);
-  INSTALL_HOOK(Logger, SaberBurnmarkArea_OnEnable);
-  INSTALL_HOOK(Logger, SaberBurnmarkArea_OnDisable);
+  // INSTALL_HOOK(Logger, SaberBurnmarkArea_OnEnable);
+  // INSTALL_HOOK(Logger, SaberBurnmarkArea_OnDisable);
   INSTALL_HOOK(Logger, SaberBurnmarkArea_LateUpdate);
 
   GraphicsTweaks::Hooks::VRRenderingParamsSetup();

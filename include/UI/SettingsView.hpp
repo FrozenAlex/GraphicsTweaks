@@ -32,14 +32,13 @@ DECLARE_CLASS_CODEGEN(GraphicsTweaks::UI, SettingsView, HMUI::ViewController) {
     DECLARE_INSTANCE_FIELD(ListW<StringW>, systemDisplayFrequenciesAvailableLabels);
 
     // UI Elements
-    DECLARE_INSTANCE_FIELD(UnityW<BSML::IncrementSetting>, minGpuLevelElement);
-    DECLARE_INSTANCE_FIELD(UnityW<BSML::IncrementSetting>, minCpuLevelElement);
     DECLARE_INSTANCE_FIELD(UnityW<BSML::IncrementSetting>, shockwaveParticlesCountElement);
     DECLARE_INSTANCE_FIELD(UnityW<BSML::IncrementSetting>, resolutionLevelElementGame);
     DECLARE_INSTANCE_FIELD(UnityW<BSML::IncrementSetting>, resolutionLevelElementMenu);
 
     // Field values
     BSML_OPTIONS_LIST_OBJECT(foveationLevelOptions, "Off", "Low", "Medium", "High", "HighTop");
+    BSML_OPTIONS_LIST_OBJECT(perfLevelOptions, "PowerSavings", "SutainedLow", "SustainedHigh");
     BSML_OPTIONS_LIST_OBJECT(mirrorOptions, "Off", "Low", "Medium", "High");
     BSML_OPTIONS_LIST_OBJECT(antiAliasingOptions, "Off", "2x", "4x");
     BSML_OPTIONS_LIST_OBJECT(bloomQualityOptions, "Off", "On");
@@ -78,8 +77,8 @@ DECLARE_CLASS_CODEGEN(GraphicsTweaks::UI, SettingsView, HMUI::ViewController) {
     // DECLARE_BSML_PROPERTY(bool, dynamicResolutionValue);
 
     // Levels
-    DECLARE_BSML_PROPERTY(float, gpuLevelValue);
-    DECLARE_BSML_PROPERTY(float, cpuLevelValue);
+    DECLARE_BSML_PROPERTY(StringW, gpuPerfLevelValue);
+    DECLARE_BSML_PROPERTY(StringW, cpuPerfLevelValue);
 
     // Color space
     DECLARE_BSML_PROPERTY(StringW, colorSpaceValue);

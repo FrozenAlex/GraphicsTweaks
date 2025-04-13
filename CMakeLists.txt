@@ -15,6 +15,7 @@ set(MOD_ID "graphicstweaks")
 
 cmake_minimum_required(VERSION 3.21)
 project(${COMPILE_ID})
+set(ANDROID_PLATFORM 29)
 include(${EXTERN_DIR}/includes/kaleb/shared/cmake/assets.cmake)
 
 # export compile commands for significantly better intellisense

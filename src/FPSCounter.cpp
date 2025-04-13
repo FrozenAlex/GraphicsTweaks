@@ -1,13 +1,10 @@
 #include "FPSCounter.hpp"
-#include "main.hpp"
 #include "logging.hpp"
 #include <string_view>
 
 #include "UnityEngine/AssetBundleCreateRequest.hpp"
 #include "UnityEngine/AssetBundleRequest.hpp"
-#include "UnityEngine/WaitForSeconds.hpp"
-#include "UnityEngine/Canvas.hpp"
-#include "HMUI/CurvedCanvasSettings.hpp"
+#include "GraphicsTweaksConfig.hpp"
 
 #include "assets.hpp"
 

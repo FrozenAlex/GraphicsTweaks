@@ -86,16 +86,11 @@ void GraphicsTweaks::UI::SettingsView::PostParse() {
         imageView->set_color(UnityEngine::Color(0.8f, 0.67f, 1.0f, 0.4f));
     }
 
-    // Apply formatter to minGpuLevelElement
-    if (minGpuLevelElement) minGpuLevelElement->formatter = &GraphicsTweaks::Formatters::FormatIncrementAsIntegers;
-    if (minCpuLevelElement) minCpuLevelElement->formatter = &GraphicsTweaks::Formatters::FormatIncrementAsIntegers;
     if (shockwaveParticlesCountElement) shockwaveParticlesCountElement->formatter = &GraphicsTweaks::Formatters::FormatIncrementAsIntegers;
     if (resolutionLevelElementGame) resolutionLevelElementGame->formatter = &GraphicsTweaks::Formatters::FormatTextureResolution;
     if (resolutionLevelElementMenu) resolutionLevelElementMenu->formatter = &GraphicsTweaks::Formatters::FormatTextureResolution;
     
     // Refresh all values to run formatters
-    Formatters::FormatSetting(minGpuLevelElement);
-    Formatters::FormatSetting(minCpuLevelElement);
     Formatters::FormatSetting(shockwaveParticlesCountElement);
     Formatters::FormatSetting(resolutionLevelElementGame);
     Formatters::FormatSetting(resolutionLevelElementMenu);
@@ -423,26 +418,46 @@ void GraphicsTweaks::UI::SettingsView::set_burnMarksValue(bool value) {
     GraphicsTweaks::VRRenderingParamsSetup::Reload();
 }
 
-// gpuLevelValue
-float GraphicsTweaks::UI::SettingsView::get_gpuLevelValue() {
-    DEBUG("Getting GPU Level {}", getGraphicsTweaksConfig().GpuLevel.GetValue());
-    return getGraphicsTweaksConfig().GpuLevel.GetValue();
+StringW GraphicsTweaks::UI::SettingsView::get_gpuPerfLevelValue() {
+    if (getGraphicsTweaksConfig().GpuPerfLevel.GetValue() == 0) {
+        return "PowerSavings";
+    } else if (getGraphicsTweaksConfig().GpuPerfLevel.GetValue() == 1) {
+        return "SutainedLow";
+    } else if (getGraphicsTweaksConfig().GpuPerfLevel.GetValue() == 2) {
+        return "SustainedHigh";
+    }
+    return "SustainedHigh";
 }
-void GraphicsTweaks::UI::SettingsView::set_gpuLevelValue(float value) {
-    DEBUG("Setting GPU Level {}", value);
-    getGraphicsTweaksConfig().GpuLevel.SetValue(static_cast<int>(value), instantlySave);
+void GraphicsTweaks::UI::SettingsView::set_gpuPerfLevelValue(StringW value) {
+    if(value == "PowerSavings") {
+        getGraphicsTweaksConfig().GpuPerfLevel.SetValue(0, instantlySave);
+    } else if(value == "SutainedLow") {
+        getGraphicsTweaksConfig().GpuPerfLevel.SetValue(1, instantlySave);
+    } else if(value == "SustainedHigh") {
+        getGraphicsTweaksConfig().GpuPerfLevel.SetValue(2, instantlySave);
+    }
     GraphicsTweaks::VRRenderingParamsSetup::Reload();
 }
 
-// cpuLevelValue
-float GraphicsTweaks::UI::SettingsView::get_cpuLevelValue() {
-    DEBUG("Getting CPU Level {}", getGraphicsTweaksConfig().CpuLevel.GetValue());
-    
-    return getGraphicsTweaksConfig().CpuLevel.GetValue();
+// cpuPerfLevelValue
+StringW GraphicsTweaks::UI::SettingsView::get_cpuPerfLevelValue() {
+    if (getGraphicsTweaksConfig().CpuPerfLevel.GetValue() == 0) {
+        return "PowerSavings";
+    } else if (getGraphicsTweaksConfig().CpuPerfLevel.GetValue() == 1) {
+        return "SutainedLow";
+    } else if (getGraphicsTweaksConfig().CpuPerfLevel.GetValue() == 2) {
+        return "SustainedHigh";
+    }
+    return "SustainedHigh";
 }
-void GraphicsTweaks::UI::SettingsView::set_cpuLevelValue(float value) {
-    DEBUG("Setting CPU Level {}", value);
-    getGraphicsTweaksConfig().CpuLevel.SetValue(static_cast<int>(value), instantlySave);
+void GraphicsTweaks::UI::SettingsView::set_cpuPerfLevelValue(StringW value) {
+    if(value == "PowerSavings") {
+        getGraphicsTweaksConfig().CpuPerfLevel.SetValue(0, instantlySave);
+    } else if(value == "SutainedLow") {
+        getGraphicsTweaksConfig().CpuPerfLevel.SetValue(1, instantlySave);
+    } else if(value == "SustainedHigh") {
+        getGraphicsTweaksConfig().CpuPerfLevel.SetValue(2, instantlySave);
+    }
     GraphicsTweaks::VRRenderingParamsSetup::Reload();
 }
 

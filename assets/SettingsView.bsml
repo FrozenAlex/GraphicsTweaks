@@ -53,9 +53,8 @@
 
 			<vertical child-control-height='false' bg='panel-top' pad='2' pad-bottom='1' pad-top='1' preferred-width='64'>
 				<text text='&lt;color=#fe7da6ff>Performance&lt;color=#e6eaffff> levels' align='Center' bold='true' font-size='3.5' size-delta-y='5'/>
-				<increment-setting id="minGpuLevelElement" text='Min. GPU Level' bind-value="true"  apply-on-change="true" value="gpuLevelValue" min="1" increment="1.0" max="4" on-change="UpdateGraphicsSettings" />
-				<increment-setting id="minCpuLevelElement" text='Min. CPU Level' bind-value="true" apply-on-change="true" value="cpuLevelValue" min="1" increment="1.0" max="4"  on-change="UpdateGraphicsSettings" />
-				<!-- <bool-setting text='Dynamic resolution' value="dynamicResolutionValue"  bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" hover-hint="Decreases resolution in heavy scenes to mantain fps" /> -->
+				<list-setting text='GPU Perf Level' bind-value="true" apply-on-change="true" value="gpuPerfLevelValue" on-change="UpdateGraphicsSettings" choices="perfLevelOptions" />
+				<list-setting text='CPU Perf Level' bind-value="true" apply-on-change="true" value="cpuPerfLevelValue" on-change="UpdateGraphicsSettings" choices="perfLevelOptions" />
 			</vertical>
 
 			<horizontal

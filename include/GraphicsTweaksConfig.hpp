@@ -22,8 +22,8 @@ DECLARE_CONFIG(GraphicsTweaksConfig) {
     CONFIG_VALUE(MenuFoveatedRenderingLevel, int, "MenuFoveatedRenderingLevel", 0);
     CONFIG_VALUE(InGameFoveatedRenderingLevel, int, "InGameFoveatedRenderingLevel", 4);
     CONFIG_VALUE(ColorSpace, int, "ColorSpace", 4);
-    CONFIG_VALUE(CpuLevel, int, "CpuLevel", 2);
-    CONFIG_VALUE(GpuLevel, int, "GpuLevel", 4);
+    CONFIG_VALUE(CpuPerfLevel, int, "CpuPerfLevel", 1); // 0 = Low, 1 = SustainedLow, 2 = SustainedHigh
+    CONFIG_VALUE(GpuPerfLevel, int, "GpuPerfLevel", 2); // 0 = Low, 1 = SustainedLow, 2 = SustainedHigh
     CONFIG_VALUE(Burnmarks, bool, "Burnmarks", true);
     CONFIG_VALUE(MenuShockwaves, bool, "MenuShockwaves", true);
     CONFIG_VALUE(GameShockwaves, bool, "GameShockwaves", true);
