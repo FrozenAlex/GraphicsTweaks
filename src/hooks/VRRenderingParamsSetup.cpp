@@ -58,10 +58,6 @@ void GraphicsTweaks::VRRenderingParamsSetup::Reload(std::optional<float> vrResol
     }
 
     GlobalNamespace::SceneType sceneType = vrRenderingParamsSetup->____sceneType;
-    // Quest 1 is really bad at switching stuff depending on the scene type, forcing it to be in-game
-    if (GraphicsTweaks::isQuest1) {
-        sceneType = GlobalNamespace::SceneType::Game;
-    }
 
     // Set resolution scale based on scene type.
     auto resolutionMultiplier = sceneType == GlobalNamespace::SceneType::Game ? getGraphicsTweaksConfig().GameResolution.GetValue() : getGraphicsTweaksConfig().MenuResolution.GetValue();
@@ -116,10 +112,6 @@ void GraphicsTweaks::VRRenderingParamsSetup::Reload(std::optional<float> vrResol
     // Next frame is needed because the game sets the resolution scale after this function is called too.
     BSML::MainThreadScheduler::ScheduleNextFrame([]() {
         GlobalNamespace::SceneType sceneType = vrRenderingParamsSetup->____sceneType;
-        // Quest 1 is really bad at switching stuff depending on the scene type, forcing it to be in-game
-        if (GraphicsTweaks::isQuest1) {
-            sceneType = GlobalNamespace::SceneType::Game;
-        }
 
         // Fixed foveated rendering
         if (OVRManager::get_fixedFoveatedRenderingSupported()) {

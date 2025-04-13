@@ -8,6 +8,7 @@
 #include "bsml/shared/BSML/Components/Settings/StringSetting.hpp"
 #include "bsml/shared/BSML/ViewControllers/HotReloadViewController.hpp"
 #include "bsml/shared/BSML/Components/ClickableText.hpp"
+#include "bsml/shared/BSML/Components/Settings/ToggleSetting.hpp"
 #include "UnityEngine/UI/HorizontalLayoutGroup.hpp"
 #include "HMUI/ViewController.hpp"
 #include "custom-types/shared/coroutine.hpp"
@@ -31,6 +32,7 @@ DECLARE_CLASS_CODEGEN(GraphicsTweaks::UI, SettingsView, HMUI::ViewController) {
 
     DECLARE_INSTANCE_FIELD(ListW<float>, systemDisplayFrequenciesAvailableValues);
     DECLARE_INSTANCE_FIELD(ListW<StringW>, systemDisplayFrequenciesAvailableLabels);
+    DECLARE_INSTANCE_FIELD(ListW<StringW>, wallQualityOptionsLabels);
 
     // UI Elements
     DECLARE_INSTANCE_FIELD(UnityW<BSML::IncrementSetting>, shockwaveParticlesCountElement);
@@ -38,6 +40,8 @@ DECLARE_CLASS_CODEGEN(GraphicsTweaks::UI, SettingsView, HMUI::ViewController) {
     DECLARE_INSTANCE_FIELD(UnityW<BSML::IncrementSetting>, resolutionLevelElementMenu);
     DECLARE_INSTANCE_FIELD(UnityW<BSML::TabSelector>, perfTabSelector);
     DECLARE_INSTANCE_FIELD(UnityW<HMUI::CurvedTextMeshPro>, perfTabSelectorTitle);
+    DECLARE_INSTANCE_FIELD(UnityW<BSML::ToggleSetting>, menuShockwavesElement);
+    DECLARE_INSTANCE_FIELD(UnityW<BSML::ToggleSetting>, gameShockwavesElement);
 
     // Field values
     BSML_OPTIONS_LIST_OBJECT(foveationLevelOptions, "Off", "Low", "Medium", "High", "HighTop");
@@ -47,7 +51,6 @@ DECLARE_CLASS_CODEGEN(GraphicsTweaks::UI, SettingsView, HMUI::ViewController) {
     BSML_OPTIONS_LIST_OBJECT(bloomQualityOptions, "Off", "On");
     BSML_OPTIONS_LIST_OBJECT(smokeQualityOptions, "Off", "Low", "High");
     BSML_OPTIONS_LIST_OBJECT(booleanOptions, "Off", "On");
-    BSML_OPTIONS_LIST_OBJECT(wallQualityOptions, "Transparent", "Textured", "Distorted");
     BSML_OPTIONS_LIST_OBJECT(colorSpaceOptions, "Unknown", "Unmanaged", "Rec_2020", "Rec_709", "Rift_CV1", "Rift_S", "Quest", "P3", "Adobe_RGB" );
 
     // Fields

@@ -54,6 +54,16 @@ void GraphicsTweaks::UI::SettingsView::DidActivate(bool firstActivation, bool ad
         systemDisplayFrequenciesAvailableLabels->Add(fmt::format("{}", item));
     }
 
+    wallQualityOptionsLabels = ListW<StringW>::New();
+    if (!isQuest1) {
+        wallQualityOptionsLabels->Add("Transparent");
+        wallQualityOptionsLabels->Add("Textured");
+        wallQualityOptionsLabels->Add("Distorted");
+    } else {
+        wallQualityOptionsLabels->Add("Transparent");
+        wallQualityOptionsLabels->Add("Textured");
+    }
+
     BSML::parse_and_construct(Assets::SettingsView_bsml, this->get_transform(), this);
 
     #ifdef HotReload
@@ -99,10 +109,16 @@ void GraphicsTweaks::UI::SettingsView::PostParse() {
 
     // Quest 1 handles the resolution change badly so we hide the split ui
     if (isQuest1) {
-        perfTabSelector->TabSelected(perfTabSelector->textSegmentedControl, 1); // Select the second tab
-        perfTabSelector->get_gameObject()->SetActive(false); // Hide the tab selector
-        perfTabSelectorTitle->set_text("<color=#ffffff>Settings");
+        // Quest 1 does not support the things
+        shockwaveParticlesCountElement->get_gameObject()->SetActive(false);
+        if (menuShockwavesElement) menuShockwavesElement->get_gameObject()->SetActive(false);
+        if (gameShockwavesElement) gameShockwavesElement->get_gameObject()->SetActive(false);
+        
+        // perfTabSelector->TabSelected(perfTabSelector->textSegmentedControl, 1); // Select the second tab
+        // perfTabSelector->get_gameObject()->SetActive(false); // Hide the tab selector
+        // perfTabSelectorTitle->set_text("<color=#ffffff>Settings");
     }
+    
 }
 
 void GraphicsTweaks::UI::SettingsView::UpdateGraphicsSettings() {

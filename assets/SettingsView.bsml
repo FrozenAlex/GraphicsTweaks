@@ -16,7 +16,7 @@
 				<list-setting id="mirrorsSetting" text='Mirrors' options="mirrorOptions" value="mirrorValue" bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
 				<list-setting id="smokeSetting" text='Smoke' options="smokeQualityOptions" value="smokeQualityValue" bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
 				<list-setting id="antiAliasingSetting" text='Anti-Aliasing' options="antiAliasingOptions" value="antiAliasingValue" bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
-				<list-setting id="wallsSetting" text='Walls' options="wallQualityOptions" value="wallQualityValue" bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
+				<list-setting id="wallsSetting" text='Walls' options="wallQualityOptionsLabels" value="wallQualityValue" bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
 				<increment-setting id="shockwaveParticlesCountElement" text='Shockwave particles' value="shockwaveParticlesValue" bind-value="true" apply-on-change="true" increment="1" min="0" max="3" hover-hint="Max Shockwave Particles &lt;br> (distortions on impact)" on-change="UpdateGraphicsSettings" />
 				<bool-setting id="burnMarksSetting" text='Burn marks' value="burnMarksValue"  bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" hover-hint="Allows you to see cuts in the platform you stand on" />
 				<bool-setting text='FPS Counter' value="FPSCounterValue"  bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" hover-hint="Minimal FPS counter pinned next to the standing platform" />
@@ -38,7 +38,7 @@
 						<increment-setting id="resolutionLevelElementMenu" text='Resolution' min="0.2" max="2" increment="0.1" value="resolutionLevelValueMenu"  bind-value="true" apply-on-change="true"  on-change="UpdateGraphicsSettings" hover-hint="Value in parentheses is an imprecise approximation of your actual resolution" />
 						<list-setting text='Target FPS' choices="systemDisplayFrequenciesAvailableLabels" value="targetFPSValueMenu" bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" />
 						<list-setting value="foveationLevelValueMenu" bind-value="true" apply-on-change="true" text='Foveation' hover-hint="Foveated Rendering decreases visual clarity in peripheral vision to increase performance" choices="foveationLevelOptions" on-change="UpdateGraphicsSettings" />
-						<bool-setting text='Menu Shockwaves' value="menuScreenDistortionValue"  bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" hover-hint="If it was off, it needs a game restart to apply" />
+						<bool-setting id="menuShockwavesElement" text='Menu Shockwaves' value="menuScreenDistortionValue"  bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" hover-hint="If it was off, it needs a game restart to apply" />
 					</vertical>
 				</tab>	
 				<tab tags="main" tab-name="game" size-delta-y="31">
@@ -46,7 +46,7 @@
 						<increment-setting id="resolutionLevelElementGame" text='Resolution' min="0.2" max="2" increment="0.1" value="resolutionLevelValueGame"  bind-value="true" apply-on-change="true"  on-change="UpdateGraphicsSettings" hover-hint="Value in parentheses is an imprecise approximation of your actual resolution" />
 						<list-setting value="targetFPSValueGame" bind-value="true" apply-on-change="true" text='Target FPS' choices="systemDisplayFrequenciesAvailableLabels" on-change="UpdateGraphicsSettings" />
 						<list-setting text='Foveation' value="foveationLevelValueGame" bind-value="true" apply-on-change="true" hover-hint="Foveated Rendering decreases visual clarity in peripheral vision to increase performance" choices="foveationLevelOptions" on-change="UpdateGraphicsSettings" />
-						<bool-setting text='Game Shockwaves' value="gameScreenDistortionValue"  bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" hover-hint="If it was off, it needs a game restart to apply" />
+						<bool-setting id="gameShockwavesElement" text='Game Shockwaves' value="gameScreenDistortionValue"  bind-value="true" apply-on-change="true" on-change="UpdateGraphicsSettings" hover-hint="If it was off, it needs a game restart to apply" />
 					</vertical>
 				</tab>
 			</vertical>
