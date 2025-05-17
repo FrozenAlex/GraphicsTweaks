@@ -1,6 +1,6 @@
 # GraphicsTweaks
-
-Mod to unlock pc graphics settings on quest beat saber
+![GitHub Downloads (specific asset, latest release)](https://img.shields.io/github/downloads/FrozenAlex/GraphicsTweaks/latest/GraphicsTweaks.qmod)
+![GitHub Downloads (specific asset, all releases)](https://img.shields.io/github/downloads/FrozenAlex/GraphicsTweaks/GraphicsTweaks.qmod)
 
 Use `qpm-rust s build` to build
 Same goes for `qpm-rust s copy` and `qpm-rust s qmod`
