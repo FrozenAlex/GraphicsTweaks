@@ -97,6 +97,11 @@
       "id": "sombrero",
       "versionRange": "^0.1.43",
       "additionalData": {}
+    },
+    {
+      "id": "conditional-dependencies",
+      "versionRange": "^0.3.0",
+      "additionalData": {}
     }
   ]
 }

@@ -51,6 +51,7 @@
 
 #include "UnityEngine/Graphics.hpp"
 #include "PlatformDetector.hpp"
+#include "Utils.hpp"
 
 inline modloader::ModInfo modInfo = {
     MOD_ID, VERSION, GIT_COMMIT}; // Stores the ID and version of our mod, and
@@ -533,6 +534,13 @@ MAKE_HOOK_MATCH(GameplayCoreInstaller_InstallBindings,
   using namespace UnityEngine;
 
   GameplayCoreInstaller_InstallBindings(self);
+
+  bool isInRender = GraphicsTweaks::IsInRender();
+
+  if (isInRender) {
+    DEBUG("In render, skipping FPS counter installation");
+    return;
+  }
 
   if (getGraphicsTweaksConfig().FpsCounter.GetValue()) {
     UnityW<FPSCounterUIController> fpsCounterUIController = Object::Instantiate(
