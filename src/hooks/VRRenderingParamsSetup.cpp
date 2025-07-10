@@ -14,6 +14,7 @@
 #include "UnityEngine/QualitySettings.hpp"
 #include "beatsaber-hook/shared/utils/hooking.hpp"
 #include "PlatformDetector.hpp"
+#include "Utils.hpp"
 using namespace GlobalNamespace;
 
 SafePtrUnity<GlobalNamespace::VRRenderingParamsSetup> vrRenderingParamsSetup;
@@ -48,6 +49,11 @@ void GraphicsTweaks::VRRenderingParamsSetup::Reload(std::optional<float> vrResol
     using namespace GlobalNamespace;
     using namespace UnityEngine;
     using namespace UnityEngine::XR;
+
+    if (GraphicsTweaks::IsInRender()) {
+        INFO("Skipping VRRenderingParamsSetup::Reload because we are in render state.");
+        return;
+    }
 
     // Set defaults for resolution scale.
     if (getGraphicsTweaksConfig().MenuResolution.GetValue() == 0) {

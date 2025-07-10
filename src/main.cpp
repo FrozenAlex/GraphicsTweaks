@@ -89,6 +89,11 @@ void GraphicsTweaks::PerformancePreset::ApplySettings() {
     return;
   }
 
+  if (GraphicsTweaks::IsInRender()) {
+    INFO("Skipping ApplySettings because we are in render state.");
+    return;
+  }
+
   auto preset = GraphicsTweaks::PerformancePreset::GetCustomPreset();
   if (!GraphicsTweaks::PerformancePreset::settingsApplicatorSO) {
     return ERROR("Failed to get settingsApplicatorSO!");
@@ -233,6 +238,12 @@ MAKE_HOOK_MATCH(SettingsApplicatorSO_ApplyGraphicSettings,
   INFO("SettingsApplicatorSO_ApplyGraphicSettings hook called!");
   SettingsApplicatorSO_ApplyGraphicSettings(self, settings, sceneType);
 
+  if (GraphicsTweaks::IsInRender()) {
+    INFO("Skipping SettingsApplicatorSO_ApplyGraphicSettings because we are in render state.");
+    return;
+  }
+
+
   bool distortionsUsed =
       getGraphicsTweaksConfig().WallQuality.GetValue() == 2 ||
       getGraphicsTweaksConfig().MenuShockwaves.GetValue() ||
@@ -250,117 +261,33 @@ MAKE_HOOK_MATCH(SettingsApplicatorSO_ApplyGraphicSettings,
 MAKE_HOOK_MATCH(ConditionalActivation_Awake,
                 &GlobalNamespace::ConditionalActivation::Awake, void,
                 GlobalNamespace::ConditionalActivation *self) {
-  auto name = self->get_gameObject()->get_name();
-  // DEBUG("ConditionalActivation_Awake hook called! {}",
-  //       self->get_gameObject()->get_name());
+  auto gameObject = self->get_gameObject();
+  std::string name = gameObject->get_name();
 
+  // Keep turning on saber burn marks area even if the game is in render state
+  if (name == "SaberBurnMarksArea") {
+    gameObject->SetActive(
+        getGraphicsTweaksConfig().Burnmarks.GetValue());
+  }
+
+  if (GraphicsTweaks::IsInRender()) {
+    INFO("Skipping ConditionalActivation_Awake because we are in render state.");
+    return;
+  }
   // Disable fake glow
   if ((name == "FakeGlow0" || name == "FakeGlow1" ||
        name == "ObstacleFakeGlow")) {
-    self->get_gameObject()->SetActive(
+    gameObject->SetActive(
         !getGraphicsTweaksConfig().Bloom.GetValue());
   }
 
   if (name == "BigSmokePS") {
-    self->get_gameObject()->SetActive(
+    gameObject->SetActive(
         getGraphicsTweaksConfig().SmokeQuality.GetValue() > 0);
-  }
-
-  if (name == "SaberBurnMarksArea") {
-    self->get_gameObject()->SetActive(
-        getGraphicsTweaksConfig().Burnmarks.GetValue());
   }
 }
 
 // BURNMARK STUFF ////
-
-MAKE_HOOK_MATCH(SaberBurnmarkArea_Start,
-                &GlobalNamespace::SaberBurnMarkArea::Start, void,
-                GlobalNamespace::SaberBurnMarkArea *self) {
-  DEBUG("SaberBurnmarkArea_Start");
-  SaberBurnmarkArea_Start(self);
-
-  // Prevent processing if burnmarks are disabled
-  bool isEnabled = getGraphicsTweaksConfig().Burnmarks.GetValue();
-  if (!isEnabled) {return;}
-
-  // Print some debug info
-  DEBUG("IsRendererEnabled: {}", self->_renderer->get_enabled());
-
-  if (self->_lineRenderers && self->_camera) {
-    DEBUG("Line renderers count: {}", self->_lineRenderers.size());
-    DEBUG("Line renderer 1 enabled: {}",
-          self->_lineRenderers[0]->get_enabled());
-    DEBUG("Line renderer 2 enabled: {}",
-          self->_lineRenderers[1]->get_enabled());
-    DEBUG("Camera enabled: {}", self->_camera->get_enabled());
-  } else {
-    DEBUG("No line renderers");
-  }
-  DEBUG("SaberBurnmarkArea_Start_end");
-};
-
-MAKE_HOOK_MATCH(SaberBurnmarkArea_OnDestroy,
-                &GlobalNamespace::SaberBurnMarkArea::OnDestroy, void,
-                GlobalNamespace::SaberBurnMarkArea *self) {
-  DEBUG("SaberBurnmarkArea_OnDestroy");
-  SaberBurnmarkArea_OnDestroy(self);
-};
-
-MAKE_HOOK_MATCH(SaberBurnmarkArea_OnEnable,
-                &GlobalNamespace::SaberBurnMarkArea::OnEnable, void,
-                GlobalNamespace::SaberBurnMarkArea *self) {
-  DEBUG("SaberBurnmarkArea_OnEnable");
-
-  if (self->_lineRenderers) {
-    DEBUG("Line renderers count: {}", self->_lineRenderers.size());
-    DEBUG("Line renderer 1 enabled: {}",
-          self->_lineRenderers[0]->get_enabled());
-    DEBUG("Line renderer 2 enabled: {}",
-          self->_lineRenderers[1]->get_enabled());
-  } else {
-    DEBUG("No line renderers");
-  }
-
-  SaberBurnmarkArea_OnEnable(self);
-
-  if (self->_lineRenderers) {
-    DEBUG("Line renderers count: {}", self->_lineRenderers.size());
-    DEBUG("Line renderer 1 enabled: {}",
-          self->_lineRenderers[0]->get_enabled());
-    DEBUG("Line renderer 2 enabled: {}",
-          self->_lineRenderers[1]->get_enabled());
-  } else {
-    DEBUG("No line renderers");
-  }
-};
-
-MAKE_HOOK_MATCH(SaberBurnmarkArea_OnDisable,
-                &GlobalNamespace::SaberBurnMarkArea::OnDisable, void,
-                GlobalNamespace::SaberBurnMarkArea *self) {
-  DEBUG("SaberBurnmarkArea_OnDisable");
-  if (self->_lineRenderers) {
-    DEBUG("Line renderers count: {}", self->_lineRenderers.size());
-    DEBUG("Line renderer 1 enabled: {}",
-          self->_lineRenderers[0]->get_enabled());
-    DEBUG("Line renderer 2 enabled: {}",
-          self->_lineRenderers[1]->get_enabled());
-  } else {
-    DEBUG("No line renderers");
-  }
-  SaberBurnmarkArea_OnDisable(self);
-  if (self->_lineRenderers) {
-    DEBUG("Line renderers count: {}", self->_lineRenderers.size());
-    DEBUG("Line renderer 1 enabled: {}",
-          self->_lineRenderers[0]->get_enabled());
-    DEBUG("Line renderer 2 enabled: {}",
-          self->_lineRenderers[1]->get_enabled());
-  } else {
-    DEBUG("No line renderers");
-  }
-  DEBUG("SaberBurnmarkArea_OnDisableEnd");
-};
-
 MAKE_HOOK_MATCH(SaberBurnmarkArea_LateUpdate,
                 &GlobalNamespace::SaberBurnMarkArea::LateUpdate, void,
                 GlobalNamespace::SaberBurnMarkArea *self) {
@@ -368,21 +295,6 @@ MAKE_HOOK_MATCH(SaberBurnmarkArea_LateUpdate,
   if (!self->_sabers || self->_sabers.size() == 0) {
     return;
   }
-
-  // Debugging stuff
-  // bool prevValue1 = false;
-  // bool prevValue2 = false;
-  // bool prevCameraEnabled = false;
-
-  // if (self->_lineRenderers && self->_camera) {
-  //   auto liner1 = self->_lineRenderers[0];
-  //   auto liner2 = self->_lineRenderers[1];
-  //   auto camera = self->_camera;
-
-  //   prevValue1 = liner1->get_enabled();
-  //   prevValue2 = liner2->get_enabled();
-  //   prevCameraEnabled = camera->get_enabled();
-  // }
 
   //   DEBUG("SaberBurnmarkArea_LateUpdate");
   SaberBurnmarkArea_LateUpdate(self);
@@ -434,23 +346,6 @@ MAKE_HOOK_MATCH(SaberBurnmarkArea_LateUpdate,
       self->____camera->set_enabled(false);
     }
   }
-
-  // Debugging stuff
-  // if (self->_lineRenderers && self->_camera) {
-  //   auto liner1 = self->_lineRenderers[0];
-  //   auto liner2 = self->_lineRenderers[1];
-
-  //   if (prevValue1 != liner1->get_enabled()) {
-  //     DEBUG("Line1 changed state {} -> {}", prevValue1, liner1->get_enabled());
-  //   }
-  //   if (prevValue2 != liner2->get_enabled()) {
-  //     DEBUG("Line2 changed state {} -> {}", prevValue2, liner2->get_enabled());
-  //   }
-  //   if (prevCameraEnabled != self->_camera->get_enabled()) {
-  //     DEBUG("Camera changed state {} -> {}", prevCameraEnabled,
-  //           self->_camera->get_enabled());
-  //   }
-  // }
 };
 
 //////////////////////
@@ -606,10 +501,6 @@ GT_EXPORT_FUNC void load() {
   // INSTALL_HOOK(Logger, PyramidBloomRendererSO_RenderBloom);
 
   // Burnmark hooks
-  INSTALL_HOOK(Logger, SaberBurnmarkArea_Start);
-  INSTALL_HOOK(Logger, SaberBurnmarkArea_OnDestroy);
-  // INSTALL_HOOK(Logger, SaberBurnmarkArea_OnEnable);
-  // INSTALL_HOOK(Logger, SaberBurnmarkArea_OnDisable);
   INSTALL_HOOK(Logger, SaberBurnmarkArea_LateUpdate);
 
   GraphicsTweaks::Hooks::VRRenderingParamsSetup();
