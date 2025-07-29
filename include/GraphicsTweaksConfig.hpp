@@ -22,7 +22,7 @@ DECLARE_CONFIG(GraphicsTweaksConfig) {
     CONFIG_VALUE(ColorSpace, int, "ColorSpace", 6); // 0 = Unknown, 1 = Unmanaged, 2 = Rec_2020, 3 = Rec_709, 4 = Rift_CV1, 5 = Rift_S, 6 = Quest, 7 = P3, 8 = Adobe_RGB
     CONFIG_VALUE(CpuPerfLevel, int, "CpuPerfLevel", 1); // 0 = Low, 1 = SustainedLow, 2 = SustainedHigh
     CONFIG_VALUE(GpuPerfLevel, int, "GpuPerfLevel", 2); // 0 = Low, 1 = SustainedLow, 2 = SustainedHigh
-    CONFIG_VALUE(Burnmarks, bool, "Burnmarks", false);
+    CONFIG_VALUE(Burnmarks, bool, "Burnmarks", true);
     CONFIG_VALUE(MenuShockwaves, bool, "MenuShockwaves", false);
     CONFIG_VALUE(GameShockwaves, bool, "GameShockwaves", false);
     CONFIG_VALUE(UsedGraphicsPresetBefore, bool, "UsedGraphicsPresetBefore", false);
