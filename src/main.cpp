@@ -48,6 +48,7 @@
 #include "GlobalNamespace/SettingsApplicatorSO.hpp"
 #include "BeatSaber/Settings/QualitySettings.hpp"
 #include "GraphicsTweaksConfig.hpp"
+#include "FPSCounter.hpp"
 
 #include "UnityEngine/Graphics.hpp"
 #include "PlatformDetector.hpp"
@@ -434,6 +435,12 @@ MAKE_HOOK_MATCH(GameplayCoreInstaller_InstallBindings,
 
   if (isInRender) {
     DEBUG("In render, skipping FPS counter installation");
+
+    // Disable the Advanced FPS counter if it's enabled
+    auto counter =  GraphicsTweaks::FPSCounter::counter;
+    if (counter) {
+      counter->SetActive(false);
+    }
     return;
   }
 
@@ -456,12 +463,18 @@ MAKE_HOOK_MATCH(MainFlowCoordinator_DidActivate,
   DEBUG("MainFlowCoordinator_DidActivate");
 
   // Do not load the FPS counter if it's not needed
-  // if (getGraphicsTweaksConfig().FpsCounterAdvanced.GetValue() &&
-  //     !GraphicsTweaks::FPSCounter::counter) {
-  //   // Load the FPS counter
-  //   self->StartCoroutine(custom_types::Helpers::CoroutineHelper::New(
-  //       GraphicsTweaks::FPSCounter::LoadBund()));
-  // }
+  if (getGraphicsTweaksConfig().FpsCounterAdvanced.GetValue() &&
+      !GraphicsTweaks::FPSCounter::counter) {
+    // Load the FPS counter
+    self->StartCoroutine(custom_types::Helpers::CoroutineHelper::New(
+        GraphicsTweaks::FPSCounter::LoadBund()));
+  }
+
+  // If the FPS counter is loaded, set its active state
+  if (GraphicsTweaks::FPSCounter::counter) {
+    GraphicsTweaks::FPSCounter::counter->SetActive(
+        getGraphicsTweaksConfig().FpsCounterAdvanced.GetValue());
+  }
 }
 
 // Called later on in the game loading - a good time to install function hooks
