@@ -23,7 +23,6 @@
 #include "GlobalNamespace/SettingsApplicatorSO.hpp"
 #include "GlobalNamespace/ShockwaveEffect.hpp"
 #include "UI/GraphicsTweaksFlowCoordinator.hpp"
-#include "Unity/XR/Oculus/OculusLoader.hpp"
 #include "UnityEngine/Camera.hpp"
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/Object.hpp"
@@ -74,14 +73,15 @@ GT_EXPORT_FUNC void setup(CModInfo &info) {
 }
 
 // Enable Phase Sync (latency reduction) by default
-MAKE_HOOK_MATCH(OculusLoader_Initialize,
-                &Unity::XR::Oculus::OculusLoader::Initialize, bool,
-                Unity::XR::Oculus::OculusLoader *self) {
-  // INFO("OculusLoader_Initialize hook called!");
-  auto settings = self->GetSettings();
-  settings->___PhaseSync = true;
-  return OculusLoader_Initialize(self);
-}
+// TODO: Fix this hook
+// MAKE_HOOK_MATCH(OculusLoader_Initialize,
+//                 &Unity::XR::Oculus::OculusLoader::Initialize, bool,
+//                 Unity::XR::Oculus::OculusLoader *self) {
+//   // INFO("OculusLoader_Initialize hook called!");
+//   auto settings = self->GetSettings();
+//   settings->___PhaseSync = true;
+//   return OculusLoader_Initialize(self);
+// }
 
 void GraphicsTweaks::PerformancePreset::ApplySettings() {
   bool isMainThread = BSML::MainThreadScheduler::CurrentThreadIsMainThread();
@@ -288,67 +288,6 @@ MAKE_HOOK_MATCH(ConditionalActivation_Awake,
   }
 }
 
-// BURNMARK STUFF ////
-MAKE_HOOK_MATCH(SaberBurnmarkArea_LateUpdate,
-                &GlobalNamespace::SaberBurnMarkArea::LateUpdate, void,
-                GlobalNamespace::SaberBurnMarkArea *self) {
-                  
-  if (!self->_sabers || self->_sabers.size() == 0) {
-    return;
-  }
-
-  //   DEBUG("SaberBurnmarkArea_LateUpdate");
-  SaberBurnmarkArea_LateUpdate(self);
-
-  // Prevent processing if burnmarks are disabled
-  bool isEnabled = getGraphicsTweaksConfig().Burnmarks.GetValue();
-  if (!isEnabled) {return;}
-
-  // This for some reason does not run on quest
-  if (self->_camera) {
-    // DEBUG("Disable blit timer: {}", self->_disableBlitTimer);
-
-    float deltaTime = UnityEngine::Time::get_deltaTime();
-
-    if (self->_disableBlitTimer  < 6.0f) {
-      // self->_disableBlitTimer += deltaTime;
-      self->____burnMarksFadeOutStrength = 0.3f;
-
-      // Render the burnmarks
-      self->_camera->set_targetTexture(self->_renderTextures[1]);
-      self->_renderer->get_sharedMaterial()->set_mainTexture(
-          self->_renderTextures[1]);
-      self->_fadeOutMaterial->set_mainTexture(self->_renderTextures[0]);
-      self->_fadeOutMaterial->SetFloat(
-          self->____fadeOutStrengthShaderPropertyID,
-          std::max(0.0f, 1.0f - (deltaTime *
-                                    self->____burnMarksFadeOutStrength)));
-
-      // 2f seems to work well, needs to be framerate independent though
-      self->_fadeOutMaterial->SetFloat(
-          self->____fadeOutStrengthShaderPropertyID,
-          2.0f);
-
-      // Blit the burnmarks
-      UnityEngine::Graphics::Blit(self->_renderTextures[0],
-                                 self->_renderTextures[1], self->_fadeOutMaterial);
-      // Swap the render textures
-      auto renderTexture = self->_renderTextures[0];
-      self->_renderTextures[0] = self->_renderTextures[1];
-      self->_renderTextures[1] = renderTexture;
-    }
-
-    // Enable the camera if the line renderers are enabled (sabers are touching the platform)
-    if (self->_lineRenderers[0]->get_enabled() ||
-        self->_lineRenderers[1]->get_enabled()) {
-      self->____camera->set_enabled(true);
-      self->_disableBlitTimer = 0.0f;
-    } else {
-      self->____camera->set_enabled(false);
-    }
-  }
-};
-
 //////////////////////
 
 // Force depth to on if using high quality smoke.
@@ -499,7 +438,7 @@ GT_EXPORT_FUNC void load() {
 
   INFO("Installing hooks...");
   // Phase Sync (latency reduction)
-  INSTALL_HOOK(Logger, OculusLoader_Initialize);
+  // INSTALL_HOOK(Logger, OculusLoader_Initialize);
   INSTALL_HOOK(Logger, MainSystemInit_Init);
   INSTALL_HOOK(Logger, ConditionalActivation_Awake);
   // INSTALL_HOOK(Logger, DepthTextureController_OnPreRender);
@@ -512,9 +451,6 @@ GT_EXPORT_FUNC void load() {
   // Debugging hooks
   // INSTALL_HOOK(Logger, PyramidBloom_PreRender);
   // INSTALL_HOOK(Logger, PyramidBloomRendererSO_RenderBloom);
-
-  // Burnmark hooks
-  INSTALL_HOOK(Logger, SaberBurnmarkArea_LateUpdate);
 
   GraphicsTweaks::Hooks::VRRenderingParamsSetup();
 

@@ -13,7 +13,6 @@
 #include "GlobalNamespace/MenuShockwave.hpp"
 #include "bsml/shared/BSML/MainThreadScheduler.hpp"
 #include "GlobalNamespace/OVRPlugin.hpp"
-#include "Unity/XR/Oculus/NativeMethods.hpp"
 #include "GraphicsTweaksConfig.hpp"
 #include "main.hpp"
 #include "FPSCounter.hpp"

@@ -53,17 +53,17 @@
     "dependencies": [
       {
         "id": "beatsaber-hook",
-        "versionRange": "^6.4.2",
+        "versionRange": "^7.5.0",
         "additionalData": {}
       },
       {
         "id": "bs-cordl",
-        "versionRange": "4008.*",
+        "versionRange": "^4100.0.1",
         "additionalData": {}
       },
       {
         "id": "bsml",
-        "versionRange": "^0.4.55",
+        "versionRange": "^0.6.0",
         "additionalData": {}
       },
       {
@@ -73,7 +73,7 @@
       },
       {
         "id": "custom-types",
-        "versionRange": "^0.18.3",
+        "versionRange": "^0.19.0",
         "additionalData": {}
       },
       {
@@ -85,7 +85,7 @@
       },
       {
         "id": "paper2_scotland2",
-        "versionRange": "^4.6.4",
+        "versionRange": "^4.7.0",
         "additionalData": {
           "private": true
         }
@@ -107,6 +107,11 @@
         "id": "conditional-dependencies",
         "versionRange": "^0.3.0",
         "additionalData": {}
+      },
+      {
+        "id": "flamingo",
+        "versionRange": "^1.1.2",
+        "additionalData": {}
       }
     ]
   },
@@ -125,10 +130,10 @@
     {
       "dependency": {
         "id": "bs-cordl",
-        "versionRange": "=4008.0.0",
+        "versionRange": "=4100.0.1",
         "additionalData": {
           "headersOnly": true,
-          "branchName": "version/v4008_0_0",
+          "branchName": "version/v4100_0_1",
           "compileOptions": {
             "includePaths": [
               "include"
@@ -137,14 +142,14 @@
             "cppFlags": [
               "-DNEED_UNSAFE_CSHARP",
               "-fdeclspec",
-              "-DUNITY_2021",
+              "-DUNITY_6",
               "-DHAS_CODEGEN",
               "-Wno-invalid-offsetof"
             ]
           }
         }
       },
-      "version": "4008.0.0"
+      "version": "4100.0.1"
     },
     {
       "dependency": {
@@ -195,19 +200,17 @@
     },
     {
       "dependency": {
-        "id": "libil2cpp",
-        "versionRange": "=0.4.0",
+        "id": "flamingo",
+        "versionRange": "=1.1.2",
         "additionalData": {
-          "headersOnly": true,
-          "compileOptions": {
-            "systemIncludes": [
-              "il2cpp/external/baselib/Include",
-              "il2cpp/external/baselib/Platforms/Android/Include"
-            ]
-          }
+          "soLink": "https://github.com/sc2ad/Flamingo/releases/download/v1.1.2/libflamingo.so",
+          "debugSoLink": "https://github.com/sc2ad/Flamingo/releases/download/v1.1.2/debug_libflamingo.so",
+          "overrideSoName": "libflamingo.so",
+          "modLink": "https://github.com/sc2ad/Flamingo/releases/download/v1.1.2/flamingo.qmod",
+          "branchName": "version/v1_1_2"
         }
       },
-      "version": "0.4.0"
+      "version": "1.1.2"
     },
     {
       "dependency": {
@@ -229,13 +232,9 @@
     {
       "dependency": {
         "id": "custom-types",
-        "versionRange": "=0.18.3",
+        "versionRange": "=0.19.0",
         "additionalData": {
-          "soLink": "https://github.com/QuestPackageManager/Il2CppQuestTypePatching/releases/download/v0.18.3/libcustom-types.so",
-          "debugSoLink": "https://github.com/QuestPackageManager/Il2CppQuestTypePatching/releases/download/v0.18.3/debug_libcustom-types.so",
           "overrideSoName": "libcustom-types.so",
-          "modLink": "https://github.com/QuestPackageManager/Il2CppQuestTypePatching/releases/download/v0.18.3/CustomTypes.qmod",
-          "branchName": "version/v0_18_3",
           "compileOptions": {
             "cppFlags": [
               "-Wno-invalid-offsetof"
@@ -244,29 +243,33 @@
           "cmake": true
         }
       },
-      "version": "0.18.3"
+      "version": "0.19.0"
     },
     {
       "dependency": {
-        "id": "rapidjson-macros",
-        "versionRange": "=2.1.0",
+        "id": "libil2cpp",
+        "versionRange": "=0.5.0",
         "additionalData": {
           "headersOnly": true,
-          "branchName": "version/v2_1_0",
-          "cmake": false
+          "compileOptions": {
+            "systemIncludes": [
+              "il2cpp/external/baselib/Include",
+              "il2cpp/external/baselib/Platforms/Android/Include"
+            ]
+          }
         }
       },
-      "version": "2.1.0"
+      "version": "0.5.0"
     },
     {
       "dependency": {
         "id": "paper2_scotland2",
-        "versionRange": "=4.6.4",
+        "versionRange": "=4.7.0",
         "additionalData": {
-          "soLink": "https://github.com/Fernthedev/paperlog/releases/download/v4.6.4/libpaper2_scotland2.so",
+          "soLink": "https://github.com/Fernthedev/paperlog/releases/download/v4.7.0/libpaper2_scotland2.so",
           "overrideSoName": "libpaper2_scotland2.so",
-          "modLink": "https://github.com/Fernthedev/paperlog/releases/download/v4.6.4/paper2_scotland2.qmod",
-          "branchName": "version/v4_6_4",
+          "modLink": "https://github.com/Fernthedev/paperlog/releases/download/v4.7.0/paper2_scotland2.qmod",
+          "branchName": "version/v4_7_0",
           "compileOptions": {
             "systemIncludes": [
               "shared/utfcpp/source"
@@ -275,7 +278,18 @@
           "cmake": false
         }
       },
-      "version": "4.6.4"
+      "version": "4.7.0"
+    },
+    {
+      "dependency": {
+        "id": "rapidjson-macros",
+        "versionRange": "=2.1.0",
+        "additionalData": {
+          "headersOnly": true,
+          "cmake": false
+        }
+      },
+      "version": "2.1.0"
     },
     {
       "dependency": {
@@ -292,27 +306,24 @@
     {
       "dependency": {
         "id": "config-utils",
-        "versionRange": "=2.0.3",
+        "versionRange": "=2.1.0",
         "additionalData": {
           "headersOnly": true,
-          "soLink": "https://github.com/darknight1050/config-utils/releases/download/v2.0.3/libconfig-utils_test.so",
           "overrideSoName": "libconfig-utils_test.so",
-          "branchName": "version/v2_0_3",
           "cmake": true
         }
       },
-      "version": "2.0.3"
+      "version": "2.1.0"
     },
     {
       "dependency": {
         "id": "beatsaber-hook",
-        "versionRange": "=6.4.2",
+        "versionRange": "=7.5.0",
         "additionalData": {
-          "soLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v6.4.2/libbeatsaber-hook.so",
-          "debugSoLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v6.4.2/debug_libbeatsaber-hook.so",
+          "soLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v5.0.0/libbeatsaber-hook.so",
+          "debugSoLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v5.0.0/debug_libbeatsaber-hook.so",
           "overrideSoName": "libbeatsaber-hook.so",
-          "modLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v6.4.2/beatsaber-hook.qmod",
-          "branchName": "version/v6_4_2",
+          "branchName": "master",
           "compileOptions": {
             "cppFlags": [
               "-Wno-extra-qualification"
@@ -321,22 +332,18 @@
           "cmake": true
         }
       },
-      "version": "6.4.2"
+      "version": "7.5.0"
     },
     {
       "dependency": {
         "id": "bsml",
-        "versionRange": "=0.4.55",
+        "versionRange": "=0.6.0",
         "additionalData": {
-          "soLink": "https://github.com/bsq-ports/Quest-BSML/releases/download/v0.4.55/libbsml.so",
-          "debugSoLink": "https://github.com/bsq-ports/Quest-BSML/releases/download/v0.4.55/debug_libbsml.so",
           "overrideSoName": "libbsml.so",
-          "modLink": "https://github.com/bsq-ports/Quest-BSML/releases/download/v0.4.55/BSML.qmod",
-          "branchName": "version/v0_4_55",
           "cmake": true
         }
       },
-      "version": "0.4.55"
+      "version": "0.6.0"
     }
   ]
 }
