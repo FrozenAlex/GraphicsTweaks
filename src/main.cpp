@@ -48,10 +48,11 @@
 #include "BeatSaber/Settings/QualitySettings.hpp"
 #include "GraphicsTweaksConfig.hpp"
 #include "FPSCounter.hpp"
-
+#include "basic_string.hpp"
 #include "UnityEngine/Graphics.hpp"
 #include "PlatformDetector.hpp"
 #include "Utils.hpp"
+#include "assets.hpp"
 
 inline modloader::ModInfo modInfo = {
     MOD_ID, VERSION, GIT_COMMIT}; // Stores the ID and version of our mod, and
@@ -416,9 +417,48 @@ MAKE_HOOK_MATCH(MainFlowCoordinator_DidActivate,
   }
 }
 
+// TODO: Make more supportable
+MAKE_HOOK(hCompileProgramImpl, nullptr, void,
+    unsigned int& unknown,
+    core::basic_string const& shaderName,
+    core::basic_string const* vertex,
+    core::basic_string& fragment,
+    core::basic_string const& geometry,
+    core::basic_string const& hull,
+    core::basic_string const& domain,
+    int& shader, int a, int * b, int *c, int* d) {
+
+    auto shaderName_c = shaderName.c_str();
+    // TODO: Figure out how to fix for mirror?
+    if (strcmp(shaderName_c, "Custom/ParametricBoxFrameHD") == 0 && fragment.heap.size > 5400 && fragment.heap.size < 5500) {
+        DEBUG("Patching ParametricBoxFrameHD shader");
+        memcpy((void*)fragment.heap.data, Assets::ParametricBoxFrameHD_shader.dataStart, Assets::ParametricBoxFrameHD_shader.data_length);
+        fragment.heap.size = Assets::ParametricBoxFrameHD_shader.data_length;
+    }
+
+    // Vertex and Fragment check to make sure it only changes for the player and not mirror
+    if (strcmp(shaderName_c, "Custom/SaberBlade") == 0 && fragment.heap.size == 2188 && vertex->heap.size == 5265) {
+        DEBUG("Patching SaberBlade shader");
+        memcpy((void*)fragment.heap.data, Assets::SaberBlade_shader.dataStart, Assets::SaberBlade_shader.data_length);
+        fragment.heap.size = Assets::SaberBlade_shader.data_length;
+    }
+
+    hCompileProgramImpl(unknown, shaderName, vertex, fragment, geometry, hull, domain, shader, a, b, c, d);
+}
+
 // Called later on in the game loading - a good time to install function hooks
 GT_EXPORT_FUNC void load() {
   INFO("Loading GraphicsTweaks...");
+  // TODO: Document how to get this address for the newer versions of unity  
+  // Scary direct offset hook
+  void* jniOnUnload = dlsym(modloader_unity_handle, "JNI_OnUnload");
+  // GlslGpuProgramGLES::CompileProgramImpl
+  if (auto const CompileProgramImpl = static_cast<char*>(jniOnUnload) + 0x6E8EE0) {
+      DEBUG("Found CompileProgramImpl at offset 0x6E8EE0");
+      INSTALL_HOOK_DIRECT(Logger, hCompileProgramImpl, CompileProgramImpl);
+  }
+      
+  DEBUG("Installed direct offset hooks!");
   il2cpp_functions::Init();
   custom_types::Register::AutoRegister();
   BSML::Init();
