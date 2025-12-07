@@ -5,6 +5,7 @@
 #include "UnityEngine/AssetBundleCreateRequest.hpp"
 #include "UnityEngine/AssetBundleRequest.hpp"
 #include "GraphicsTweaksConfig.hpp"
+#include "UnityEngine/Bindings/ManagedSpanWrapper.hpp"
 
 #include "assets.hpp"
 
@@ -46,12 +47,31 @@ namespace GraphicsTweaks
         co_return;
     }
 
+    ::UnityEngine::AssetBundleCreateRequest* LoadBundleFromMemoryAsync_Internal(ArrayW<uint8_t> bytes, uint32_t crc = 0) {
+        using AssetBundle_LoadFromMemoryAsync = function_ptr_t<void *, ByRef<UnityEngine::Bindings::ManagedSpanWrapper>, uint32_t>;
+        static AssetBundle_LoadFromMemoryAsync assetBundle_LoadFromMemoryAsync = reinterpret_cast<AssetBundle_LoadFromMemoryAsync>(il2cpp_functions::resolve_icall("UnityEngine.AssetBundle::LoadFromMemoryAsync_Internal_Injected"));
+        CRASH_UNLESS(assetBundle_LoadFromMemoryAsync);
+        
+        auto *managedSpanWrapper = new UnityEngine::Bindings::ManagedSpanWrapper(bytes->begin(), bytes.size());
+
+        void* request = assetBundle_LoadFromMemoryAsync(*managedSpanWrapper, crc);
+        if (!request)
+        {
+            return nullptr;
+        }
+        return UnityEngine::AssetBundleCreateRequest::BindingsMarshaller::ConvertToManaged(request);
+    }
+
     custom_types::Helpers::Coroutine FPSCounter::LoadBundleFromMemoryAsync(ArrayW<uint8_t> bytes, UnityEngine::AssetBundle*& out)
     {
-        using AssetBundle_LoadFromMemoryAsync = function_ptr_t<UnityEngine::AssetBundleCreateRequest*, ArrayW<uint8_t>, int>;
-        static AssetBundle_LoadFromMemoryAsync assetBundle_LoadFromMemoryAsync = reinterpret_cast<AssetBundle_LoadFromMemoryAsync>(il2cpp_functions::resolve_icall("UnityEngine.AssetBundle::LoadFromMemoryAsync_Internal"));
+        auto *req = LoadBundleFromMemoryAsync_Internal(bytes);
+        if (!req)
+        {
+            ERROR("Failed to create AssetBundleCreateRequest!");
+            out = nullptr;
+            co_return;
+        }
 
-        auto req = assetBundle_LoadFromMemoryAsync(bytes, 0);
         req->set_allowSceneActivation(true);
         while (!req->get_isDone())
             co_yield nullptr;
