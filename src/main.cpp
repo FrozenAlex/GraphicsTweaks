@@ -43,7 +43,7 @@
 #include "GlobalNamespace/MainSystemInit.hpp"
 #include "GlobalNamespace/SettingsManager.hpp"
 #include "GlobalNamespace/MirrorRendererSO.hpp"
-
+#include "BeatSaber/Settings/SettingValidations.hpp"
 #include "GlobalNamespace/SettingsApplicatorSO.hpp"
 #include "BeatSaber/Settings/QualitySettings.hpp"
 #include "GraphicsTweaksConfig.hpp"
@@ -53,6 +53,7 @@
 #include "PlatformDetector.hpp"
 #include "Utils.hpp"
 #include "assets.hpp"
+#include "GlobalNamespace/SettingsManager.hpp"
 
 inline modloader::ModInfo modInfo = {
     MOD_ID, VERSION, GIT_COMMIT}; // Stores the ID and version of our mod, and
@@ -84,35 +85,17 @@ GT_EXPORT_FUNC void setup(CModInfo &info) {
 //   return OculusLoader_Initialize(self);
 // }
 
-void GraphicsTweaks::PerformancePreset::ApplySettings() {
+void ApplySettingsToPreset(::ByRef<::BeatSaber::Settings::Settings> preset) {
   bool isMainThread = BSML::MainThreadScheduler::CurrentThreadIsMainThread();
   if (!isMainThread) {
-    INFO("Not on main thread, skipping PerformancePreset::ApplySettings");
+    INFO("Not on main thread, skipping ApplySettings");
     return;
   }
 
   if (GraphicsTweaks::IsInRender()) {
-    INFO("Skipping ApplySettings because we are in render state.");
+    INFO("Skipping ReApplySettings because we are in render state.");
     return;
   }
-
-  auto preset = GraphicsTweaks::PerformancePreset::GetCustomPreset();
-  if (!GraphicsTweaks::PerformancePreset::settingsApplicatorSO) {
-    return ERROR("Failed to get settingsApplicatorSO!");
-  }
-
-  auto settings = BeatSaber::Settings::Settings();
-  settings.quality = preset->quality;
-  settings.quest = preset->quest;
-
-  GraphicsTweaks::PerformancePreset::settingsApplicatorSO->ApplyGraphicSettings(
-      settings, GlobalNamespace::SceneType::Undefined);
-}
-
-BeatSaber::Settings::Settings *
-GraphicsTweaks::PerformancePreset::GetCustomPreset() {
-  // Update the preset with the current settings
-  auto preset = GraphicsTweaks::PerformancePreset::customPreset;
 
   // Set the foveated rendering level based on the current settings
   preset->quest.foveatedRenderingGameplay =
@@ -129,7 +112,6 @@ GraphicsTweaks::PerformancePreset::GetCustomPreset() {
   preset->quality.maxShockwaveParticles =
       getGraphicsTweaksConfig().NumShockwaves.GetValue();
 
-  // Burn marks are broken in Quest, so disable them
   preset->quality.burnMarkTrails =
       getGraphicsTweaksConfig().Burnmarks.GetValue();
 
@@ -209,6 +191,41 @@ GraphicsTweaks::PerformancePreset::GetCustomPreset() {
   
   preset->quality.antiAliasingLevel =
       distortionsUsed ? 0 : getGraphicsTweaksConfig().AntiAliasing.GetValue();
+}
+
+
+void GraphicsTweaks::PerformancePreset::ApplySettings() {
+  bool isMainThread = BSML::MainThreadScheduler::CurrentThreadIsMainThread();
+  if (!isMainThread) {
+    INFO("Not on main thread, skipping PerformancePreset::ApplySettings");
+    return;
+  }
+
+  if (GraphicsTweaks::IsInRender()) {
+    INFO("Skipping ApplySettings because we are in render state.");
+    return;
+  }
+
+  auto preset = GraphicsTweaks::PerformancePreset::GetCustomPreset();
+  if (!GraphicsTweaks::PerformancePreset::settingsApplicatorSO) {
+    return ERROR("Failed to get settingsApplicatorSO!");
+  }
+
+  auto settings = BeatSaber::Settings::Settings();
+  settings.quality = preset->quality;
+  settings.quest = preset->quest;
+
+  GraphicsTweaks::PerformancePreset::settingsApplicatorSO->ApplyGraphicSettings(
+      settings, GlobalNamespace::SceneType::Undefined);
+}
+
+
+BeatSaber::Settings::Settings *
+GraphicsTweaks::PerformancePreset::GetCustomPreset() {
+  // Update the preset with the current settings
+  auto preset = GraphicsTweaks::PerformancePreset::customPreset;
+
+  ApplySettingsToPreset(*preset);
 
   return GraphicsTweaks::PerformancePreset::customPreset;
 }
@@ -265,12 +282,7 @@ MAKE_HOOK_MATCH(ConditionalActivation_Awake,
                 GlobalNamespace::ConditionalActivation *self) {
   auto gameObject = self->get_gameObject();
   std::string name = gameObject->get_name();
-
-  // Keep turning on saber burn marks area even if the game is in render state
-  if (name == "SaberBurnMarksArea") {
-    gameObject->SetActive(
-        getGraphicsTweaksConfig().Burnmarks.GetValue());
-  }
+  return;
 
   if (GraphicsTweaks::IsInRender()) {
     INFO("Skipping ConditionalActivation_Awake because we are in render state.");
@@ -393,6 +405,57 @@ MAKE_HOOK_MATCH(GameplayCoreInstaller_InstallBindings,
   }
 }
 
+MAKE_HOOK_MATCH(SettingValidations_AdjustQuest1,
+                &BeatSaber::Settings::SettingValidations::AdjustQuest1, void,
+                ::ByRef<::BeatSaber::Settings::Settings> settings) {
+  DEBUG("SettingValidations_AdjustQuest1 hook called!");
+  SettingValidations_AdjustQuest1(settings);
+
+  ApplySettingsToPreset(settings);
+};
+
+MAKE_HOOK_MATCH(SettingValidations_AdjustQuest2,
+                &BeatSaber::Settings::SettingValidations::AdjustQuest2, void,
+                ::ByRef<::BeatSaber::Settings::Settings> settings) {
+  DEBUG("SettingValidations_AdjustQuest2 hook called!");
+  SettingValidations_AdjustQuest2(settings);
+  ApplySettingsToPreset(settings);
+};
+MAKE_HOOK_MATCH(SettingValidations_AdjustQuest3,
+                &BeatSaber::Settings::SettingValidations::AdjustQuest3, void,
+                ::ByRef<::BeatSaber::Settings::Settings> settings) {
+  DEBUG("SettingValidations_AdjustQuest3 hook called!");
+  SettingValidations_AdjustQuest3(settings);
+  ApplySettingsToPreset(settings);
+};
+
+MAKE_HOOK_MATCH(SettingValidations_AdjustQuestPro,
+                &BeatSaber::Settings::SettingValidations::AdjustQuestPro, void,
+                ::ByRef<::BeatSaber::Settings::Settings> settings) {
+  DEBUG("SettingValidations_AdjustQuestPro hook called!");
+  SettingValidations_AdjustQuestPro(settings);
+  ApplySettingsToPreset(settings);
+};
+
+MAKE_HOOK_MATCH(SettingValidations_AdjustStandalone,
+                &BeatSaber::Settings::SettingValidations::AdjustStandalone, void,
+                ::ByRef<::BeatSaber::Settings::Settings> settings,
+                bool forceApplyQualityAll) {
+  DEBUG("SettingValidations_AdjustStandalone hook called!");
+  SettingValidations_AdjustStandalone(settings, forceApplyQualityAll);
+  ApplySettingsToPreset(settings);
+};
+
+
+MAKE_HOOK_MATCH(SettingsManager_AdjustPlatformSettings,
+                &GlobalNamespace::SettingsManager::AdjustPlatformSettings, void,
+                ::ByRef< ::BeatSaber::Settings::Settings> settings, ::GlobalNamespace::HardwareCategory platform) {
+  SettingsManager_AdjustPlatformSettings(settings, platform);
+
+  DEBUG("SettingsManager_AdjustPlatformSettings hook called!");
+  ApplySettingsToPreset(settings);
+};
+
 MAKE_HOOK_MATCH(MainFlowCoordinator_DidActivate,
                 &GlobalNamespace::MainFlowCoordinator::DidActivate, void,
                 GlobalNamespace::MainFlowCoordinator *self,
@@ -432,6 +495,8 @@ MAKE_HOOK(hCompileProgramImpl, nullptr, void,
     // TODO: Figure out how to fix for mirror?
     if (strcmp(shaderName_c, "Custom/ParametricBoxFrameHD") == 0 && fragment.heap.size > 5400 && fragment.heap.size < 5500) {
         DEBUG("Patching ParametricBoxFrameHD shader");
+
+        // DEBUG("Original Shader: {}", std::string((char*)fragment.heap.data, fragment.heap.size));
         memcpy((void*)fragment.heap.data, Assets::ParametricBoxFrameHD_shader.dataStart, Assets::ParametricBoxFrameHD_shader.data_length);
         fragment.heap.size = Assets::ParametricBoxFrameHD_shader.data_length;
     }
@@ -439,6 +504,7 @@ MAKE_HOOK(hCompileProgramImpl, nullptr, void,
     // Vertex and Fragment check to make sure it only changes for the player and not mirror
     if (strcmp(shaderName_c, "Custom/SaberBlade") == 0 && fragment.heap.size == 2188 && vertex->heap.size == 5265) {
         DEBUG("Patching SaberBlade shader");
+        // DEBUG("Original Shader: {}", std::string((char*)fragment.heap.data, fragment.heap.size));
         memcpy((void*)fragment.heap.data, Assets::SaberBlade_shader.dataStart, Assets::SaberBlade_shader.data_length);
         fragment.heap.size = Assets::SaberBlade_shader.data_length;
     }
@@ -451,14 +517,14 @@ GT_EXPORT_FUNC void load() {
   INFO("Loading GraphicsTweaks...");
   // TODO: Document how to get this address for the newer versions of unity  
   // Scary direct offset hook
-  void* jniOnUnload = dlsym(modloader_unity_handle, "JNI_OnUnload");
-  // GlslGpuProgramGLES::CompileProgramImpl
-  if (auto const CompileProgramImpl = static_cast<char*>(jniOnUnload) + 0x6E8EE0) {
-      DEBUG("Found CompileProgramImpl at offset 0x6E8EE0");
-      INSTALL_HOOK_DIRECT(Logger, hCompileProgramImpl, CompileProgramImpl);
-  }
+  // void* jniOnUnload = dlsym(modloader_unity_handle, "JNI_OnUnload");
+  // // GlslGpuProgramGLES::CompileProgramImpl
+  // if (auto const CompileProgramImpl = static_cast<char*>(jniOnUnload) + 0x6E8EE0) {
+  //     DEBUG("Found CompileProgramImpl at offset 0x6E8EE0");
+  //     INSTALL_HOOK_DIRECT(Logger, hCompileProgramImpl, CompileProgramImpl);
+  // }
       
-  DEBUG("Installed direct offset hooks!");
+  // DEBUG("Installed direct offset hooks!");
   il2cpp_functions::Init();
   custom_types::Register::AutoRegister();
   BSML::Init();
@@ -487,6 +553,15 @@ GT_EXPORT_FUNC void load() {
   INSTALL_HOOK(Logger, SettingsApplicatorSO_ApplyGraphicSettings);
   INSTALL_HOOK(Logger, GameplayCoreInstaller_InstallBindings);
   INSTALL_HOOK(Logger, MainFlowCoordinator_DidActivate);
+
+  INSTALL_HOOK(Logger, SettingValidations_AdjustQuest1);
+  INSTALL_HOOK(Logger, SettingValidations_AdjustQuest2);
+  INSTALL_HOOK(Logger, SettingValidations_AdjustQuest3);
+  INSTALL_HOOK(Logger, SettingValidations_AdjustQuestPro);
+  INSTALL_HOOK(Logger, SettingValidations_AdjustStandalone);
+
+
+  INSTALL_HOOK(Logger, SettingsManager_AdjustPlatformSettings);
 
   // Debugging hooks
   // INSTALL_HOOK(Logger, PyramidBloom_PreRender);

@@ -53,17 +53,17 @@
     "dependencies": [
       {
         "id": "beatsaber-hook",
-        "versionRange": "^7.5.0",
+        "versionRange": "^7.4.2",
         "additionalData": {}
       },
       {
         "id": "bs-cordl",
-        "versionRange": "^4100.0.1",
+        "versionRange": "^4200.0.0",
         "additionalData": {}
       },
       {
         "id": "bsml",
-        "versionRange": "^0.6.0",
+        "versionRange": "^0.5.1",
         "additionalData": {}
       },
       {
@@ -130,10 +130,10 @@
     {
       "dependency": {
         "id": "bs-cordl",
-        "versionRange": "=4100.0.1",
+        "versionRange": "=4200.0.0",
         "additionalData": {
           "headersOnly": true,
-          "branchName": "version/v4100_0_1",
+          "branchName": "version/v4200_0_0",
           "compileOptions": {
             "includePaths": [
               "include"
@@ -149,7 +149,7 @@
           }
         }
       },
-      "version": "4100.0.1"
+      "version": "4200.0.0"
     },
     {
       "dependency": {
@@ -187,16 +187,19 @@
     },
     {
       "dependency": {
-        "id": "scotland2",
-        "versionRange": "=0.1.6",
+        "id": "libil2cpp",
+        "versionRange": "=0.5.0",
         "additionalData": {
-          "soLink": "https://github.com/sc2ad/scotland2/releases/download/v0.1.6/libsl2.so",
-          "debugSoLink": "https://github.com/sc2ad/scotland2/releases/download/v0.1.6/debug_libsl2.so",
-          "overrideSoName": "libsl2.so",
-          "branchName": "version/v0_1_6"
+          "headersOnly": true,
+          "compileOptions": {
+            "systemIncludes": [
+              "il2cpp/external/baselib/Include",
+              "il2cpp/external/baselib/Platforms/Android/Include"
+            ]
+          }
         }
       },
-      "version": "0.1.6"
+      "version": "0.5.0"
     },
     {
       "dependency": {
@@ -234,7 +237,11 @@
         "id": "custom-types",
         "versionRange": "=0.19.0",
         "additionalData": {
+          "soLink": "https://github.com/QuestPackageManager/Il2CppQuestTypePatching/releases/download/v0.19.0/libcustom-types.so",
+          "debugSoLink": "https://github.com/QuestPackageManager/Il2CppQuestTypePatching/releases/download/v0.19.0/debug_libcustom-types.so",
           "overrideSoName": "libcustom-types.so",
+          "modLink": "https://github.com/QuestPackageManager/Il2CppQuestTypePatching/releases/download/v0.19.0/CustomTypes.qmod",
+          "branchName": "version/v0_19_0",
           "compileOptions": {
             "cppFlags": [
               "-Wno-invalid-offsetof"
@@ -247,19 +254,15 @@
     },
     {
       "dependency": {
-        "id": "libil2cpp",
-        "versionRange": "=0.5.0",
+        "id": "rapidjson-macros",
+        "versionRange": "=3.0.0",
         "additionalData": {
           "headersOnly": true,
-          "compileOptions": {
-            "systemIncludes": [
-              "il2cpp/external/baselib/Include",
-              "il2cpp/external/baselib/Platforms/Android/Include"
-            ]
-          }
+          "branchName": "version/v3_0_0",
+          "cmake": false
         }
       },
-      "version": "0.5.0"
+      "version": "3.0.0"
     },
     {
       "dependency": {
@@ -282,14 +285,16 @@
     },
     {
       "dependency": {
-        "id": "rapidjson-macros",
-        "versionRange": "=2.1.0",
+        "id": "scotland2",
+        "versionRange": "=0.1.7",
         "additionalData": {
-          "headersOnly": true,
-          "cmake": false
+          "soLink": "https://github.com/sc2ad/scotland2/releases/download/v0.1.7/libsl2.so",
+          "debugSoLink": "https://github.com/sc2ad/scotland2/releases/download/v0.1.7/debug_libsl2.so",
+          "overrideSoName": "libsl2.so",
+          "branchName": "version/v0_1_7"
         }
       },
-      "version": "2.1.0"
+      "version": "0.1.7"
     },
     {
       "dependency": {
@@ -306,24 +311,27 @@
     {
       "dependency": {
         "id": "config-utils",
-        "versionRange": "=2.1.0",
+        "versionRange": "=2.0.4",
         "additionalData": {
           "headersOnly": true,
+          "soLink": "https://github.com/darknight1050/config-utils/releases/download/v2.0.4/libconfig-utils_test.so",
           "overrideSoName": "libconfig-utils_test.so",
+          "branchName": "version/v2_0_4",
           "cmake": true
         }
       },
-      "version": "2.1.0"
+      "version": "2.0.4"
     },
     {
       "dependency": {
         "id": "beatsaber-hook",
-        "versionRange": "=7.5.0",
+        "versionRange": "=7.4.2",
         "additionalData": {
-          "soLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v5.0.0/libbeatsaber-hook.so",
-          "debugSoLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v5.0.0/debug_libbeatsaber-hook.so",
+          "soLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v7.4.2/libbeatsaber-hook.so",
+          "debugSoLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v7.4.2/debug_libbeatsaber-hook.so",
           "overrideSoName": "libbeatsaber-hook.so",
-          "branchName": "master",
+          "modLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v7.4.2/beatsaber-hook.qmod",
+          "branchName": "version/v7_4_2",
           "compileOptions": {
             "cppFlags": [
               "-Wno-extra-qualification"
@@ -332,18 +340,22 @@
           "cmake": true
         }
       },
-      "version": "7.5.0"
+      "version": "7.4.2"
     },
     {
       "dependency": {
         "id": "bsml",
-        "versionRange": "=0.6.0",
+        "versionRange": "=0.5.1",
         "additionalData": {
+          "soLink": "https://github.com/bsq-ports/Quest-BSML/releases/download/v0.5.1/libbsml.so",
+          "debugSoLink": "https://github.com/bsq-ports/Quest-BSML/releases/download/v0.5.1/debug_libbsml.so",
           "overrideSoName": "libbsml.so",
+          "modLink": "https://github.com/bsq-ports/Quest-BSML/releases/download/v0.5.1/BSML.qmod",
+          "branchName": "version/v0_5_1",
           "cmake": true
         }
       },
-      "version": "0.6.0"
+      "version": "0.5.1"
     }
   ]
 }
