@@ -105,9 +105,6 @@ void ApplySettingsToPreset(::ByRef<::BeatSaber::Settings::Settings> preset) {
 
   preset->quality.smokeGraphics =
       getGraphicsTweaksConfig().SmokeQuality.GetValue() > 0;
-  // Enable depth texture if smoke quality is high
-  preset->quality.depthTexture =
-      getGraphicsTweaksConfig().SmokeQuality.GetValue() > 1;
 
   preset->quality.maxShockwaveParticles =
       getGraphicsTweaksConfig().NumShockwaves.GetValue();
@@ -282,7 +279,6 @@ MAKE_HOOK_MATCH(ConditionalActivation_Awake,
                 GlobalNamespace::ConditionalActivation *self) {
   auto gameObject = self->get_gameObject();
   std::string name = gameObject->get_name();
-  return;
 
   if (GraphicsTweaks::IsInRender()) {
     INFO("Skipping ConditionalActivation_Awake because we are in render state.");
@@ -295,6 +291,7 @@ MAKE_HOOK_MATCH(ConditionalActivation_Awake,
         !getGraphicsTweaksConfig().Bloom.GetValue());
   }
 
+  // TODO: Maybe remove if not required anymore
   if (name == "BigSmokePS") {
     gameObject->SetActive(
         getGraphicsTweaksConfig().SmokeQuality.GetValue() > 0);

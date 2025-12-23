@@ -5,5 +5,6 @@ DECLARE_FILE(_binary_AdvancedSettingsView_bsml, Assets, AdvancedSettingsView_bsm
 DECLARE_FILE(_binary_ParametricBoxFrameHD_shader, Assets, ParametricBoxFrameHD_shader);
 DECLARE_FILE(_binary_PresetsView_bsml, Assets, PresetsView_bsml);
 DECLARE_FILE(_binary_SaberBlade_shader, Assets, SaberBlade_shader);
+DECLARE_FILE(_binary_SaberBladeOrig_shader, Assets, SaberBladeOrig_shader);
 DECLARE_FILE(_binary_SettingsView_bsml, Assets, SettingsView_bsml);
 DECLARE_FILE(_binary_fpscounter_bund, Assets, fpscounter_bund);
