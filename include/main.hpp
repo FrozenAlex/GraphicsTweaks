@@ -13,12 +13,18 @@
 namespace GraphicsTweaks {
     
     namespace Hooks {
+        void CameraClipPlanes();
+        void DepthBufferPrecision();
         void VRRenderingParamsSetup();
 
     }
 
     namespace VRRenderingParamsSetup {
         void Reload(std::optional<float> vrResolutionScale = std::nullopt);
+    }
+
+    namespace CameraClipPlanes {
+        void Apply();
     }
 
     class PerformancePreset {

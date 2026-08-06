@@ -26,12 +26,17 @@
 #include "Unity/XR/Oculus/OculusLoader.hpp"
 #include "UnityEngine/Camera.hpp"
 #include "UnityEngine/GameObject.hpp"
+#include "UnityEngine/Material.hpp"
+#include "UnityEngine/Mesh.hpp"
 #include "UnityEngine/Object.hpp"
+#include "UnityEngine/ParticleSystem.hpp"
+#include "UnityEngine/ParticleSystemRenderer.hpp"
 #include "UnityEngine/QualitySettings.hpp"
 #include "UnityEngine/Renderer.hpp"
 #include "UnityEngine/Rendering/CommandBuffer.hpp"
 #include "UnityEngine/Resources.hpp"
 #include "UnityEngine/Time.hpp"
+#include "UnityEngine/Transform.hpp"
 #include "Zenject/DiContainer.hpp"
 #include "_config.hpp"
 #include "bsml/shared/BSML.hpp"
@@ -60,6 +65,45 @@ inline modloader::ModInfo modInfo = {
                                   // is sent to the modloader upon startup
 
 using namespace GraphicsTweaks;
+
+static bool PatchStringInPlace(
+    core::basic_string const& source,
+    void const* replacement,
+    std::size_t replacementSize
+) {
+    auto& mutableSource =
+        const_cast<core::basic_string&>(source);
+
+    if (mutableSource.mode ==
+        core::basic_string::StorageMode::External) {
+        WARNING("Refusing to patch external Unity string storage");
+        return false;
+    }
+
+    const std::size_t oldSize = mutableSource.size();
+
+    if (replacementSize > oldSize) {
+        WARNING(
+            "Replacement shader is too large: {} > {}",
+            replacementSize,
+            oldSize
+        );
+        return false;
+    }
+
+    char* destination = mutableSource.mutable_data_unsafe();
+
+    if (!destination) {
+        ERROR("Unity string has a null data pointer");
+        return false;
+    }
+
+    std::memcpy(destination, replacement, replacementSize);
+    destination[replacementSize] = '\0';
+    mutableSource.set_size_unsafe(replacementSize);
+
+    return true;
+}
 
 // Called at the early stages of game loading
 GT_EXPORT_FUNC void setup(CModInfo &info) {
@@ -423,6 +467,103 @@ MAKE_HOOK_MATCH(SaberBurnmarkArea_LateUpdate,
 //     isScreenspaceEffect);
 // };
 
+static bool UsesPanicWindow(UnityEngine::Material* material) {
+  if (!material) {
+    return false;
+  }
+
+  auto texture = material->get_mainTexture();
+  return texture && texture->get_name() == "PanicWindow";
+}
+
+static custom_types::Helpers::Coroutine InspectPanicWindowParticleRenderer() {
+  using namespace UnityEngine;
+
+  // Custom level assets may not exist when installers run. Scan twice per
+  // second for up to five minutes, and stop once matching renderers exist.
+  for (int scan = 0; scan < 600; ++scan) {
+    auto renderers =
+        Resources::FindObjectsOfTypeAll<ParticleSystemRenderer*>();
+    bool found = false;
+
+    for (auto renderer : renderers) {
+      if (!renderer) {
+        continue;
+      }
+
+      auto material = renderer->get_sharedMaterial();
+      auto trailMaterial = renderer->get_trailMaterial();
+      const bool mainMatch = UsesPanicWindow(material);
+      const bool trailMatch = UsesPanicWindow(trailMaterial);
+      if (!mainMatch && !trailMatch) {
+        continue;
+      }
+
+      found = true;
+      auto transform = renderer->get_transform();
+      auto gameObject = renderer->get_gameObject();
+      auto particleSystem = renderer->GetComponent<ParticleSystem*>();
+      const auto bounds = renderer->get_bounds();
+      const auto boundsCenter = bounds.get_center();
+      const auto boundsSize = bounds.get_size();
+      const auto position = transform->get_position();
+      const auto localScale = transform->get_localScale();
+      const auto lossyScale = transform->get_lossyScale();
+
+      float startSizeMultiplier = 0.0f;
+      int scalingMode = -1;
+      int simulationSpace = -1;
+      int particleCount = -1;
+      if (particleSystem) {
+        auto main = particleSystem->get_main();
+        startSizeMultiplier = main.get_startSizeMultiplier();
+        scalingMode = static_cast<int>(main.get_scalingMode());
+        simulationSpace = static_cast<int>(main.get_simulationSpace());
+        particleCount = particleSystem->get_particleCount();
+      }
+
+      auto mesh = renderer->get_mesh();
+      INFO(
+          "PanicWindow particles: object '{}', instance {}, texture use {}, "
+          "renderMode {}, alignment {}, sortMode {}, maxParticleSize {}, "
+          "mesh '{}' ({} meshes), particles {}, startSizeMultiplier {}, "
+          "scalingMode {}, simulationSpace {}, position ({}, {}, {}), "
+          "localScale ({}, {}, {}), lossyScale ({}, {}, {}), bounds center "
+          "({}, {}, {}), bounds size ({}, {}, {})",
+          gameObject ? std::string(gameObject->get_name()) : "<null>",
+          renderer->GetInstanceID(),
+          mainMatch && trailMatch ? "main+trail" :
+              (mainMatch ? "main" : "trail"),
+          static_cast<int>(renderer->get_renderMode()),
+          static_cast<int>(renderer->get_alignment()),
+          static_cast<int>(renderer->get_sortMode()),
+          renderer->get_maxParticleSize(),
+          mesh ? std::string(mesh->get_name()) : "<none>",
+          renderer->get_meshCount(),
+          particleCount,
+          startSizeMultiplier,
+          scalingMode,
+          simulationSpace,
+          position.x, position.y, position.z,
+          localScale.x, localScale.y, localScale.z,
+          lossyScale.x, lossyScale.y, lossyScale.z,
+          boundsCenter.x, boundsCenter.y, boundsCenter.z,
+          boundsSize.x, boundsSize.y, boundsSize.z
+      );
+    }
+
+    if (found) {
+      co_return;
+    }
+
+    for (int frame = 0; frame < 60; ++frame) {
+      co_yield nullptr;
+    }
+  }
+
+  WARNING("No ParticleSystemRenderer using PanicWindow was found");
+}
+
 MAKE_HOOK_MATCH(GameplayCoreInstaller_InstallBindings,
                 &GlobalNamespace::GameplayCoreInstaller::InstallBindings, void,
                 GlobalNamespace::GameplayCoreInstaller *self) {
@@ -431,6 +572,8 @@ MAKE_HOOK_MATCH(GameplayCoreInstaller_InstallBindings,
   using namespace UnityEngine;
 
   GameplayCoreInstaller_InstallBindings(self);
+  self->StartCoroutine(custom_types::Helpers::CoroutineHelper::New(
+      InspectPanicWindowParticleRenderer()));
 
   bool isInRender = GraphicsTweaks::IsInRender();
 
@@ -478,33 +621,142 @@ MAKE_HOOK_MATCH(MainFlowCoordinator_DidActivate,
   }
 }
 
+static std::size_t ReplaceAll(
+    std::string& source,
+    std::string_view from,
+    std::string_view to
+) {
+    std::size_t count = 0;
+    std::size_t position = 0;
+
+    while ((position = source.find(from, position)) != std::string::npos) {
+        source.replace(position, from.size(), to);
+        position += to.size();
+        ++count;
+    }
+
+    return count;
+}
+
+struct PatchedShader {
+    std::string source;
+    std::size_t replacements;
+};
+
+static core::basic_string MakeExternalString(std::string& source) {
+    core::basic_string result{};
+
+    result.allocated.data = source.data();
+    result.allocated.unknown08 = source.size();
+    result.allocated.size = source.size();
+    result.allocated.unknown18 = 0;
+    result.mode = core::basic_string::StorageMode::External;
+
+    return result;
+}
+
+static PatchedShader MaxPrecision(core::basic_string const& source) {
+    PatchedShader result{
+        std::string(source.c_str(), source.size()),
+        0
+    };
+
+    // GLSL ES precision qualifiers
+    result.replacements += ReplaceAll(result.source, "lowp", "highp");
+    result.replacements += ReplaceAll(result.source, "mediump", "highp");
+
+    // HLSL/Unity matrix types — longest first
+    result.replacements += ReplaceAll(result.source, "fixed4x4", "float4x4");
+    result.replacements += ReplaceAll(result.source, "fixed3x3", "float3x3");
+    result.replacements += ReplaceAll(result.source, "fixed2x2", "float2x2");
+    result.replacements += ReplaceAll(result.source, "half4x4",  "float4x4");
+    result.replacements += ReplaceAll(result.source, "half3x3",  "float3x3");
+    result.replacements += ReplaceAll(result.source, "half2x2",  "float2x2");
+
+    // HLSL/Unity vector types
+    result.replacements += ReplaceAll(result.source, "fixed4", "float4");
+    result.replacements += ReplaceAll(result.source, "fixed3", "float3");
+    result.replacements += ReplaceAll(result.source, "fixed2", "float2");
+    result.replacements += ReplaceAll(result.source, "half4",  "float4");
+    result.replacements += ReplaceAll(result.source, "half3",  "float3");
+    result.replacements += ReplaceAll(result.source, "half2",  "float2");
+
+    // Scalar types
+    result.replacements += ReplaceAll(result.source, "min16float", "float");
+    result.replacements += ReplaceAll(result.source, "min10float", "float");
+    result.replacements += ReplaceAll(result.source, "fixed",      "float");
+    result.replacements += ReplaceAll(result.source, "half",       "float");
+
+    // Integer precision variants
+    result.replacements += ReplaceAll(result.source, "min16uint", "uint");
+    result.replacements += ReplaceAll(result.source, "min16int",  "int");
+    result.replacements += ReplaceAll(result.source, "min12int",  "int");
+
+    return result;
+}
+
 // TODO: Make more supportable
-MAKE_HOOK(hCompileProgramImpl, nullptr, void,
-    unsigned int& unknown,
+MAKE_HOOK(
+    hCompileProgramImpl,
+    nullptr,
+    std::uint32_t,
+    unsigned int& program,
     core::basic_string const& shaderName,
-    core::basic_string const* vertex,
-    core::basic_string& fragment,
+    core::basic_string const& vertex,
+    core::basic_string const& fragment,
     core::basic_string const& geometry,
     core::basic_string const& hull,
     core::basic_string const& domain,
-    int& shader, int a, int * b, int *c, int* d) {
+    void* channelMask,
+    int a,
+    unsigned int b,
+    int* c,
+    int* d
+) {
+    auto patchedVertex = MaxPrecision(vertex);
+    auto patchedFragment = MaxPrecision(fragment);
+    auto patchedGeometry = MaxPrecision(geometry);
+    auto patchedHull = MaxPrecision(hull);
+    auto patchedDomain = MaxPrecision(domain);
 
-    auto shaderName_c = shaderName.c_str();
-    // TODO: Figure out how to fix for mirror?
-    if (strcmp(shaderName_c, "Custom/ParametricBoxFrameHD") == 0 && fragment.heap.size > 5400 && fragment.heap.size < 5500) {
-        DEBUG("Patching ParametricBoxFrameHD shader");
-        memcpy((void*)fragment.heap.data, Assets::ParametricBoxFrameHD_shader.dataStart, Assets::ParametricBoxFrameHD_shader.data_length);
-        fragment.heap.size = Assets::ParametricBoxFrameHD_shader.data_length;
-    }
+    auto vertexString = MakeExternalString(patchedVertex.source);
+    auto fragmentString = MakeExternalString(patchedFragment.source);
+    auto geometryString = MakeExternalString(patchedGeometry.source);
+    auto hullString = MakeExternalString(patchedHull.source);
+    auto domainString = MakeExternalString(patchedDomain.source);
 
-    // Vertex and Fragment check to make sure it only changes for the player and not mirror
-    if (strcmp(shaderName_c, "Custom/SaberBlade") == 0 && fragment.heap.size == 2188 && vertex->heap.size == 5265) {
-        DEBUG("Patching SaberBlade shader");
-        memcpy((void*)fragment.heap.data, Assets::SaberBlade_shader.dataStart, Assets::SaberBlade_shader.data_length);
-        fragment.heap.size = Assets::SaberBlade_shader.data_length;
-    }
+    const std::size_t totalReplacements =
+        patchedVertex.replacements +
+        patchedFragment.replacements +
+        patchedGeometry.replacements +
+        patchedHull.replacements +
+        patchedDomain.replacements;
 
-    hCompileProgramImpl(unknown, shaderName, vertex, fragment, geometry, hull, domain, shader, a, b, c, d);
+    DEBUG(
+        "Shader precision {}: {} replacements (vertex: {}, fragment: {}, geometry: {}, hull: {}, domain: {})",
+        std::string(shaderName.c_str(), shaderName.size()),
+        totalReplacements,
+        patchedVertex.replacements,
+        patchedFragment.replacements,
+        patchedGeometry.replacements,
+        patchedHull.replacements,
+        patchedDomain.replacements
+    );
+
+    return hCompileProgramImpl(
+        program,
+        shaderName,
+        vertexString,
+        fragmentString,
+        geometryString,
+        hullString,
+        domainString,
+        channelMask,
+        a,
+        b,
+        c,
+        d
+    );
 }
 
 // Called later on in the game loading - a good time to install function hooks
@@ -514,8 +766,9 @@ GT_EXPORT_FUNC void load() {
   // Scary direct offset hook
   void* jniOnUnload = dlsym(modloader_unity_handle, "JNI_OnUnload");
   // GlslGpuProgramGLES::CompileProgramImpl
-  if (auto const CompileProgramImpl = static_cast<char*>(jniOnUnload) + 0x6E8EE0) {
-      DEBUG("Found CompileProgramImpl at offset 0x6E8EE0");
+  if (auto const CompileProgramImpl = static_cast<char*>(jniOnUnload) + 0x6D9B4C) {
+      DEBUG("Found CompileProgramImpl at offset 0x6D9B4C");
+
       INSTALL_HOOK_DIRECT(Logger, hCompileProgramImpl, CompileProgramImpl);
   }
       
@@ -539,6 +792,7 @@ GT_EXPORT_FUNC void load() {
 
   INFO("Installing hooks...");
   // Phase Sync (latency reduction)
+  GraphicsTweaks::Hooks::DepthBufferPrecision();
   INSTALL_HOOK(Logger, OculusLoader_Initialize);
   INSTALL_HOOK(Logger, MainSystemInit_Init);
   INSTALL_HOOK(Logger, ConditionalActivation_Awake);
@@ -556,6 +810,7 @@ GT_EXPORT_FUNC void load() {
   // Burnmark hooks
   INSTALL_HOOK(Logger, SaberBurnmarkArea_LateUpdate);
 
+  GraphicsTweaks::Hooks::CameraClipPlanes();
   GraphicsTweaks::Hooks::VRRenderingParamsSetup();
 
   INFO("Installed all hooks!");

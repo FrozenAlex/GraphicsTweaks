@@ -117,5 +117,6 @@
         "xutility": "cpp",
         "ranges": "cpp",
         "format": "cpp"
-    }
+    },
+    "commentTranslate.hover.enabled": false
 }

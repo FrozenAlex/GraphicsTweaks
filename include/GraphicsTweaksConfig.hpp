@@ -9,6 +9,9 @@ DECLARE_CONFIG(GraphicsTweaksConfig) {
     CONFIG_VALUE(AntiAliasing, int, "Anti Aliasing", 0); // 0 = Off, 1 = 2x, 2 = 4x
     CONFIG_VALUE(MenuRefreshRate, float, "Menu Refresh Rate", -1); // We don't know the Refresh Rate, at this time.
     CONFIG_VALUE(GameRefreshRate, float, "Game Refresh Rate", -1); // We don't know the Refresh Rate, at this time.
+    CONFIG_VALUE(NearClipPlane, float, "NearClipPlane", 0.1f);
+    CONFIG_VALUE(FarClipPlane, float, "FarClipPlane", 1000.0f);
+    CONFIG_VALUE(Force32BitDepthBuffer, bool, "Force32BitDepthBuffer", true);
     CONFIG_VALUE(Bloom, bool, "Bloom", false);
     CONFIG_VALUE(NumShockwaves, int, "NumShockwaves", 0);
     CONFIG_VALUE(BloomQuality, int, "BloomQuality", 0); // 0 = Low Quality, 1 = High Quality

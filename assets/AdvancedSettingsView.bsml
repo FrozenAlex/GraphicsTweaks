@@ -1,11 +1,29 @@
 <vertical preferred-width="130" anchor-min-y="1" child-control-height="false" xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='https://raw.githubusercontent.com/RedBrumbler/Quest-BSML-Docs/gh-pages/schema.xsd'>
-	<!-- <horizontal bg='panel-top-gradient' id='filterbarContainer' child-align='MiddleRight' child-control-width='false'>
-		<horizontal ignore-layout='true' pad-top='1'>
-			<text text='Advanced Settings' align='Center' font-size='7' italics='true'/>
-		</horizontal>
-		<horizontal horizontal-fit='PreferredSize' spacing='2' pad-right='1'>
-			<button text='Reset' on-click='ResetSettings' pref-width="15" />
-			<button text='Presets' on-click='ShowPresets' pref-width="15" />
-		</horizontal>
-	</horizontal> -->
+	<vertical spacing='0' child-control-height='false' bg='panel-top' pad='2' pad-bottom='1' pad-top='1' preferred-width='64'>
+		<text text='&lt;color=#9ff8ba>Camera' align='Center' bold='true' font-size='3.5' color='#69B' size-delta-y='5' />
+		<increment-setting
+			text='Near clip plane'
+			value='nearClipPlaneValue'
+			bind-value='true'
+			apply-on-change='true'
+			increment='0.01'
+			min='0.01'
+			max='1'
+			hover-hint='A larger near clip plane improves depth-buffer precision, but geometry very close to your eyes may be clipped.' />
+		<increment-setting
+			text='Far clip plane'
+			value='farClipPlaneValue'
+			bind-value='true'
+			apply-on-change='true'
+			increment='1000'
+			min='1000'
+			max='5000'
+			hover-hint='A smaller far clip plane can improve depth precision, but distant environment geometry may be clipped.' />
+		<bool-setting
+			text='32-bit depth buffer'
+			value='force32BitDepthBufferValue'
+			bind-value='true'
+			apply-on-change='true'
+			hover-hint='Experimental: requests a minimum 32-bit depth format for Unity render targets. Requires a game restart and may increase GPU bandwidth.' />
+	</vertical>
 </vertical>

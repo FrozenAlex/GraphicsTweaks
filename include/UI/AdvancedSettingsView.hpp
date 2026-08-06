@@ -11,6 +11,7 @@
 #include "UnityEngine/UI/HorizontalLayoutGroup.hpp"
 #include "HMUI/ViewController.hpp"
 #include "custom-types/shared/coroutine.hpp"
+#include "custom-types/shared/macros.hpp"
 
 #ifdef HotReload
 DECLARE_CLASS_CUSTOM(GraphicsTweaks::UI, AdvancedSettingsView, BSML::HotReloadViewController) {
@@ -21,4 +22,7 @@ DECLARE_CLASS_CODEGEN(GraphicsTweaks::UI, AdvancedSettingsView, HMUI::ViewContro
     DECLARE_SIMPLE_DTOR();
     DECLARE_OVERRIDE_METHOD_MATCH(void, DidActivate, &HMUI::ViewController::DidActivate, bool firstActivation, bool addedToHeirarchy, bool screenSystemDisabling);
 
+    DECLARE_BSML_PROPERTY(float, nearClipPlaneValue);
+    DECLARE_BSML_PROPERTY(float, farClipPlaneValue);
+    DECLARE_BSML_PROPERTY(bool, force32BitDepthBufferValue);
 };
