@@ -136,10 +136,12 @@ void GraphicsTweaks::VRRenderingParamsSetup::Reload(std::optional<float> vrResol
         OVRPlugin::set_suggestedGpuPerfLevel(getPerfLevel(getGraphicsTweaksConfig().GpuPerfLevel.GetValue()));
 
         // Check if our (default) refresh rate has been set.
-        auto maxRefreshRate = Mathf::Max(OVRPlugin::get_systemDisplayFrequenciesAvailable());
+        auto maxRefreshRate = predefinedRefreshRates.empty()
+            ? Mathf::Max(OVRPlugin::get_systemDisplayFrequenciesAvailable())
+            : predefinedRefreshRates.back();
 
         // Set defaults and clamp to max refresh rate.
-        if (getGraphicsTweaksConfig().MenuRefreshRate.GetValue() > maxRefreshRate || getGraphicsTweaksConfig().GameRefreshRate.GetValue() == -1) {
+        if (getGraphicsTweaksConfig().MenuRefreshRate.GetValue() > maxRefreshRate || getGraphicsTweaksConfig().MenuRefreshRate.GetValue() == -1) {
             getGraphicsTweaksConfig().MenuRefreshRate.SetValue(maxRefreshRate);
         }
         if (getGraphicsTweaksConfig().GameRefreshRate.GetValue() > maxRefreshRate || getGraphicsTweaksConfig().GameRefreshRate.GetValue() == -1) {

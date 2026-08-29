@@ -44,14 +44,21 @@ void GraphicsTweaks::UI::SettingsView::DidActivate(bool firstActivation, bool ad
     if (!firstActivation)
         return;
 
-    // Get possible FPS values
-    auto frequencies = GlobalNamespace::OVRPlugin::get_systemDisplayFrequenciesAvailable();
     // Create lists
     systemDisplayFrequenciesAvailableValues = ListW<float>::New();
     systemDisplayFrequenciesAvailableLabels = ListW<StringW>::New();
-    for (const auto& item : frequencies) {
-        systemDisplayFrequenciesAvailableValues->Add(item);
-        systemDisplayFrequenciesAvailableLabels->Add(fmt::format("{}", item));
+
+    if (!predefinedRefreshRates.empty()) {
+        for (const auto refreshRate : predefinedRefreshRates) {
+            systemDisplayFrequenciesAvailableValues->Add(refreshRate);
+            systemDisplayFrequenciesAvailableLabels->Add(fmt::format("{}", refreshRate));
+        }
+    } else {
+        auto frequencies = GlobalNamespace::OVRPlugin::get_systemDisplayFrequenciesAvailable();
+        for (const auto refreshRate : frequencies) {
+            systemDisplayFrequenciesAvailableValues->Add(refreshRate);
+            systemDisplayFrequenciesAvailableLabels->Add(fmt::format("{}", refreshRate));
+        }
     }
 
     wallQualityOptionsLabels = ListW<StringW>::New();
