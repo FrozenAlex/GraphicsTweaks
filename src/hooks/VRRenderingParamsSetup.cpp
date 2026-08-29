@@ -139,13 +139,18 @@ void GraphicsTweaks::VRRenderingParamsSetup::Reload(std::optional<float> vrResol
         auto maxRefreshRate = predefinedRefreshRates.empty()
             ? Mathf::Max(OVRPlugin::get_systemDisplayFrequenciesAvailable())
             : predefinedRefreshRates.back();
+        auto defaultRefreshRate = model == "Quest 3" ? 120.0f : maxRefreshRate;
 
         // Set defaults and clamp to max refresh rate.
-        if (getGraphicsTweaksConfig().MenuRefreshRate.GetValue() > maxRefreshRate || getGraphicsTweaksConfig().MenuRefreshRate.GetValue() == -1) {
+        if (getGraphicsTweaksConfig().MenuRefreshRate.GetValue() > maxRefreshRate) {
             getGraphicsTweaksConfig().MenuRefreshRate.SetValue(maxRefreshRate);
+        } else if (getGraphicsTweaksConfig().MenuRefreshRate.GetValue() == -1) {
+            getGraphicsTweaksConfig().MenuRefreshRate.SetValue(defaultRefreshRate);
         }
-        if (getGraphicsTweaksConfig().GameRefreshRate.GetValue() > maxRefreshRate || getGraphicsTweaksConfig().GameRefreshRate.GetValue() == -1) {
+        if (getGraphicsTweaksConfig().GameRefreshRate.GetValue() > maxRefreshRate) {
             getGraphicsTweaksConfig().GameRefreshRate.SetValue(maxRefreshRate);
+        } else if (getGraphicsTweaksConfig().GameRefreshRate.GetValue() == -1) {
+            getGraphicsTweaksConfig().GameRefreshRate.SetValue(defaultRefreshRate);
         }
 
         float refreshRate = sceneType == GlobalNamespace::SceneType::Game ? getGraphicsTweaksConfig().GameRefreshRate.GetValue() : getGraphicsTweaksConfig().MenuRefreshRate.GetValue();
