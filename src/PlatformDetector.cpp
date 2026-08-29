@@ -47,15 +47,15 @@ namespace GraphicsTweaks {
 
         // Use predefined refresh rates for known Quest models.
         if (model == "Quest") {
-            predefinedRefreshRates = {72.0f};
+            predefinedRefreshRates = {60.0f, 72.0f};
         } else if (model == "Quest 2") {
             predefinedRefreshRates = {60.0f, 72.0f, 80.0f, 90.0f, 96.0f, 100.0f, 120.0f};
         } else if (model == "Quest Pro") {
-            predefinedRefreshRates = {60.0f, 72.0f, 80.0f, 90.0f};
+            predefinedRefreshRates = {72.0f, 80.0f, 90.0f};
         } else if (model == "Quest 3") {
-            predefinedRefreshRates = {60.0f, 72.0f, 80.0f, 90.0f, 96.0f, 100.0f, 120.0f, 207.0f};
+            predefinedRefreshRates = {72.0f, 80.0f, 90.0f, 96.0f, 100.0f, 120.0f, 207.0f};
         } else if (model == "Quest 3S") {
-            predefinedRefreshRates = {60.0f, 72.0f, 80.0f, 90.0f, 96.0f, 100.0f, 120.0f};
+            predefinedRefreshRates = {72.0f, 80.0f, 90.0f, 96.0f, 100.0f, 120.0f};
         } else {
             predefinedRefreshRates.clear();
         }
