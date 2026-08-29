@@ -45,18 +45,17 @@ namespace GraphicsTweaks {
         // Detect if the device is a Quest 1 for special settings
         isQuest1 = Quest1Model == model;
 
-        // Use Meta's documented app refresh rates for known Quest models.
-        // 60 Hz is intentionally omitted because it is reserved for media apps.
+        // Use predefined refresh rates for known Quest models.
         if (model == "Quest") {
             predefinedRefreshRates = {72.0f};
         } else if (model == "Quest 2") {
-            predefinedRefreshRates = {72.0f, 80.0f, 90.0f, 96.0f, 100.0f, 120.0f};
+            predefinedRefreshRates = {60.0f, 72.0f, 80.0f, 90.0f, 96.0f, 100.0f, 120.0f};
         } else if (model == "Quest Pro") {
-            predefinedRefreshRates = {72.0f, 80.0f, 90.0f};
+            predefinedRefreshRates = {60.0f, 72.0f, 80.0f, 90.0f};
         } else if (model == "Quest 3") {
-            predefinedRefreshRates = {72.0f, 80.0f, 90.0f, 96.0f, 100.0f, 120.0f, 207.0f};
+            predefinedRefreshRates = {60.0f, 72.0f, 80.0f, 90.0f, 96.0f, 100.0f, 120.0f, 207.0f};
         } else if (model == "Quest 3S") {
-            predefinedRefreshRates = {72.0f, 80.0f, 90.0f, 96.0f, 100.0f, 120.0f};
+            predefinedRefreshRates = {60.0f, 72.0f, 80.0f, 90.0f, 96.0f, 100.0f, 120.0f};
         } else {
             predefinedRefreshRates.clear();
         }
