@@ -53,7 +53,7 @@ namespace GraphicsTweaks {
         } else if (model == "Quest Pro") {
             predefinedRefreshRates = {72.0f, 80.0f, 90.0f};
         } else if (model == "Quest 3") {
-            predefinedRefreshRates = {72.0f, 80.0f, 90.0f, 96.0f, 100.0f, 120.0f, 207.0f};
+            predefinedRefreshRates = {72.0f, 80.0f, 90.0f, 96.0f, 100.0f, 120.0f, 144.0f, 207.0f};
         } else if (model == "Quest 3S") {
             predefinedRefreshRates = {72.0f, 80.0f, 90.0f, 96.0f, 100.0f, 120.0f};
         } else {
