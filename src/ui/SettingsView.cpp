@@ -6,14 +6,12 @@
 #include "bsml/shared/BSML/Components/Backgroundable.hpp"
 #include "UnityEngine/Resources.hpp"
 #include "UnityEngine/Color.hpp"
-#include "sombrero/shared/FastColor.hpp"
 #include "GlobalNamespace/OVRPlugin.hpp"
 #include "GlobalNamespace/ConditionalActivation.hpp"
 #include "GlobalNamespace/ShockwaveEffect.hpp"
 #include "GlobalNamespace/MenuShockwave.hpp"
 #include "bsml/shared/BSML/MainThreadScheduler.hpp"
 #include "GlobalNamespace/OVRPlugin.hpp"
-#include "Unity/XR/Oculus/NativeMethods.hpp"
 #include "GraphicsTweaksConfig.hpp"
 #include "main.hpp"
 #include "FPSCounter.hpp"
@@ -34,9 +32,10 @@ const bool instantlySave = true;
 
 UnityEngine::Sprite* GetBGSprite(std::string str)
 {
-    return UnityEngine::Resources::FindObjectsOfTypeAll<UnityEngine::Sprite*>()->First([str](UnityEngine::Sprite* x) {
-        return x->get_name() == str;
-    });
+    for (auto sprite : UnityEngine::Resources::FindObjectsOfTypeAll<UnityEngine::Sprite*>()) {
+        if (sprite && sprite->get_name() == str) return sprite;
+    }
+    return nullptr;
 }
 
 void GraphicsTweaks::UI::SettingsView::DidActivate(bool firstActivation, bool addedToHeirarchy, bool screenSystemDisabling)

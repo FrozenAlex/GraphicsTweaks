@@ -12,12 +12,12 @@
 #include "logging.hpp"
 #include "bsml/shared/BSML/MainThreadScheduler.hpp"
 #include "UnityEngine/QualitySettings.hpp"
-#include "beatsaber-hook/shared/utils/hooking.hpp"
+#include "beatsaber-hook/shared/hooking.hpp"
 #include "PlatformDetector.hpp"
 #include "Utils.hpp"
 using namespace GlobalNamespace;
 
-SafePtrUnity<GlobalNamespace::VRRenderingParamsSetup> vrRenderingParamsSetup;
+safe_ptr<GlobalNamespace::VRRenderingParamsSetup*> vrRenderingParamsSetup;
 
 MAKE_HOOK_MATCH(
     VRRenderingParamsSetup_OnEnable,

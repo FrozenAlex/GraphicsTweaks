@@ -18,14 +18,14 @@ set(MOD_ID "graphicstweaks")
 
 cmake_minimum_required(VERSION 3.21)
 project(${COMPILE_ID})
-include(${EXTERN_DIR}/includes/kaleb/shared/cmake/assets.cmake)
+include(cmake/assets.cmake)
 
 # export compile commands for significantly better intellisense
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # c++ standard
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED 20)
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # define that stores the actual source directory
 set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -86,8 +86,8 @@ target_include_directories(${COMPILE_ID} PUBLIC ${SHARED_DIR})
 target_include_directories(${COMPILE_ID} PRIVATE ${EXTERN_DIR}/includes/${CODEGEN_ID}/include)
 
 # add assets
-add_assets(${COMPILE_ID}-assets STATIC ${CMAKE_CURRENT_LIST_DIR}/assets ${INCLUDE_DIR}/assets.hpp)
-target_link_libraries(${COMPILE_ID} PRIVATE -llog -lz  ${COMPILE_ID}-assets)
+generate_assets("${CMAKE_CURRENT_SOURCE_DIR}/assets" "${INCLUDE_DIR}/assets.hpp")
+target_link_libraries(${COMPILE_ID} PRIVATE -llog -lz)
 
 # add extern stuff like libs and other includes
 include(extern.cmake)

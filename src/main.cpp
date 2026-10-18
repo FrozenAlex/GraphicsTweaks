@@ -23,7 +23,6 @@
 #include "GlobalNamespace/SettingsApplicatorSO.hpp"
 #include "GlobalNamespace/ShockwaveEffect.hpp"
 #include "UI/GraphicsTweaksFlowCoordinator.hpp"
-#include "Unity/XR/Oculus/OculusLoader.hpp"
 #include "UnityEngine/Camera.hpp"
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/Object.hpp"
@@ -39,8 +38,8 @@
 #include "logging.hpp"
 #include <algorithm>
 #include <cstddef>
-#include "beatsaber-hook/shared/utils/il2cpp-functions.hpp"
-#include "beatsaber-hook/shared/utils/hooking.hpp"
+#include "beatsaber-hook/shared/api.hpp"
+#include "beatsaber-hook/shared/hooking.hpp"
 #include "GlobalNamespace/MainSystemInit.hpp"
 #include "GlobalNamespace/SettingsManager.hpp"
 #include "GlobalNamespace/MirrorRendererSO.hpp"
@@ -71,16 +70,6 @@ GT_EXPORT_FUNC void setup(CModInfo &info) {
   getGraphicsTweaksConfig().Init(modInfo);
 
   INFO("Completed setup!");
-}
-
-// Enable Phase Sync (latency reduction) by default
-MAKE_HOOK_MATCH(OculusLoader_Initialize,
-                &Unity::XR::Oculus::OculusLoader::Initialize, bool,
-                Unity::XR::Oculus::OculusLoader *self) {
-  // INFO("OculusLoader_Initialize hook called!");
-  auto settings = self->GetSettings();
-  settings->___PhaseSync = true;
-  return OculusLoader_Initialize(self);
 }
 
 void GraphicsTweaks::PerformancePreset::ApplySettings() {
@@ -121,10 +110,6 @@ GraphicsTweaks::PerformancePreset::GetCustomPreset() {
 
   preset->quality.smokeGraphics =
       getGraphicsTweaksConfig().SmokeQuality.GetValue() > 0;
-  // Enable depth texture if smoke quality is high
-  preset->quality.depthTexture =
-      getGraphicsTweaksConfig().SmokeQuality.GetValue() > 1;
-
   preset->quality.maxShockwaveParticles =
       getGraphicsTweaksConfig().NumShockwaves.GetValue();
 
@@ -206,8 +191,9 @@ GraphicsTweaks::PerformancePreset::GetCustomPreset() {
   // If the wall quality is ObstacleHW, enable screen displacement effects
   preset->quality.screenDisplacementEffects = distortionsUsed;
   
-  preset->quality.antiAliasingLevel =
-      distortionsUsed ? 0 : getGraphicsTweaksConfig().AntiAliasing.GetValue();
+  // URP uses one sample for Off; the mod stores 1/2/4 for 2x/4x/8x.
+  const int samples = distortionsUsed ? 0 : getGraphicsTweaksConfig().AntiAliasing.GetValue() * 2;
+  preset->quality.antiAliasingLevel = samples == 0 ? 1 : samples;
 
   return GraphicsTweaks::PerformancePreset::customPreset;
 }
@@ -234,7 +220,7 @@ MAKE_HOOK_MATCH(MainSystemInit_Init, &GlobalNamespace::MainSystemInit::Init,
 MAKE_HOOK_MATCH(SettingsApplicatorSO_ApplyGraphicSettings,
                 &GlobalNamespace::SettingsApplicatorSO::ApplyGraphicSettings,
                 void, GlobalNamespace::SettingsApplicatorSO *self,
-                ByRef<BeatSaber::Settings::Settings> settings,
+                by_ref<const BeatSaber::Settings::Settings> settings,
                 GlobalNamespace::SceneType sceneType) {
   INFO("SettingsApplicatorSO_ApplyGraphicSettings hook called!");
   SettingsApplicatorSO_ApplyGraphicSettings(self, settings, sceneType);
@@ -255,7 +241,7 @@ MAKE_HOOK_MATCH(SettingsApplicatorSO_ApplyGraphicSettings,
   }
 
   UnityEngine::QualitySettings::set_antiAliasing(
-      distortionsUsed ? 0 : getGraphicsTweaksConfig().AntiAliasing.GetValue());
+      distortionsUsed ? 0 : getGraphicsTweaksConfig().AntiAliasing.GetValue() * 2);
 }
 
 // Enable or disable shockwaves
@@ -304,49 +290,7 @@ MAKE_HOOK_MATCH(SaberBurnmarkArea_LateUpdate,
   bool isEnabled = getGraphicsTweaksConfig().Burnmarks.GetValue();
   if (!isEnabled) {return;}
 
-  // This for some reason does not run on quest
-  if (self->_camera) {
-    // DEBUG("Disable blit timer: {}", self->_disableBlitTimer);
-
-    float deltaTime = UnityEngine::Time::get_deltaTime();
-
-    if (self->_disableBlitTimer  < 6.0f) {
-      // self->_disableBlitTimer += deltaTime;
-      self->____burnMarksFadeOutStrength = 0.3f;
-
-      // Render the burnmarks
-      self->_camera->set_targetTexture(self->_renderTextures[1]);
-      self->_renderer->get_sharedMaterial()->set_mainTexture(
-          self->_renderTextures[1]);
-      self->_fadeOutMaterial->set_mainTexture(self->_renderTextures[0]);
-      self->_fadeOutMaterial->SetFloat(
-          self->____fadeOutStrengthShaderPropertyID,
-          std::max(0.0f, 1.0f - (deltaTime *
-                                    self->____burnMarksFadeOutStrength)));
-
-      // 2f seems to work well, needs to be framerate independent though
-      self->_fadeOutMaterial->SetFloat(
-          self->____fadeOutStrengthShaderPropertyID,
-          2.0f);
-
-      // Blit the burnmarks
-      UnityEngine::Graphics::Blit(self->_renderTextures[0],
-                                 self->_renderTextures[1], self->_fadeOutMaterial);
-      // Swap the render textures
-      auto renderTexture = self->_renderTextures[0];
-      self->_renderTextures[0] = self->_renderTextures[1];
-      self->_renderTextures[1] = renderTexture;
-    }
-
-    // Enable the camera if the line renderers are enabled (sabers are touching the platform)
-    if (self->_lineRenderers[0]->get_enabled() ||
-        self->_lineRenderers[1]->get_enabled()) {
-      self->____camera->set_enabled(true);
-      self->_disableBlitTimer = 0.0f;
-    } else {
-      self->____camera->set_enabled(false);
-    }
-  }
+  // The game's LateUpdate performs the fade/blit and updates the render material.
 };
 
 //////////////////////
@@ -480,7 +424,7 @@ MAKE_HOOK_MATCH(MainFlowCoordinator_DidActivate,
 // Called later on in the game loading - a good time to install function hooks
 GT_EXPORT_FUNC void load() {
   INFO("Loading GraphicsTweaks...");
-  il2cpp_functions::Init();
+  i2c::functions::initialize();
   custom_types::Register::AutoRegister();
   BSML::Init();
 
@@ -498,8 +442,6 @@ GT_EXPORT_FUNC void load() {
   DEBUG("Brand: {}", GraphicsTweaks::brand);
 
   INFO("Installing hooks...");
-  // Phase Sync (latency reduction)
-  INSTALL_HOOK(Logger, OculusLoader_Initialize);
   INSTALL_HOOK(Logger, MainSystemInit_Init);
   INSTALL_HOOK(Logger, ConditionalActivation_Awake);
   // INSTALL_HOOK(Logger, DepthTextureController_OnPreRender);

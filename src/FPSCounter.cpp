@@ -1,6 +1,10 @@
 #include "FPSCounter.hpp"
 #include "logging.hpp"
 #include <string_view>
+#include <limits>
+#include "beatsaber-hook/shared/api.hpp"
+#include "System/IntPtr.hpp"
+#include "UnityEngine/Bindings/ManagedSpanWrapper.hpp"
 
 #include "UnityEngine/AssetBundleCreateRequest.hpp"
 #include "UnityEngine/AssetBundleRequest.hpp"
@@ -12,20 +16,20 @@ namespace GraphicsTweaks
 {
     #define coro(...) custom_types::Helpers::CoroutineHelper::New(__VA_ARGS__)
 
-    SafePtrUnity<UnityEngine::GameObject> FPSCounter::counter;
+    safe_ptr<UnityEngine::GameObject*> FPSCounter::counter;
 
     custom_types::Helpers::Coroutine FPSCounter::LoadBund()
     {
-        UnityEngine::AssetBundle* ass;
+        UnityEngine::AssetBundle* ass = nullptr;
         co_yield coro(FPSCounter::LoadBundleFromMemoryAsync(Assets::fpscounter_bund, ass));
         if (!ass)
         {
-            ERROR("Couldn't load bundle from file, dieing...");
+            ERROR("Could not load the embedded FPS bundle.");
             co_return;
         }
 
         UnityEngine::GameObject* data = nullptr;
-        co_yield coro(FPSCounter::LoadAssetFromBundleAsync(ass, "Assets/[Graphy] VR.prefab", csTypeOf(UnityEngine::GameObject*), reinterpret_cast<UnityEngine::Object*&>(data)));
+        co_yield coro(FPSCounter::LoadAssetFromBundleAsync(ass, "Assets/[Graphy] VR.prefab", i2c::cs_type_of<UnityEngine::GameObject*>(), reinterpret_cast<UnityEngine::Object*&>(data)));
         if(data == nullptr)
         {
             ERROR("Couldn't load asset...");
@@ -33,9 +37,11 @@ namespace GraphicsTweaks
         }
         ass->Unload(false);
 
+        // Keep Graphy inactive until the instance is owned and its requested
+        // visibility is known. The rebuilt bundle contains current font assets.
+        data->SetActive(false);
         auto counterObj = UnityEngine::GameObject::Instantiate(data);
         UnityEngine::GameObject::DontDestroyOnLoad(counterObj);
-        counterObj->SetActive(true);
         counter = counterObj;
 
         bool showAdvancedCounter = getGraphicsTweaksConfig().FpsCounterAdvanced.GetValue();
@@ -46,13 +52,31 @@ namespace GraphicsTweaks
         co_return;
     }
 
-    custom_types::Helpers::Coroutine FPSCounter::LoadBundleFromMemoryAsync(ArrayW<uint8_t> bytes, UnityEngine::AssetBundle*& out)
+    custom_types::Helpers::Coroutine FPSCounter::LoadBundleFromMemoryAsync(std::span<const uint8_t> bytes, UnityEngine::AssetBundle*& out)
     {
-        using AssetBundle_LoadFromMemoryAsync = function_ptr_t<UnityEngine::AssetBundleCreateRequest*, ArrayW<uint8_t>, int>;
-        static AssetBundle_LoadFromMemoryAsync assetBundle_LoadFromMemoryAsync = reinterpret_cast<AssetBundle_LoadFromMemoryAsync>(il2cpp_functions::resolve_icall("UnityEngine.AssetBundle::LoadFromMemoryAsync_Internal"));
+        out = nullptr;
+        if (bytes.empty() || bytes.size() > std::numeric_limits<int32_t>::max()) {
+            ERROR("Invalid embedded FPS bundle size.");
+            co_return;
+        }
 
-        auto req = assetBundle_LoadFromMemoryAsync(bytes, 0);
-        req->set_allowSceneActivation(true);
+        using UnityEngine::Bindings::ManagedSpanWrapper;
+        static auto loadFromMemory = i2c::resolve_icall<System::IntPtr, ManagedSpanWrapper*, uint32_t>(
+            "UnityEngine.AssetBundle::LoadFromMemoryAsync_Internal_Injected");
+        if (!loadFromMemory) {
+            ERROR("FPS bundle loading requires Unity's LoadFromMemoryAsync icall.");
+            co_return;
+        }
+
+        // Unity 6's injected binding takes a span and returns a native request pointer.
+        ManagedSpanWrapper span{const_cast<uint8_t*>(bytes.data()), static_cast<int32_t>(bytes.size())};
+        auto nativeRequest = (*loadFromMemory)(&span, 0);
+        if (!nativeRequest.m_value) {
+            ERROR("Could not create the FPS bundle load request.");
+            co_return;
+        }
+        safe_ptr<UnityEngine::AssetBundleCreateRequest*> req(
+            UnityEngine::AssetBundleCreateRequest::BindingsMarshaller::ConvertToManaged(nativeRequest));
         while (!req->get_isDone())
             co_yield nullptr;
 

@@ -27,4 +27,4 @@ DECLARE_CLASS_CODEGEN(GraphicsTweaks::UI, GraphicsTweaksFlowCoordinator, HMUI::F
 };
 
 
-inline SafePtrUnity<GraphicsTweaks::UI::GraphicsTweaksFlowCoordinator> fcInstance; // Stores the ID and version of our mod, and is sent to the modloader upon startup
+inline safe_ptr<GraphicsTweaks::UI::GraphicsTweaksFlowCoordinator*> fcInstance; // Stores the ID and version of our mod, and is sent to the modloader upon startup

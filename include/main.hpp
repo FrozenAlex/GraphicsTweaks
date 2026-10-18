@@ -1,4 +1,5 @@
 #pragma once
+#include "beatsaber-hook/shared/safeptr.hpp"
 
 // Include the modloader header, which allows us to tell the modloader which mod this is, and the version etc.
 #include "scotland2/shared/loader.hpp"
@@ -25,7 +26,7 @@ namespace GraphicsTweaks {
         public:
             static void ApplySettings();
             static BeatSaber::Settings::Settings* GetCustomPreset();
-            inline static SafePtrUnity<GlobalNamespace::SettingsApplicatorSO> settingsApplicatorSO;
+            inline static safe_ptr<GlobalNamespace::SettingsApplicatorSO*> settingsApplicatorSO;
             inline static BeatSaber::Settings::Settings* customPreset;
     };
 }

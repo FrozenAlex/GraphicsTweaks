@@ -6,60 +6,18 @@ Param(
     [Switch] $help
 )
 
-if ($help -eq $true) {
-    Write-Output "`"createqmod`" - Creates a .qmod file with your compiled libraries and mod.json."
-    Write-Output "`n-- Arguments --`n"
-
-    Write-Output "-QmodName `t The file name of your qmod"
-
-    exit
+if ($help) {
+    Write-Output 'Creates a QMOD from the current template, resolved dependencies, and compiled libraries.'
+    Write-Output '-QmodName: optional output name without the .qmod extension'
+    exit 0
 }
 
-$mod = "./mod.json"
+& qpm qmod manifest --offline
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-& $PSScriptRoot/validate-modjson.ps1
-if ($LASTEXITCODE -ne 0) {
-    exit $LASTEXITCODE
+if ($qmodName) {
+    & qpm qmod zip --offline --skip_build ($qmodName + '.qmod')
+} else {
+    & qpm qmod zip --offline --skip_build
 }
-$modJson = Get-Content $mod -Raw | ConvertFrom-Json
-
-if ($qmodName -eq "") {
-    $qmodName = $modJson.name
-}
-
-$filelist = @($mod)
-
-$cover = "./" + $modJson.coverImage
-if ((-not ($cover -eq "./")) -and (Test-Path $cover)) {
-    $filelist += ,$cover
-}
-
-foreach ($mod in $modJson.modFiles) {
-    $path = "./build/" + $mod
-    if (-not (Test-Path $path)) {
-        $path = "./extern/libs/" + $mod
-    }
-    if (-not (Test-Path $path)) {
-        Write-Output "Error: could not find dependency: $path"
-        exit 1
-    }
-    $filelist += $path
-}
-
-foreach ($lib in $modJson.libraryFiles) {
-    $path = "./build/" + $lib
-    if (-not (Test-Path $path)) {
-        $path = "./extern/libs/" + $lib
-    }
-    if (-not (Test-Path $path)) {
-        Write-Output "Error: could not find dependency: $path"
-        exit 1
-    }
-    $filelist += $path
-}
-
-$zip = $qmodName + ".zip"
-$qmod = $qmodName + ".qmod"
-
-Compress-Archive -Path $filelist -DestinationPath $zip -Update
-Move-Item $zip $qmod -Force
+exit $LASTEXITCODE
