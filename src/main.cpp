@@ -501,6 +501,7 @@ GT_EXPORT_FUNC void load() {
   INSTALL_HOOK(Logger, SaberBurnmarkArea_LateUpdate);
 
   GraphicsTweaks::Hooks::VRRenderingParamsSetup();
+  GraphicsTweaks::Hooks::GraphyFps();
   GraphicsTweaks::ShaderReplacement::InstallHooks();
 
   INFO("Installed all hooks!");

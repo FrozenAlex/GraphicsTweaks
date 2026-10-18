@@ -17,10 +17,55 @@ using Object = UnityEngine.Object;
 public static class GraphyBundleBuilder
 {
     const string PrefabPath = "Assets/[Graphy] VR.prefab";
+    const string NoGlowShaderPath = "Assets/Graphy/Shaders/UINoGlow.shader";
+    const string NoGlowMaterialPath = "Assets/Generated/Materials/GraphyUINoGlow.mat";
     static string Root => Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
+
+    // Beat Saber bloom reads framebuffer alpha as glow, so every overlay graphic
+    // uses either the no-glow UI shader or a Graphy graph shader.
+    static bool NoGlow(Shader shader) =>
+        shader != null && (shader.name == "GraphicsTweaks/Graphy UI No Glow" || shader.name.StartsWith("Graphy/Graph"));
+
+    [MenuItem("GraphicsTweaks/Apply no-glow UI materials")]
+    public static void ApplyNoGlow()
+    {
+        var shader = AssetDatabase.LoadAssetAtPath<Shader>(NoGlowShaderPath);
+        if (shader == null) throw new FileNotFoundException("Missing no-glow UI shader", NoGlowShaderPath);
+        var material = AssetDatabase.LoadAssetAtPath<Material>(NoGlowMaterialPath);
+        if (material == null)
+        {
+            material = new Material(shader) { name = "GraphyUINoGlow" };
+            AssetDatabase.CreateAsset(material, NoGlowMaterialPath);
+        }
+        var root = PrefabUtility.LoadPrefabContents(PrefabPath);
+        try
+        {
+            foreach (var graphic in root.GetComponentsInChildren<Graphic>(true))
+            {
+                var assigned = new SerializedObject(graphic).FindProperty("m_Material").objectReferenceValue as Material;
+                if (assigned == null)
+                    graphic.material = material;
+                else if (!NoGlow(assigned.shader))
+                {
+                    // Keep the material's own properties; only its blending changes.
+                    if (assigned.shader.name != "UI/Default") throw new Exception($"Unexpected shader {assigned.shader.name} on {graphic.name}");
+                    assigned.shader = shader;
+                    EditorUtility.SetDirty(assigned);
+                }
+            }
+            PrefabUtility.SaveAsPrefabAsset(root, PrefabPath);
+        }
+        finally
+        {
+            PrefabUtility.UnloadPrefabContents(root);
+        }
+        AssetDatabase.SaveAssets();
+    }
 
     static void Validate(GameObject root)
     {
+        foreach (var graphic in root.GetComponentsInChildren<Graphic>(true))
+            if (!NoGlow(graphic.material.shader)) throw new Exception($"Glowing UI shader {graphic.material.shader.name} on {graphic.name}");
         if (root.GetComponentsInChildren<Transform>(true).Any(t => GameObjectUtility.GetMonoBehavioursWithMissingScriptCount(t.gameObject) != 0))
             throw new Exception("Missing prefab scripts");
         foreach (var text in root.GetComponentsInChildren<Text>(true))
@@ -49,6 +94,7 @@ public static class GraphyBundleBuilder
     [MenuItem("GraphicsTweaks/Build Android FPS bundle")]
     public static void Build()
     {
+        ApplyNoGlow();
         var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath);
         if (prefab == null) throw new FileNotFoundException("Missing editable Graphy prefab", PrefabPath);
         Validate(prefab);

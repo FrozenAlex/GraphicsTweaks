@@ -80,6 +80,10 @@ option(GRAPHICSTWEAKS_SHADER_GPU_CHECK "Run one-time offscreen glow variant chec
 if(GRAPHICSTWEAKS_SHADER_GPU_CHECK)
     target_compile_definitions(${COMPILE_ID} PRIVATE GRAPHICSTWEAKS_SHADER_GPU_CHECK)
 endif()
+option(GRAPHICSTWEAKS_SHADER_DIAGNOSTICS "Log restored-bloom loads, replacements and keyword coverage" OFF)
+if(GRAPHICSTWEAKS_SHADER_DIAGNOSTICS)
+    target_compile_definitions(${COMPILE_ID} PRIVATE GRAPHICSTWEAKS_SHADER_DIAGNOSTICS)
+endif()
 
 # add src dir as include dir
 target_include_directories(${COMPILE_ID} PRIVATE ${SOURCE_DIR})

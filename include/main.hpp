@@ -16,6 +16,7 @@ namespace GraphicsTweaks {
     
     namespace Hooks {
         void VRRenderingParamsSetup();
+        void GraphyFps();
 
     }
 

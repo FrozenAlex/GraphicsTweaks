@@ -1,6 +1,8 @@
 #include "RestoredBloom/ShaderReplacement.hpp"
 #include "RestoredBloom/UIShaderDiagnostics.hpp"
+#ifdef GRAPHICSTWEAKS_SHADER_DIAGNOSTICS
 #include "RestoredBloom/GlowWallShaderCoverage.hpp"
+#endif
 #include "FPSCounter.hpp"
 #include "bsml/shared/BSML/SharedCoroutineStarter.hpp"
 #include "GraphicsTweaksConfig.hpp"
@@ -60,6 +62,7 @@ namespace {
         }};
         return entries;
     }
+#ifdef GRAPHICSTWEAKS_SHADER_DIAGNOSTICS
     constexpr std::array<std::string_view, 9> globals = {
         "STEREO_MULTIVIEW_ON", "INSTANCING_ON", "LIGHTMAP_ON",
         "UNITY_ASSUME_UNIFORM_SCALING", "ACES_TONE_MAPPING", "ENABLE_BLOOM_FOG",
@@ -85,6 +88,7 @@ namespace {
         return std::any_of(glowWallCoverage.begin(), glowWallCoverage.end(),
             [&](auto& coverage) { return coverage.shader == sourceName && coverage.features == signature; });
     }
+#endif
 
 #ifdef GRAPHICSTWEAKS_SHADER_GPU_CHECK
     void CheckGlowGPU(UnityEngine::Shader* shader) {
@@ -149,7 +153,9 @@ namespace {
             co_return;
         }
         entry.replacement->set_hideFlags(UnityEngine::HideFlags::DontUnloadUnusedAsset);
+#ifdef GRAPHICSTWEAKS_SHADER_DIAGNOSTICS
         INFO("Loaded experimental bloom shader for {}", entry.sourceName);
+#endif
         co_return;
     }
 
@@ -181,7 +187,9 @@ void Apply() {
     auto materials = UnityEngine::Resources::FindObjectsOfTypeAll<UnityEngine::Material*>();
     for (auto& entry : Entries()) {
       if (!entry.replacement) continue;
+#ifdef GRAPHICSTWEAKS_SHADER_DIAGNOSTICS
       int replaced = 0, restored = 0, nearest = 0;
+#endif
       for (auto material : materials) {
         if (!material) continue;
         auto shader = material->get_shader();
@@ -195,13 +203,17 @@ void Apply() {
                 material->set_shader(entry.original.ptr());
                 material->set_shaderKeywords(keywords);
                 material->set_renderQueue(queue);
+#ifdef GRAPHICSTWEAKS_SHADER_DIAGNOSTICS
                 restored++;
+#endif
             }
             continue;
         }
         if (ours) continue;
+#ifdef GRAPHICSTWEAKS_SHADER_DIAGNOSTICS
         bool proven = Proven(material, entry.sourceName);
         if (!proven) nearest++;
+#endif
 #ifdef GRAPHICSTWEAKS_SHADER_GPU_CHECK
         if (entry.sourceName.starts_with("Custom/Glowing")) CheckGlowGPU(entry.replacement.ptr());
 #endif
@@ -212,12 +224,16 @@ void Apply() {
         material->set_shader(entry.replacement.ptr());
         material->set_shaderKeywords(keywords);
         material->set_renderQueue(queue);
+#ifdef GRAPHICSTWEAKS_SHADER_DIAGNOSTICS
         INFO("Restored bloom shader on material {} ({}{})", std::string(material->get_name()), entry.sourceName,
              proven ? "" : ", nearest variant");
         replaced++;
+#endif
       }
+#ifdef GRAPHICSTWEAKS_SHADER_DIAGNOSTICS
       INFO("{} materials: replaced {} ({} by nearest variant), restored {}; main effect {}",
            entry.sourceName, replaced, nearest, restored, UnityEngine::Shader::IsKeywordEnabled("MAIN_EFFECT_ENABLED"));
+#endif
     }
 }
 

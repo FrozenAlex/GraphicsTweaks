@@ -35,7 +35,9 @@
         Lighting Off
         ZWrite Off
         ZTest Off
-        Blend One OneMinusSrcAlpha
+        // Beat Saber bloom reads framebuffer alpha as glow. Like the game's
+        // UINoGlow materials, occlude glow behind the graph without adding any.
+        Blend One OneMinusSrcAlpha, Zero OneMinusSrcAlpha
 
         Pass
         {
@@ -209,7 +211,9 @@
         Lighting Off
         ZWrite Off
         ZTest Off
-        Blend One OneMinusSrcAlpha
+        // Beat Saber bloom reads framebuffer alpha as glow. Like the game's
+        // UINoGlow materials, occlude glow behind the graph without adding any.
+        Blend One OneMinusSrcAlpha, Zero OneMinusSrcAlpha
 
         Pass
         {
