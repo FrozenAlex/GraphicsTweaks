@@ -7,6 +7,7 @@ DECLARE_CONFIG(GraphicsTweaksConfig) {
     CONFIG_VALUE(MenuResolution, float, "Menu Resolution", 1);
     CONFIG_VALUE(GameResolution, float, "Game Resolution", 1);
     CONFIG_VALUE(AntiAliasing, int, "Anti Aliasing", 0); // 0 = Off, 1 = 2x, 2 = 4x
+    CONFIG_VALUE(QuestSharpening, int, "Quest Sharpening", 0); // 0 = Off, 1 = Normal, 2 = Quality (Super Resolution)
     CONFIG_VALUE(MenuRefreshRate, float, "Menu Refresh Rate", -1); // We don't know the Refresh Rate, at this time.
     CONFIG_VALUE(GameRefreshRate, float, "Game Refresh Rate", -1); // We don't know the Refresh Rate, at this time.
     CONFIG_VALUE(Bloom, bool, "Bloom", false);

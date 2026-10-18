@@ -2,6 +2,7 @@
 #include <vector>
 
 namespace GraphicsTweaks {
+    extern bool isQuest;
     // Is it a quest 1? (needs to be set in setup)
     extern bool isQuest1;
     extern std::string model;

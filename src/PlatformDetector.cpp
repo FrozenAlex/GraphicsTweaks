@@ -6,6 +6,7 @@
 static std::string Quest1Model = "Quest";
 
 namespace GraphicsTweaks {
+    bool isQuest = false;
     bool isQuest1 = false;
     bool checkedPlatform = false;
     std::string model = "Unknown";
@@ -43,6 +44,7 @@ namespace GraphicsTweaks {
         } 
 
         // Detect if the device is a Quest 1 for special settings
+        isQuest = model == "Quest" || model.rfind("Quest ", 0) == 0;
         isQuest1 = Quest1Model == model;
 
         // Use predefined refresh rates for known Quest models.

@@ -2,7 +2,6 @@
 
 #include "bsml/shared/macros.hpp"
 #include "bsml/shared/BSML.hpp"
-#include "bsml/shared/BSML/Components/Settings/SliderSetting.hpp"
 #include "bsml/shared/BSML/Components/Settings/DropdownListSetting.hpp"
 #include "bsml/shared/BSML/Components/Settings/ListSetting.hpp"
 #include "bsml/shared/BSML/Components/Settings/StringSetting.hpp"
@@ -20,6 +19,8 @@ DECLARE_CLASS_CODEGEN(GraphicsTweaks::UI, PresetsView, HMUI::ViewController) {
 #endif
 
     DECLARE_SIMPLE_DTOR();
+    BSML_OPTIONS_LIST_OBJECT(questSharpeningOptions, "Off", "Normal", "Quality");
+    DECLARE_BSML_PROPERTY(StringW, questSharpeningValue);
     DECLARE_OVERRIDE_METHOD_MATCH(void, DidActivate, &HMUI::ViewController::DidActivate, bool firstActivation, bool addedToHeirarchy, bool screenSystemDisabling);
 
 };

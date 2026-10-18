@@ -24,6 +24,20 @@ safe_ptr<GlobalNamespace::VRRenderingParamsSetup*> vrRenderingParamsSetup;
 namespace {
     GlobalNamespace::SceneType currentSceneType = GlobalNamespace::SceneType::Menu;
 
+    void ApplySharpening() {
+        if (!GraphicsTweaks::isQuest || GraphicsTweaks::IsInRender()) return;
+
+        // Quality selects Meta's compositor Super Resolution without a URP pass.
+        auto sharpenType = OVRPlugin_LayerSharpenType::None;
+        switch (getGraphicsTweaksConfig().QuestSharpening.GetValue()) {
+            case 1: sharpenType = OVRPlugin_LayerSharpenType::Normal; break;
+            case 2: sharpenType = OVRPlugin_LayerSharpenType::Quality; break;
+        }
+        if (!OVRPlugin::SetEyeBufferSharpenType(sharpenType)) {
+            WARNING("Quest sharpening request was rejected by OVRPlugin.");
+        }
+    }
+
     void ApplyFoveation(GlobalNamespace::SceneType sceneType) {
         if (GraphicsTweaks::IsInRender()) return;
         if (sceneType != GlobalNamespace::SceneType::Undefined) currentSceneType = sceneType;
@@ -75,6 +89,7 @@ MAKE_HOOK_MATCH(
     QuestSettingsApplicatorSO_ApplyGraphicSettings(self, settings, sceneType);
     // Quest applies foveation after the base graphics-settings method returns.
     ApplyFoveation(sceneType);
+    ApplySharpening();
 }
 
 MAKE_HOOK_MATCH(
@@ -190,6 +205,7 @@ void GraphicsTweaks::VRRenderingParamsSetup::Reload(std::optional<float> vrResol
         GlobalNamespace::SceneType sceneType = vrRenderingParamsSetup->____sceneType;
 
         ApplyFoveation(sceneType);
+        ApplySharpening();
 
         OVRPlugin::SetClientColorDesc(getGraphicsTweaksConfig().ColorSpace.GetValue());
 
