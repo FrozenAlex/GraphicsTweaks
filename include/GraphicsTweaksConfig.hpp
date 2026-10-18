@@ -13,7 +13,7 @@ DECLARE_CONFIG(GraphicsTweaksConfig) {
     CONFIG_VALUE(NumShockwaves, int, "NumShockwaves", 0);
     CONFIG_VALUE(BloomQuality, int, "BloomQuality", 0); // 0 = Low Quality, 1 = High Quality
     CONFIG_VALUE(Mirror, int, "Mirror", 1); // 0 = Off, 1 = Low, 2 = Medium, 3 = High
-    CONFIG_VALUE(SmokeQuality, int, "SmokeQuality", 1); // 0 = Off, 1 = Low, 3 = High
+    CONFIG_VALUE(SmokeQuality, int, "SmokeQuality", 1); // 0 = Off, 1 = Low, 2 = High
     CONFIG_VALUE(WallQuality, int, "WallQuality", 1); // 0 = Transparent, 1 = Textured, 2 = Distorted
     CONFIG_VALUE(FpsCounter, bool, "FpsCounter", true);
     CONFIG_VALUE(FpsCounterAdvanced, bool, "FpsCounterAdvanced", false);

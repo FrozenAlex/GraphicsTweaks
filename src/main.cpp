@@ -24,6 +24,10 @@
 #include "GlobalNamespace/ShockwaveEffect.hpp"
 #include "UI/GraphicsTweaksFlowCoordinator.hpp"
 #include "UnityEngine/Camera.hpp"
+#include "UnityEngine/DepthTextureMode.hpp"
+#include "UnityEngine/Shader.hpp"
+#include "UnityEngine/Rendering/Universal/CameraExtensions.hpp"
+#include "UnityEngine/Rendering/Universal/UniversalAdditionalCameraData.hpp"
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/Object.hpp"
 #include "UnityEngine/QualitySettings.hpp"
@@ -101,6 +105,9 @@ BeatSaber::Settings::Settings *
 GraphicsTweaks::PerformancePreset::GetCustomPreset() {
   // Update the preset with the current settings
   auto preset = GraphicsTweaks::PerformancePreset::customPreset;
+
+  preset->quality.targetFramerate = static_cast<int>(
+      GraphicsTweaks::VRRenderingParamsSetup::GetConfiguredRefreshRate());
 
   // Set the foveated rendering level based on the current settings
   preset->quest.foveatedRenderingGameplay =
@@ -217,6 +224,34 @@ MAKE_HOOK_MATCH(MainSystemInit_Init, &GlobalNamespace::MainSystemInit::Init,
   GraphicsTweaks::PerformancePreset::ApplySettings();
 }
 
+namespace {
+// Low smoke uses the depthless shader variant; distortion still needs depth.
+bool RequiresCameraDepth(const BeatSaber::Settings::Settings& settings) {
+  return (settings.quality.smokeGraphics && getGraphicsTweaksConfig().SmokeQuality.GetValue() > 1)
+      || settings.quality.screenDisplacementEffects;
+}
+
+void ApplyCameraDepth(GlobalNamespace::DepthTextureController* controller, bool needsDepth) {
+  if (!controller) return;
+  auto camera = controller->GetComponent<UnityEngine::Camera*>();
+  if (!camera) return;
+  camera->set_depthTextureMode(needsDepth ? UnityEngine::DepthTextureMode::Depth : UnityEngine::DepthTextureMode::None);
+  auto cameraData = UnityEngine::Rendering::Universal::CameraExtensions::GetUniversalAdditionalCameraData(camera);
+  if (cameraData) cameraData->set_requiresDepthTexture(needsDepth);
+  if (needsDepth) UnityEngine::Shader::EnableKeyword("DEPTH_TEXTURE_ENABLED");
+  else UnityEngine::Shader::DisableKeyword("DEPTH_TEXTURE_ENABLED");
+}
+}
+
+MAKE_HOOK_MATCH(DepthTextureController_Init,
+                &GlobalNamespace::DepthTextureController::Init, void,
+                GlobalNamespace::DepthTextureController* self,
+                GlobalNamespace::SettingsManager* settingsManager) {
+  DepthTextureController_Init(self, settingsManager);
+  if (GraphicsTweaks::IsInRender()) return;
+  ApplyCameraDepth(self, RequiresCameraDepth(settingsManager->settings));
+}
+
 MAKE_HOOK_MATCH(SettingsApplicatorSO_ApplyGraphicSettings,
                 &GlobalNamespace::SettingsApplicatorSO::ApplyGraphicSettings,
                 void, GlobalNamespace::SettingsApplicatorSO *self,
@@ -233,6 +268,14 @@ MAKE_HOOK_MATCH(SettingsApplicatorSO_ApplyGraphicSettings,
   // The game writes its own URP scale above; restore the configured scene scale
   // before rendering can use it, including settings reapplied without a scene change.
   GraphicsTweaks::VRRenderingParamsSetup::ApplyResolutionScale(sceneType);
+
+  // DepthTextureController sets a per-camera override only during injection.
+  // Keep it in sync when settings change, otherwise URP keeps copying depth
+  // through intermediate targets even after smoke and distortion are disabled.
+  const bool needsDepth = RequiresCameraDepth(*settings);
+  for (auto controller : UnityEngine::Object::FindObjectsOfType<GlobalNamespace::DepthTextureController*>(true)) {
+    ApplyCameraDepth(controller, needsDepth);
+  }
 
 
   bool distortionsUsed =
@@ -298,14 +341,6 @@ MAKE_HOOK_MATCH(SaberBurnmarkArea_LateUpdate,
 };
 
 //////////////////////
-
-// Force depth to on if using high quality smoke.
-// MAKE_HOOK_MATCH(DepthTextureController_OnPreRender,
-// &GlobalNamespace::DepthTextureController::OnPreRender, void,
-// GlobalNamespace::DepthTextureController* self) {
-//     self("DEPTH_TEXTURE_ENABLED",
-//     getGraphicsTweaksConfig().SmokeQuality.GetValue() > 1);
-// }
 
 // MAKE_HOOK_MATCH(PyramidBloom_PreRender,
 // &GlobalNamespace::PyramidBloomMainEffectSO::PreRender, void,
@@ -448,7 +483,7 @@ GT_EXPORT_FUNC void load() {
   INFO("Installing hooks...");
   INSTALL_HOOK(Logger, MainSystemInit_Init);
   INSTALL_HOOK(Logger, ConditionalActivation_Awake);
-  // INSTALL_HOOK(Logger, DepthTextureController_OnPreRender);
+  INSTALL_HOOK(Logger, DepthTextureController_Init);
   // INSTALL_HOOK(Logger,
   // GraphicsSettingsHandler_TryGetCurrentPerformancePreset);
   INSTALL_HOOK(Logger, SettingsApplicatorSO_ApplyGraphicSettings);

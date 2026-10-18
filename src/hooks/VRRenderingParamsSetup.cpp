@@ -4,6 +4,7 @@
 #include "GlobalNamespace/OVRManager.hpp"
 #include "GlobalNamespace/OVRPlugin.hpp"
 #include "GlobalNamespace/VRRenderingParamsSetup.hpp"
+#include "GlobalNamespace/QuestSettingsApplicatorSO.hpp"
 #include "GlobalNamespace/MenuShockwave.hpp"
 #include "UnityEngine/Mathf.hpp"
 #include "UnityEngine/Resources.hpp"
@@ -20,6 +21,62 @@ using namespace GlobalNamespace;
 
 safe_ptr<GlobalNamespace::VRRenderingParamsSetup*> vrRenderingParamsSetup;
 
+namespace {
+    GlobalNamespace::SceneType currentSceneType = GlobalNamespace::SceneType::Menu;
+
+    void ApplyFoveation(GlobalNamespace::SceneType sceneType) {
+        if (GraphicsTweaks::IsInRender()) return;
+        if (sceneType != GlobalNamespace::SceneType::Undefined) currentSceneType = sceneType;
+        if (!OVRManager::get_fixedFoveatedRenderingSupported()) return;
+
+        auto level = currentSceneType == GlobalNamespace::SceneType::Game
+            ? getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.GetValue()
+            : getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.GetValue();
+
+        // These APIs route to the active XR backend. The legacy fixed-level
+        // setter bypasses the OpenXR feature; dynamic mode varies the selected level.
+        OVRManager::set_useDynamicFoveatedRendering(false);
+        OVRManager::set_foveatedRenderingLevel(level);
+    }
+}
+
+float GraphicsTweaks::VRRenderingParamsSetup::GetConfiguredRefreshRate(GlobalNamespace::SceneType sceneType) {
+    if (sceneType != GlobalNamespace::SceneType::Undefined) currentSceneType = sceneType;
+    // Check if our (default) refresh rate has been set.
+    auto maxRefreshRate = GraphicsTweaks::predefinedRefreshRates.empty()
+        ? UnityEngine::Mathf::Max(OVRPlugin::get_systemDisplayFrequenciesAvailable())
+        : GraphicsTweaks::predefinedRefreshRates.back();
+    auto defaultRefreshRate = GraphicsTweaks::model == "Quest 3" ? 120.0f : maxRefreshRate;
+
+    // Set defaults and clamp to max refresh rate.
+    if (getGraphicsTweaksConfig().MenuRefreshRate.GetValue() > maxRefreshRate) {
+        getGraphicsTweaksConfig().MenuRefreshRate.SetValue(maxRefreshRate);
+    } else if (getGraphicsTweaksConfig().MenuRefreshRate.GetValue() == -1) {
+        getGraphicsTweaksConfig().MenuRefreshRate.SetValue(defaultRefreshRate);
+    }
+    if (getGraphicsTweaksConfig().GameRefreshRate.GetValue() > maxRefreshRate) {
+        getGraphicsTweaksConfig().GameRefreshRate.SetValue(maxRefreshRate);
+    } else if (getGraphicsTweaksConfig().GameRefreshRate.GetValue() == -1) {
+        getGraphicsTweaksConfig().GameRefreshRate.SetValue(defaultRefreshRate);
+    }
+
+    return currentSceneType == GlobalNamespace::SceneType::Game ? getGraphicsTweaksConfig().GameRefreshRate.GetValue() : getGraphicsTweaksConfig().MenuRefreshRate.GetValue();
+}
+
+
+MAKE_HOOK_MATCH(
+    QuestSettingsApplicatorSO_ApplyGraphicSettings,
+    &GlobalNamespace::QuestSettingsApplicatorSO::ApplyGraphicSettings,
+    void,
+    GlobalNamespace::QuestSettingsApplicatorSO* self,
+    by_ref<const BeatSaber::Settings::Settings> settings,
+    GlobalNamespace::SceneType sceneType
+) {
+    QuestSettingsApplicatorSO_ApplyGraphicSettings(self, settings, sceneType);
+    // Quest applies foveation after the base graphics-settings method returns.
+    ApplyFoveation(sceneType);
+}
+
 MAKE_HOOK_MATCH(
     VRRenderingParamsSetup_OnEnable,
     &GlobalNamespace::VRRenderingParamsSetup::OnEnable,
@@ -29,6 +86,10 @@ MAKE_HOOK_MATCH(
     vrRenderingParamsSetup = self;
 
     GraphicsTweaks::VRRenderingParamsSetup::Reload();
+    // Reload records the new scene before constructing its FPS preset.
+    if (GraphicsTweaks::PerformancePreset::customPreset) {
+        GraphicsTweaks::PerformancePreset::ApplySettings();
+    }
 }
 
 ::GlobalNamespace::OVRPlugin_ProcessorPerformanceLevel getPerfLevel(int level) {
@@ -50,7 +111,6 @@ void GraphicsTweaks::VRRenderingParamsSetup::ApplyResolutionScale(GlobalNamespac
     if (GraphicsTweaks::IsInRender()) return;
 
     // Undefined is used when changing settings without changing scenes.
-    static GlobalNamespace::SceneType currentSceneType = GlobalNamespace::SceneType::Menu;
     if (sceneType != GlobalNamespace::SceneType::Undefined) currentSceneType = sceneType;
     float scale = currentSceneType == GlobalNamespace::SceneType::Game
         ? getGraphicsTweaksConfig().GameResolution.GetValue()
@@ -129,15 +189,7 @@ void GraphicsTweaks::VRRenderingParamsSetup::Reload(std::optional<float> vrResol
     BSML::MainThreadScheduler::ScheduleNextFrame([]() {
         GlobalNamespace::SceneType sceneType = vrRenderingParamsSetup->____sceneType;
 
-        // Fixed foveated rendering
-        if (OVRManager::get_fixedFoveatedRenderingSupported()) {
-            auto foveationLevel = sceneType != GlobalNamespace::SceneType::Game ? getGraphicsTweaksConfig().MenuFoveatedRenderingLevel.GetValue() : getGraphicsTweaksConfig().InGameFoveatedRenderingLevel.GetValue();
-            auto currentLevel = static_cast<int>(OVRManager::get_fixedFoveatedRenderingLevel());
-            if (currentLevel != foveationLevel) {
-                DEBUG("Setting fixed foveated rendering level to {}", foveationLevel);
-                OVRManager::set_fixedFoveatedRenderingLevel(foveationLevel);
-            }
-        }
+        ApplyFoveation(sceneType);
 
         OVRPlugin::SetClientColorDesc(getGraphicsTweaksConfig().ColorSpace.GetValue());
 
@@ -145,30 +197,9 @@ void GraphicsTweaks::VRRenderingParamsSetup::Reload(std::optional<float> vrResol
         OVRPlugin::set_suggestedCpuPerfLevel(getPerfLevel(getGraphicsTweaksConfig().CpuPerfLevel.GetValue()));
         OVRPlugin::set_suggestedGpuPerfLevel(getPerfLevel(getGraphicsTweaksConfig().GpuPerfLevel.GetValue()));
 
-        // Check if our (default) refresh rate has been set.
-        auto maxRefreshRate = predefinedRefreshRates.empty()
-            ? Mathf::Max(OVRPlugin::get_systemDisplayFrequenciesAvailable())
-            : predefinedRefreshRates.back();
-        auto defaultRefreshRate = model == "Quest 3" ? 120.0f : maxRefreshRate;
-
-        // Set defaults and clamp to max refresh rate.
-        if (getGraphicsTweaksConfig().MenuRefreshRate.GetValue() > maxRefreshRate) {
-            getGraphicsTweaksConfig().MenuRefreshRate.SetValue(maxRefreshRate);
-        } else if (getGraphicsTweaksConfig().MenuRefreshRate.GetValue() == -1) {
-            getGraphicsTweaksConfig().MenuRefreshRate.SetValue(defaultRefreshRate);
-        }
-        if (getGraphicsTweaksConfig().GameRefreshRate.GetValue() > maxRefreshRate) {
-            getGraphicsTweaksConfig().GameRefreshRate.SetValue(maxRefreshRate);
-        } else if (getGraphicsTweaksConfig().GameRefreshRate.GetValue() == -1) {
-            getGraphicsTweaksConfig().GameRefreshRate.SetValue(defaultRefreshRate);
-        }
-
-        float refreshRate = sceneType == GlobalNamespace::SceneType::Game ? getGraphicsTweaksConfig().GameRefreshRate.GetValue() : getGraphicsTweaksConfig().MenuRefreshRate.GetValue();
-        auto currentRefreshRate = OVRPlugin::get_systemDisplayFrequency();
-        if (currentRefreshRate != refreshRate) {
-            DEBUG("Setting refresh rate to {}", refreshRate);
-            OVRPlugin::set_systemDisplayFrequency(refreshRate);
-        }
+        // The game validates against its advertised list; keep this request for
+        // the additional refresh rates offered by GraphicsTweaks.
+        OVRPlugin::set_systemDisplayFrequency(GetConfiguredRefreshRate(sceneType));
 
         // Handle shockwaves.
         auto shockwaveValue = sceneType == GlobalNamespace::SceneType::Game ? getGraphicsTweaksConfig().GameShockwaves.GetValue() : getGraphicsTweaksConfig().MenuShockwaves.GetValue();
@@ -204,4 +235,5 @@ void GraphicsTweaks::VRRenderingParamsSetup::Reload(std::optional<float> vrResol
 
 void GraphicsTweaks::Hooks::VRRenderingParamsSetup() {
     INSTALL_HOOK(Logger, VRRenderingParamsSetup_OnEnable);
+    INSTALL_HOOK(Logger, QuestSettingsApplicatorSO_ApplyGraphicSettings);
 }

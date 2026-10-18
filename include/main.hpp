@@ -20,6 +20,7 @@ namespace GraphicsTweaks {
     }
 
     namespace VRRenderingParamsSetup {
+        float GetConfiguredRefreshRate(GlobalNamespace::SceneType sceneType = GlobalNamespace::SceneType::Undefined);
         void ApplyResolutionScale(GlobalNamespace::SceneType sceneType);
         void Reload(std::optional<float> vrResolutionScale = std::nullopt);
     }

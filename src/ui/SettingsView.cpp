@@ -383,6 +383,7 @@ void GraphicsTweaks::UI::SettingsView::set_targetFPSValueMenu(StringW value) {
         DEBUG("Setting refresh rate to {}", value);
         auto item = this->systemDisplayFrequenciesAvailableValues->get_Item(index);
         getGraphicsTweaksConfig().MenuRefreshRate.SetValue(item, instantlySave);
+        GraphicsTweaks::PerformancePreset::ApplySettings();
         GraphicsTweaks::VRRenderingParamsSetup::Reload();
     }
 }
@@ -404,6 +405,7 @@ void GraphicsTweaks::UI::SettingsView::set_targetFPSValueGame(StringW value) {
     if (index >= 0) {
         auto item = this->systemDisplayFrequenciesAvailableValues->get_Item(index);
         getGraphicsTweaksConfig().GameRefreshRate.SetValue(item, instantlySave);
+        GraphicsTweaks::PerformancePreset::ApplySettings();
         GraphicsTweaks::VRRenderingParamsSetup::Reload();
     }
 }
@@ -436,6 +438,7 @@ void GraphicsTweaks::UI::SettingsView::set_gameScreenDistortionValue(bool value)
     getGraphicsTweaksConfig().GameShockwaves.SetValue(value, instantlySave);
 
     // Apply to disable anti-aliasing
+    GraphicsTweaks::PerformancePreset::ApplySettings();
     GraphicsTweaks::VRRenderingParamsSetup::Reload();
 }
 
