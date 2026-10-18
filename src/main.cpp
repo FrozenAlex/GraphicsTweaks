@@ -52,6 +52,7 @@
 #include "BeatSaber/Settings/QualitySettings.hpp"
 #include "GraphicsTweaksConfig.hpp"
 #include "FPSCounter.hpp"
+#include "RestoredBloom/ShaderReplacement.hpp"
 
 #include "UnityEngine/Graphics.hpp"
 #include "PlatformDetector.hpp"
@@ -289,6 +290,7 @@ MAKE_HOOK_MATCH(SettingsApplicatorSO_ApplyGraphicSettings,
 
   UnityEngine::QualitySettings::set_antiAliasing(
       distortionsUsed ? 0 : getGraphicsTweaksConfig().AntiAliasing.GetValue() * 2);
+  GraphicsTweaks::ShaderReplacement::Apply();
 }
 
 // Enable or disable shockwaves
@@ -444,6 +446,7 @@ MAKE_HOOK_MATCH(MainFlowCoordinator_DidActivate,
   MainFlowCoordinator_DidActivate(self, firstActivation, addedToHierarchy,
                                   screenSystemEnabling);
   DEBUG("MainFlowCoordinator_DidActivate");
+  GraphicsTweaks::ShaderReplacement::Apply();
 
   // Do not load the FPS counter if it's not needed
   if (getGraphicsTweaksConfig().FpsCounterAdvanced.GetValue() &&
@@ -498,6 +501,7 @@ GT_EXPORT_FUNC void load() {
   INSTALL_HOOK(Logger, SaberBurnmarkArea_LateUpdate);
 
   GraphicsTweaks::Hooks::VRRenderingParamsSetup();
+  GraphicsTweaks::ShaderReplacement::InstallHooks();
 
   INFO("Installed all hooks!");
   BSML::Register::RegisterMainMenu<

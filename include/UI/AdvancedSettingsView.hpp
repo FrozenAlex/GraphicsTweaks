@@ -19,6 +19,7 @@ DECLARE_CLASS_CODEGEN(GraphicsTweaks::UI, AdvancedSettingsView, HMUI::ViewContro
 #endif
 
     DECLARE_SIMPLE_DTOR();
+    DECLARE_BSML_PROPERTY(bool, simpleLitBloom);
     DECLARE_OVERRIDE_METHOD_MATCH(void, DidActivate, &HMUI::ViewController::DidActivate, bool firstActivation, bool addedToHeirarchy, bool screenSystemDisabling);
 
 };

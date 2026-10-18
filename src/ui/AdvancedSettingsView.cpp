@@ -1,8 +1,19 @@
 #include "UI/AdvancedSettingsView.hpp"
 #include "assets.hpp"
 #include "logging.hpp"
+#include "GraphicsTweaksConfig.hpp"
+#include "RestoredBloom/ShaderReplacement.hpp"
 
 DEFINE_TYPE(GraphicsTweaks::UI, AdvancedSettingsView);
+
+bool GraphicsTweaks::UI::AdvancedSettingsView::get_simpleLitBloom() {
+    return getGraphicsTweaksConfig().ExperimentalBloomShaders.GetValue();
+}
+
+void GraphicsTweaks::UI::AdvancedSettingsView::set_simpleLitBloom(bool value) {
+    getGraphicsTweaksConfig().ExperimentalBloomShaders.SetValue(value);
+    GraphicsTweaks::ShaderReplacement::Apply();
+}
 
 void GraphicsTweaks::UI::AdvancedSettingsView::DidActivate(bool firstActivation, bool addedToHeirarchy, bool screenSystemDisabling)
 {

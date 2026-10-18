@@ -21,8 +21,50 @@ namespace Assets {
         inline constexpr uint8_t SettingsView_bsml[] = {
             #embed "../assets/SettingsView.bsml" suffix(, 0) if_empty(0)
         };
+        inline constexpr uint8_t box_fake_glow_bloom_bund[] = {
+            #embed "../assets/box_fake_glow_bloom.bund" suffix(, 0) if_empty(0)
+        };
         inline constexpr uint8_t fpscounter_bund[] = {
             #embed "../assets/fpscounter.bund" suffix(, 0) if_empty(0)
+        };
+        inline constexpr uint8_t glowing_bloom_bund[] = {
+            #embed "../assets/glowing_bloom.bund" suffix(, 0) if_empty(0)
+        };
+        inline constexpr uint8_t glowing_instanced_hd_bloom_bund[] = {
+            #embed "../assets/glowing_instanced_hd_bloom.bund" suffix(, 0) if_empty(0)
+        };
+        inline constexpr uint8_t glowing_instanced_lw_bloom_bund[] = {
+            #embed "../assets/glowing_instanced_lw_bloom.bund" suffix(, 0) if_empty(0)
+        };
+        inline constexpr uint8_t note_hd_bloom_bund[] = {
+            #embed "../assets/note_hd_bloom.bund" suffix(, 0) if_empty(0)
+        };
+        inline constexpr uint8_t opaque_neon_bloom_bund[] = {
+            #embed "../assets/opaque_neon_bloom.bund" suffix(, 0) if_empty(0)
+        };
+        inline constexpr uint8_t parametric_sprite_bloom_bund[] = {
+            #embed "../assets/parametric_sprite_bloom.bund" suffix(, 0) if_empty(0)
+        };
+        inline constexpr uint8_t particles_bloom_bund[] = {
+            #embed "../assets/particles_bloom.bund" suffix(, 0) if_empty(0)
+        };
+        inline constexpr uint8_t pointer_bloom_bund[] = {
+            #embed "../assets/pointer_bloom.bund" suffix(, 0) if_empty(0)
+        };
+        inline constexpr uint8_t saberblade_bloom_bund[] = {
+            #embed "../assets/saberblade_bloom.bund" suffix(, 0) if_empty(0)
+        };
+        inline constexpr uint8_t simplelit_bloom_bund[] = {
+            #embed "../assets/simplelit_bloom.bund" suffix(, 0) if_empty(0)
+        };
+        inline constexpr uint8_t transparent_neon_bloom_bund[] = {
+            #embed "../assets/transparent_neon_bloom.bund" suffix(, 0) if_empty(0)
+        };
+        inline constexpr uint8_t wall_frame_hd_bloom_bund[] = {
+            #embed "../assets/wall_frame_hd_bloom.bund" suffix(, 0) if_empty(0)
+        };
+        inline constexpr uint8_t wall_frame_lw_bloom_bund[] = {
+            #embed "../assets/wall_frame_lw_bloom.bund" suffix(, 0) if_empty(0)
         };
     }
 
@@ -31,5 +73,19 @@ namespace Assets {
     inline const std::string_view AdvancedSettingsView_bsml{reinterpret_cast<const char*>(raw::AdvancedSettingsView_bsml), sizeof(raw::AdvancedSettingsView_bsml) - 1};
     inline const std::string_view PresetsView_bsml{reinterpret_cast<const char*>(raw::PresetsView_bsml), sizeof(raw::PresetsView_bsml) - 1};
     inline const std::string_view SettingsView_bsml{reinterpret_cast<const char*>(raw::SettingsView_bsml), sizeof(raw::SettingsView_bsml) - 1};
+    inline constexpr std::span<const uint8_t> box_fake_glow_bloom_bund{raw::box_fake_glow_bloom_bund, sizeof(raw::box_fake_glow_bloom_bund) - 1};
     inline constexpr std::span<const uint8_t> fpscounter_bund{raw::fpscounter_bund, sizeof(raw::fpscounter_bund) - 1};
+    inline constexpr std::span<const uint8_t> glowing_bloom_bund{raw::glowing_bloom_bund, sizeof(raw::glowing_bloom_bund) - 1};
+    inline constexpr std::span<const uint8_t> glowing_instanced_hd_bloom_bund{raw::glowing_instanced_hd_bloom_bund, sizeof(raw::glowing_instanced_hd_bloom_bund) - 1};
+    inline constexpr std::span<const uint8_t> glowing_instanced_lw_bloom_bund{raw::glowing_instanced_lw_bloom_bund, sizeof(raw::glowing_instanced_lw_bloom_bund) - 1};
+    inline constexpr std::span<const uint8_t> note_hd_bloom_bund{raw::note_hd_bloom_bund, sizeof(raw::note_hd_bloom_bund) - 1};
+    inline constexpr std::span<const uint8_t> opaque_neon_bloom_bund{raw::opaque_neon_bloom_bund, sizeof(raw::opaque_neon_bloom_bund) - 1};
+    inline constexpr std::span<const uint8_t> parametric_sprite_bloom_bund{raw::parametric_sprite_bloom_bund, sizeof(raw::parametric_sprite_bloom_bund) - 1};
+    inline constexpr std::span<const uint8_t> particles_bloom_bund{raw::particles_bloom_bund, sizeof(raw::particles_bloom_bund) - 1};
+    inline constexpr std::span<const uint8_t> pointer_bloom_bund{raw::pointer_bloom_bund, sizeof(raw::pointer_bloom_bund) - 1};
+    inline constexpr std::span<const uint8_t> saberblade_bloom_bund{raw::saberblade_bloom_bund, sizeof(raw::saberblade_bloom_bund) - 1};
+    inline constexpr std::span<const uint8_t> simplelit_bloom_bund{raw::simplelit_bloom_bund, sizeof(raw::simplelit_bloom_bund) - 1};
+    inline constexpr std::span<const uint8_t> transparent_neon_bloom_bund{raw::transparent_neon_bloom_bund, sizeof(raw::transparent_neon_bloom_bund) - 1};
+    inline constexpr std::span<const uint8_t> wall_frame_hd_bloom_bund{raw::wall_frame_hd_bloom_bund, sizeof(raw::wall_frame_hd_bloom_bund) - 1};
+    inline constexpr std::span<const uint8_t> wall_frame_lw_bloom_bund{raw::wall_frame_lw_bloom_bund, sizeof(raw::wall_frame_lw_bloom_bund) - 1};
 }

@@ -76,6 +76,11 @@ add_library(
 
 target_include_directories(${COMPILE_ID} PRIVATE .)
 
+option(GRAPHICSTWEAKS_SHADER_GPU_CHECK "Run one-time offscreen glow variant checks" OFF)
+if(GRAPHICSTWEAKS_SHADER_GPU_CHECK)
+    target_compile_definitions(${COMPILE_ID} PRIVATE GRAPHICSTWEAKS_SHADER_GPU_CHECK)
+endif()
+
 # add src dir as include dir
 target_include_directories(${COMPILE_ID} PRIVATE ${SOURCE_DIR})
 # add include dir as include dir

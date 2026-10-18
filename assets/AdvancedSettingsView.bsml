@@ -1,4 +1,5 @@
 <vertical preferred-width="130" anchor-min-y="1" child-control-height="false" xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='https://raw.githubusercontent.com/RedBrumbler/Quest-BSML-Docs/gh-pages/schema.xsd'>
+    <bool-setting text="Restored bloom shaders" value="simpleLitBloom" bind-value="true" apply-on-change="true" hover-hint="Experimental PC bloom behavior for blades, handles, menu pointers, platform edges, wall frames, and selected environment materials. Requires Bloom to be on." />
 	<!-- <horizontal bg='panel-top-gradient' id='filterbarContainer' child-align='MiddleRight' child-control-width='false'>
 		<horizontal ignore-layout='true' pad-top='1'>
 			<text text='Advanced Settings' align='Center' font-size='7' italics='true'/>
