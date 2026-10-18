@@ -1,0 +1,15 @@
+/Library/
+/Temp/
+/Obj/
+/Logs/
+/UserSettings/
+/.vs/
+/*.csproj
+/*.sln
+/Build/
+
+# Required Unity project metadata and font licenses.
+!/ProjectSettings/ProjectVersion.txt
+!/Assets/Graphy/Font/Northwest-Bold/ERIC-TIRADO-NORTHWEST-LICENSE.txt
+!/Assets/Graphy/Font/Roboto/LICENSE.txt
+!/Assets/OriginalArt/Licenses/*.txt
