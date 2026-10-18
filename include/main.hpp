@@ -9,6 +9,7 @@
 #include "GlobalNamespace/MainSystemInit.hpp"
 #include "GlobalNamespace/SettingsManager.hpp"
 #include "GlobalNamespace/SettingsApplicatorSO.hpp"
+#include "GlobalNamespace/SceneType.hpp"
 
 
 namespace GraphicsTweaks {
@@ -19,6 +20,7 @@ namespace GraphicsTweaks {
     }
 
     namespace VRRenderingParamsSetup {
+        void ApplyResolutionScale(GlobalNamespace::SceneType sceneType);
         void Reload(std::optional<float> vrResolutionScale = std::nullopt);
     }
 

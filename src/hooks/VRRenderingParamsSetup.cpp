@@ -8,7 +8,8 @@
 #include "UnityEngine/Mathf.hpp"
 #include "UnityEngine/Resources.hpp"
 #include "GlobalNamespace/ShockwaveEffect.hpp"
-#include "UnityEngine/XR/XRSettings.hpp"
+#include "UnityEngine/Rendering/GraphicsSettings.hpp"
+#include "UnityEngine/Rendering/Universal/UniversalRenderPipelineAsset.hpp"
 #include "logging.hpp"
 #include "bsml/shared/BSML/MainThreadScheduler.hpp"
 #include "UnityEngine/QualitySettings.hpp"
@@ -45,10 +46,26 @@ MAKE_HOOK_MATCH(
     }
 }
 
+void GraphicsTweaks::VRRenderingParamsSetup::ApplyResolutionScale(GlobalNamespace::SceneType sceneType) {
+    if (GraphicsTweaks::IsInRender()) return;
+
+    // Undefined is used when changing settings without changing scenes.
+    static GlobalNamespace::SceneType currentSceneType = GlobalNamespace::SceneType::Menu;
+    if (sceneType != GlobalNamespace::SceneType::Undefined) currentSceneType = sceneType;
+    float scale = currentSceneType == GlobalNamespace::SceneType::Game
+        ? getGraphicsTweaksConfig().GameResolution.GetValue()
+        : getGraphicsTweaksConfig().MenuResolution.GetValue();
+    if (scale == 0) scale = 1;
+
+    // URP reapplies this field to XR render targets when it prepares each camera.
+    auto pipeline = UnityEngine::Rendering::GraphicsSettings::get_currentRenderPipeline()
+        .try_cast<UnityEngine::Rendering::Universal::UniversalRenderPipelineAsset>();
+    if (pipeline) pipeline->m_RenderScale = scale;
+}
+
 void GraphicsTweaks::VRRenderingParamsSetup::Reload(std::optional<float> vrResolutionScale) {
     using namespace GlobalNamespace;
     using namespace UnityEngine;
-    using namespace UnityEngine::XR;
 
     if (GraphicsTweaks::IsInRender()) {
         INFO("Skipping VRRenderingParamsSetup::Reload because we are in render state.");
@@ -65,9 +82,7 @@ void GraphicsTweaks::VRRenderingParamsSetup::Reload(std::optional<float> vrResol
 
     GlobalNamespace::SceneType sceneType = vrRenderingParamsSetup->____sceneType;
 
-    // Set resolution scale based on scene type.
-    auto resolutionMultiplier = sceneType == GlobalNamespace::SceneType::Game ? getGraphicsTweaksConfig().GameResolution.GetValue() : getGraphicsTweaksConfig().MenuResolution.GetValue();
-    auto currentEyeTextureResolutionScale = XRSettings::get_eyeTextureResolutionScale();
+    ApplyResolutionScale(sceneType);
 
     // Enable dynamic resolution.
     // Seems to introduce screen distortion, so it's disabled for now.
@@ -99,11 +114,6 @@ void GraphicsTweaks::VRRenderingParamsSetup::Reload(std::optional<float> vrResol
     // }
    
 
-    if (currentEyeTextureResolutionScale != resolutionMultiplier) {
-        DEBUG("Setting resolution scale to {}", resolutionMultiplier);
-        XRSettings::set_eyeTextureResolutionScale(resolutionMultiplier);
-    }
-
     bool distortionsUsed = getGraphicsTweaksConfig().WallQuality.GetValue() == 2 || getGraphicsTweaksConfig().MenuShockwaves.GetValue() || getGraphicsTweaksConfig().GameShockwaves.GetValue();
     // Quest 1 has bugged distortions, so we disable them.
     if (isQuest1) {
@@ -115,7 +125,7 @@ void GraphicsTweaks::VRRenderingParamsSetup::Reload(std::optional<float> vrResol
         UnityEngine::QualitySettings::set_antiAliasing(aaValue);
     }
 
-    // Next frame is needed because the game sets the resolution scale after this function is called too.
+    // Apply device performance settings after scene initialization.
     BSML::MainThreadScheduler::ScheduleNextFrame([]() {
         GlobalNamespace::SceneType sceneType = vrRenderingParamsSetup->____sceneType;
 

@@ -230,6 +230,10 @@ MAKE_HOOK_MATCH(SettingsApplicatorSO_ApplyGraphicSettings,
     return;
   }
 
+  // The game writes its own URP scale above; restore the configured scene scale
+  // before rendering can use it, including settings reapplied without a scene change.
+  GraphicsTweaks::VRRenderingParamsSetup::ApplyResolutionScale(sceneType);
+
 
   bool distortionsUsed =
       getGraphicsTweaksConfig().WallQuality.GetValue() == 2 ||
