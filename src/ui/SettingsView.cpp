@@ -258,7 +258,9 @@ void GraphicsTweaks::UI::SettingsView::set_antiAliasingValue(StringW value) {
         intValue = 2;
     }
     getGraphicsTweaksConfig().AntiAliasing.SetValue(intValue, instantlySave);
-    // Apply to set anti-aliasing
+    // The game applies MSAA to the URP asset; Reload's legacy quality setting
+    // alone is overwritten by URP when it configures the XR display each frame.
+    GraphicsTweaks::PerformancePreset::ApplySettings();
     GraphicsTweaks::VRRenderingParamsSetup::Reload();
 }
 
